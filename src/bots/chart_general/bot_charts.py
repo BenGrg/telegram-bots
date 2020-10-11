@@ -182,9 +182,15 @@ def add_favorite_token(update: Update, context: CallbackContext):
 
 def refresh_chart(update: Update, context: CallbackContext):
     print("refreshing chart")
-    pprint.pprint(update.message)
-    pprint.pprint(update.callback_query.message.text)
-    pprint.pprint(update.callback_query.data)
+    query = update.callback_query.data
+    k_h = int(re.search(r'\d+', query.split('h:')[1]).group())
+    k_d = int(re.search(r'\d+', query.split('d:')[1]).group())
+    token = query.split('token:')[1][len('token'):]
+    pprint.pprint(k_h)
+    pprint.pprint(k_d)
+    pprint.pprint(token)
+
+    # print(headline.translate(trans).split()[0])
     # chat_id = update.message.chat_id
     #
     # query_received = update.message.text.split(' ')
