@@ -35,7 +35,7 @@ graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/bloc
 contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
 name = "DRC"
 pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
-ticker = "DRC.3EE606"
+ticker = 'DRC.3EE606'
 
 
 def get_candlestick(update: Update, context: CallbackContext):

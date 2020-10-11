@@ -156,6 +156,8 @@ def get_volume_24h(graphclient_uni, pair_contract):
 
     json_resp_eth = json.loads(res)
 
+    pprint.pprint(json_resp_eth)
+
     # pprint.pprint(res)
 
     all_values = json_resp_eth['data']['pairHourDatas']
