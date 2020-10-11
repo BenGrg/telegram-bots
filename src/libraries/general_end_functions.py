@@ -4,7 +4,7 @@ import libraries.graphs_util as graphs_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.requests_util as requests_util
 import libraries.util as util
-from telegram import Update
+from telegram import Update, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 last_time_checked_4chan = 0
@@ -40,7 +40,7 @@ def get_biz_no_meme(update: Update, context: CallbackContext, re_4chan):
         context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 
-def get_price(update: Update, context: CallbackContext, contract, pair_contract, graphclient_eth, graphclient_uni, name, decimals):
+def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, decimals):
     (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
      token_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
 
@@ -71,8 +71,7 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
               + "\nS.  Cap = " + supply_cat_pretty \
               + "\nM.  Cap = $" + market_cap \
               + "\nHolders = " + str(holders) + "</code>"
-    chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
+    return message
 
 
 def get_help(update: Update, context: CallbackContext):

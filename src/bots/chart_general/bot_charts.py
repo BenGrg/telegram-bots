@@ -22,6 +22,10 @@ import libraries.util as util
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
+contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
+name = "ROT"
+pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
+decimals = 1000000000000000000  # that's 18
 
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
@@ -33,7 +37,6 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-decimals = 1000000000000000000  # that's 18
 
 
 def read_favorites(path):
@@ -140,25 +143,23 @@ def see_fav_token(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
-    name = "ROT"
-    pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
-    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni,
-                                    name, decimals)
+    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    chat_id = update.message.chat_id
 
-
-def city(update, context):
-    list_of_cities = ['Erode', 'Coimbatore', 'London', 'Thunder Bay', 'California']
-    button_list = []
-    for each in list_of_cities:
-        button_list.append(InlineKeyboardButton(each, callback_data=each))
+    button_list = [InlineKeyboardMarkup("refresh", callback_data=refresh_price)]
     reply_markup = InlineKeyboardMarkup(
         util.build_menu(button_list, n_cols=1))  # n_cols = 1 is for single column and mutliple rows
-    context.bot.send_message(chat_id=update.message.chat_id, text='Choose from the following',
-                             reply_markup=reply_markup)
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup)
 
-def erode(update, context):
-    update.callback_query.edit_message_text("pdpdpd")
+
+def refresh_price(update: Update, context: CallbackContext):
+    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
+                                              name, decimals)
+    button_list = [InlineKeyboardMarkup("refresh", callback_data=refresh_price)]
+    reply_markup = InlineKeyboardMarkup(
+        util.build_menu(button_list, n_cols=1))
+    update.callback_query.edit_message_text(message)
+
 
 def add_favorite_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
@@ -191,8 +192,7 @@ def main():
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
-    dp.add_handler(CommandHandler('city', city))
-    dp.add_handler(CallbackQueryHandler(erode))
+    dp.add_handler(CallbackQueryHandler(refresh_price))
     updater.start_polling()
     updater.idle()
 
