@@ -84,11 +84,21 @@ def get_candlestick_pyplot(update: Update, context: CallbackContext, default_tok
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
-    for token in tokens:
-        print("requesting coin " + token + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
-        path = charts_path + token + '.png'
-        last_price = graphs_util.print_candlestick(token, t_from, t_to, path)
-        message = "<code>" + token + " $" + str(last_price)[0:10] + "\nYour ad here -> @ rotted_ben" + "</code>"
+    if isinstance(tokens, list):
+        for token in tokens:
+            print("requesting coin " + token + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
+            path = charts_path + token + '.png'
+            last_price = graphs_util.print_candlestick(token, t_from, t_to, path)
+            message = "<code>" + token + " $" + str(last_price)[0:10] + "\nYour ad here -> @ rotted_ben" + "</code>"
+            context.bot.send_photo(chat_id=chat_id,
+                                   photo=open(path, 'rb'),
+                                   caption=message,
+                                   parse_mode="html")
+    else:
+        print("requesting coin " + tokens + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
+        path = charts_path + tokens + '.png'
+        last_price = graphs_util.print_candlestick(tokens, t_from, t_to, path)
+        message = "<code>" + tokens + " $" + str(last_price)[0:10] + "\nYour ad here -> @ rotted_ben" + "</code>"
         context.bot.send_photo(chat_id=chat_id,
                                photo=open(path, 'rb'),
                                caption=message,
