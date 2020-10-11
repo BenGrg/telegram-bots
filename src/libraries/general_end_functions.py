@@ -57,6 +57,8 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
 
     vol_24_pretty = util.number_to_beautiful(vol_24h)
 
+    msg_vol_24 = "\nVol 24H = $" + vol_24_pretty if vol_24_pretty != 0 else ""
+
     holders = requests_util.get_number_holder_token(contract)
 
     message = ""
@@ -72,7 +74,7 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
               + "\n24H:  " + var_1d_str \
               + "\n7D :  " + var_7d_str \
               + "\n" \
-              + "\nVol 24H = $" + vol_24_pretty \
+              + msg_vol_24 \
               + "\nS.  Cap = " + supply_cat_pretty \
               + "\nM.  Cap = $" + market_cap \
               + "\nHolders = " + str(holders) + "</code>"
