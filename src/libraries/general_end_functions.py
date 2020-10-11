@@ -4,7 +4,7 @@ import libraries.graphs_util as graphs_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.requests_util as requests_util
 import libraries.util as util
-from telegram import Update, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 last_time_checked_4chan = 0
@@ -12,13 +12,17 @@ last_time_checked_4chan = 0
 
 def send_candlestick_pyplot(context: CallbackContext, token, charts_path, k_days, k_hours, t_from, t_to, chat_id):
     print("requesting coin " + token + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
+
     path = charts_path + token + '.png'
     last_price = graphs_util.print_candlestick(token, t_from, t_to, path)
+
+    callback_message = 'refresh_chart_' + "h:" + k_hours + "d:" + k_days + "t:" + token
+    button_list_chart = [[InlineKeyboardButton('refresh', callback_data=callback_message)]]
+    reply_markup_chart = InlineKeyboardMarkup(util.build_menu(button_list_chart, 1))
+
     message = "<code>" + token + " $" + str(last_price)[0:10] + "\nYour ad here -> @ rotted_ben" + "</code>"
-    context.bot.send_photo(chat_id=chat_id,
-                           photo=open(path, 'rb'),
-                           caption=message,
-                           parse_mode="html")
+
+    return message, path, reply_markup_chart
 
 
 # sends the current biz threads

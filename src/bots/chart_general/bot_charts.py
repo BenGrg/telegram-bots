@@ -37,7 +37,8 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-
+button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
+reply_markup_price = InlineKeyboardMarkup(util.build_menu(button_list_price, 1))
 
 def read_favorites(path):
     with open(path) as f:
@@ -78,6 +79,26 @@ def check_query_fav(query_received):
     return time_type, k_hours, k_days
 
 
+def refresh_chart(update: Update, context: CallbackContext):
+    pprint.pprint(update.callback_query.message)
+    # chat_id = update.message.chat_id
+    #
+    # query_received = update.message.text.split(' ')
+    #
+    # time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
+    # t_to = int(time.time())
+    # t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+    #
+    # if isinstance(tokens, list):
+    #     for token in tokens:
+    #         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+    #         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
+    # else:
+    #     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+    #     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+
+
+# button refresh: h:int-d:int-token
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
@@ -89,11 +110,11 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to,
-                                                          chat_id)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
     else:
-        general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to,
-                                                      chat_id)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def see_fav_charts(update: Update, context: CallbackContext):
@@ -145,18 +166,13 @@ def see_fav_token(update: Update, context: CallbackContext):
 def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
-
-    button_list = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
-    reply_markup = InlineKeyboardMarkup(button_list, resize_keyboard=False)  # , selective=True)
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup)
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
 
 
 def refresh_price(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
-    button_list = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
-    reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, 1))
-    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup)
+    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price)
 
 
 def add_favorite_token(update: Update, context: CallbackContext):
@@ -191,6 +207,7 @@ def main():
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CallbackQueryHandler(refresh_price, 'refresh_price'))
+    dp.add_handler(CallbackQueryHandler(refresh_chart, 'refresh_chart(.*)'))
     updater.start_polling()
     updater.idle()
 
