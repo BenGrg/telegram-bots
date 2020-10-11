@@ -38,7 +38,7 @@ graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/unis
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
-reply_markup_price = InlineKeyboardMarkup(util.build_menu(button_list_price, 1))
+reply_markup_price = InlineKeyboardMarkup(button_list_price)
 
 def read_favorites(path):
     with open(path) as f:
