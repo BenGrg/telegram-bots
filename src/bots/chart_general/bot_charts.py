@@ -146,10 +146,13 @@ def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
 
-    button_list = [InlineKeyboardMarkup("refresh", callback_data="refresh_price")]
-    reply_markup = InlineKeyboardMarkup(
-        util.build_menu(button_list, n_cols=1))  # n_cols = 1 is for single column and mutliple rows
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup)
+    # button_list = [InlineKeyboardMarkup("refresh", callback_data="refresh_price")]
+    # reply_markup = InlineKeyboardMarkup(
+    #     util.build_menu(button_list, n_cols=1))  # n_cols = 1 is for single column and mutliple rows
+    motd_keyboard = [[InlineKeyboardButton('I agree',
+                                           callback_data='motd_callback_button')]]
+    motd_markup = InlineKeyboardMarkup(motd_keyboard)
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=motd_markup)
 
 
 def refresh_price(update: Update, context: CallbackContext):
@@ -192,7 +195,7 @@ def main():
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
-    dp.add_handler(CallbackQueryHandler(refresh_price, 'refresh_price'))
+    dp.add_handler(CallbackQueryHandler(refresh_price, 'motd_callback_button'))
     updater.start_polling()
     updater.idle()
 
