@@ -20,7 +20,6 @@ import libraries.commands_util as commands_util
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
 
-
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
@@ -39,9 +38,6 @@ def create_file_if_not_existing(path):
     if not os.path.isfile(path):
         f = open(path, "x")
         f.close()
-
-
-
 
 
 def strp_date(raw_date):
@@ -149,6 +145,7 @@ def see_fav_token(update: Update, context: CallbackContext):
     favorite_path = charts_path + username + '.txt'
     create_file_if_not_existing(favorite_path)
     msgs = read_favorites(favorite_path)
+    if msgs == "": msgs = "No favorites for the moment"
     context.bot.send_message(chat_id=chat_id, text=', '.join(msgs))
 
 
