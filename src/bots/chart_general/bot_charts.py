@@ -192,7 +192,7 @@ def main():
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
-    dp.add_handler(CallbackQueryHandler(refresh_price))
+    dp.add_handler(CallbackQueryHandler(refresh_price, 'refresh_price'))
     updater.start_polling()
     updater.idle()
 
