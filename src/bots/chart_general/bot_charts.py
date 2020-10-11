@@ -11,7 +11,7 @@ import re
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
-import libraries.graphs_util
+import libraries.graphs_util as graphs_util
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')

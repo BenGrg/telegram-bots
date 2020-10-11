@@ -2,8 +2,8 @@ import datetime
 import time
 
 import pandas as pd
-import libraries.requests_util
-import libraries.util
+import libraries.requests_util as requests_util
+import libraries.util as util
 import numpy as np
 import plotly.io as pio
 import pprint
