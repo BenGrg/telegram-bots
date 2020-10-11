@@ -146,13 +146,9 @@ def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
 
-    # button_list = [InlineKeyboardMarkup("refresh", callback_data="refresh_price")]
-    # reply_markup = InlineKeyboardMarkup(
-    #     util.build_menu(button_list, n_cols=1))  # n_cols = 1 is for single column and mutliple rows
-    motd_keyboard = [[InlineKeyboardButton('I agree',
-                                           callback_data='motd_callback_button')]]
-    motd_markup = InlineKeyboardMarkup(motd_keyboard)
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=motd_markup)
+    button_list = [[InlineKeyboardMarkup("refresh", callback_data="refresh_price")]]
+    reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=1))
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup)
 
 
 def refresh_price(update: Update, context: CallbackContext):
@@ -161,7 +157,7 @@ def refresh_price(update: Update, context: CallbackContext):
     button_list = [InlineKeyboardMarkup("refresh", callback_data="refresh")]
     reply_markup = InlineKeyboardMarkup(
         util.build_menu(button_list, n_cols=1))
-    update.callback_query.edit_message_text(message)
+    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup)
 
 
 def add_favorite_token(update: Update, context: CallbackContext):
