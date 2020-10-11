@@ -13,7 +13,7 @@ import os.path
 import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
@@ -158,7 +158,7 @@ def city(update, context):
                              reply_markup=reply_markup)
 
 def erode(update, context):
-    pprint.pprint("coucou")
+    update.callback_query.edit_message_text("pdpdpd")
 
 def add_favorite_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
@@ -192,7 +192,7 @@ def main():
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('city', city))
-    dp.add_handler(CommandHandler('Erods', erode))
+    dp.add_handler(CallbackQueryHandler(erode))
     updater.start_polling()
     updater.idle()
 
