@@ -12,15 +12,16 @@ import pprint
 import os.path
 import re
 
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 
-# ENV FILES
-TELEGRAM_KEY = os.environ.get('DRC_TELEGRAM_KEY')
+button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
+reply_markup_price = InlineKeyboardMarkup(button_list_price)
+
 
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
@@ -30,6 +31,7 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
+TELEGRAM_KEY = os.environ.get('DRC_TELEGRAM_KEY')
 contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
 name = "DRC"
 pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
@@ -37,6 +39,7 @@ ticker = 'DRC.3EE606'
 decimals = 1
 
 
+# button refresh: h:int-d:int-t:token
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
@@ -48,15 +51,48 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            (message, path) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        (message, path) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
+
+
+def refresh_chart(update: Update, context: CallbackContext):
+    print("refreshing chart")
+    query = update.callback_query.data
+
+    k_hours = int(re.search(r'\d+', query.split('h:')[1]).group())
+    k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
+    token = query.split('t:')[1]
+
+    t_to = int(time.time())
+    t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+
+    chat_id = update.callback_query.message.chat_id
+    message_id = update.callback_query.message.message_id
+    pprint.pprint(chat_id)
+
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+def refresh_price(update: Update, context: CallbackContext):
+    print("refreshing price")
+    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
+                                              name, decimals)
+    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price)
+
+
+def get_help(update: Update, context: CallbackContext):
+    general_end_functions.get_help(update, context)
 
 
 def main():
@@ -64,6 +100,9 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('drc', get_price_token))
+    dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
+    dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
+    dp.add_handler(CommandHandler('help', get_help))
     updater.start_polling()
     updater.idle()
 
@@ -74,4 +113,5 @@ if __name__ == '__main__':
 commands = """
 chart - Display price chart of DRC.
 drc - Get current price of DRC.
+help - How to use the bot
 """

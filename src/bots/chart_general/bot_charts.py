@@ -80,7 +80,7 @@ def check_query_fav(query_received):
     return time_type, k_hours, k_days
 
 
-# button refresh: h:int-d:int-token
+# button refresh: h:int-d:int-t:token
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
