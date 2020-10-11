@@ -147,7 +147,9 @@ def see_fav_token(update: Update, context: CallbackContext):
     msgs = read_favorites(favorite_path)
     if msgs == "" or msgs is None:
         msgs = "No favorites for the moment"
-    context.bot.send_message(chat_id=chat_id, text=', '.join(msgs))
+    else:
+        msgs = ', '.join(msgs)
+    context.bot.send_message(chat_id=chat_id, text=msgs)
 
 
 def add_favorite_token(update: Update, context: CallbackContext):
