@@ -21,7 +21,7 @@ def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
     callback_message_1_d = 'refresh_chart_' + "h:" + str(0) + "d:" + str(1) + "t:" + token
     callback_message_1_m = 'refresh_chart_' + "h:" + str(0) + "d:" + str(30) + "t:" + token
     callback_message_2_h = 'refresh_chart_' + "h:" + str(2) + "d:" + str(0) + "t:" + token
-    header = [InlineKeyboardButton('Refresh ⌛', callback_data=callback_message)]
+    header = InlineKeyboardButton('Refresh ⌛', callback_data=callback_message)
     button_list_chart = [[
                             header
                          ],
