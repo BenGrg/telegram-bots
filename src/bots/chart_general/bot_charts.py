@@ -167,7 +167,7 @@ def add_favorite_token(update: Update, context: CallbackContext):
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler('charts', get_candlestick_pyplot))
+    dp.add_handler(CommandHandler('charts', get_candlestick))
     dp.add_handler(CommandHandler('add_fav', add_favorite_token))
     dp.add_handler(CommandHandler('see_fav', see_fav_token))
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
