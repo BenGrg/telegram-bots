@@ -5,7 +5,7 @@ import os
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
-import from graphqlclient import GraphQLClient
+from graphqlclient import GraphQLClient
 import time
 from datetime import datetime
 import pprint
