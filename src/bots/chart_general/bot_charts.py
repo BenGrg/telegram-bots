@@ -145,6 +145,7 @@ def see_fav_token(update: Update, context: CallbackContext):
     favorite_path = charts_path + username + '.txt'
     create_file_if_not_existing(favorite_path)
     msgs = read_favorites(favorite_path)
+    pprint.pprint(msgs)
     if msgs == "" or msgs is None:
         msgs = "No favorites for the moment"
     else:
