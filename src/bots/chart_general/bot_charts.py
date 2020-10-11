@@ -146,17 +146,16 @@ def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
 
-    button_list = [[InlineKeyboardMarkup('refresh', callback_data='refresh_price')]]
-    reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=1))
+    button_list = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
+    reply_markup = InlineKeyboardMarkup(button_list)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup)
 
 
 def refresh_price(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
-    button_list = [[InlineKeyboardMarkup('refresh', callback_data='refresh_price')]]
-    reply_markup = InlineKeyboardMarkup(
-        util.build_menu(button_list, n_cols=1))
+    button_list = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
+    reply_markup = InlineKeyboardMarkup(util.build_menu(button_list))
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup)
 
 
