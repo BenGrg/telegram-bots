@@ -25,8 +25,6 @@ TELEGRAM_KEY = os.environ.get('DRC_TELEGRAM_KEY')
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
-default_token = 'ROT'
-
 locale.setlocale(locale.LC_ALL, 'en_US')
 
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')

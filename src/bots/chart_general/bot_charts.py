@@ -32,7 +32,7 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-decimals = 1000000000000000000
+decimals = 1000000000000000000 # that's 18
 
 def read_favorites(path):
     with open(path) as f:
