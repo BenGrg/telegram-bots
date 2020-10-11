@@ -19,8 +19,9 @@ def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
     callback_message = 'refresh_chart_' + "h:" + str(k_hours) + "d:" + str(k_days) + "t:" + token
     button_list_chart = [[InlineKeyboardButton('refresh', callback_data=callback_message)]]
     reply_markup_chart = InlineKeyboardMarkup(button_list_chart)
+    time = " last " + str(k_days) + " day(s) " if k_days > 0 else " last " + str(k_hours) + " hour(s) "
     ad = util.get_ad()
-    message = "<code>" + token + " $" + str(last_price)[0:10] + "\n" + ad + "</code>"
+    message = "<code>" + token  + time + " $" + str(last_price)[0:10] + "\n" + ad + "</code>"
 
     return message, path, reply_markup_chart
 
