@@ -183,6 +183,7 @@ def add_favorite_token(update: Update, context: CallbackContext):
 def refresh_chart(update: Update, context: CallbackContext):
     print("refreshing chart")
     query = update.callback_query.data
+
     k_hours = int(re.search(r'\d+', query.split('h:')[1]).group())
     k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
@@ -190,7 +191,7 @@ def refresh_chart(update: Update, context: CallbackContext):
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
-    chat_id = update.message.chat_id
+    chat_id = update.callback_query.message.chat_id
     pprint.pprint(chat_id)
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
