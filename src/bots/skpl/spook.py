@@ -29,7 +29,7 @@ graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/unis
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
 ## TO CHANGE
-TELEGRAM_KEY = os.environ.get('SPKL_TELEGRAM_KEY')
+TELEGRAM_KEY = os.environ.get('SKPL_TELEGRAM_KEY')
 contract = "0xc6e2573029e91ea391dee58b2cd348133b944137"
 name = "SPOOK"
 pair_contract = "0x0441bdc819a8a92e1ec8aac644a33655d8f74c59"
