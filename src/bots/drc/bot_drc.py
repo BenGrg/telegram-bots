@@ -99,7 +99,7 @@ def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
-    dp.add_handler(CommandHandler('drc', get_price_token))
+    dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
     dp.add_handler(CommandHandler('help', get_help))
@@ -112,6 +112,6 @@ if __name__ == '__main__':
 
 commands = """
 chart - Display price chart of DRC.
-drc - Get current price of DRC.
+price - Get current price of DRC.
 help - How to use the bot
 """
