@@ -26,10 +26,10 @@ def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
                             header
                          ],
                          [
-                             [InlineKeyboardButton('Chart 2 h', callback_data=callback_message_2_h)],
-                             [InlineKeyboardButton('Chart 1 day', callback_data=callback_message_1_d)],
-                             [InlineKeyboardButton('Chart 1 week', callback_data=callback_message_1_w)],
-                             [InlineKeyboardButton('Chart 1 month', callback_data=callback_message_1_m)]
+                            InlineKeyboardButton('Chart 2 h', callback_data=callback_message_2_h),
+                            InlineKeyboardButton('Chart 1 day', callback_data=callback_message_1_d),
+                            InlineKeyboardButton('Chart 1 week', callback_data=callback_message_1_w),
+                            InlineKeyboardButton('Chart 1 month', callback_data=callback_message_1_m)
                          ]]
     # menu = util.build_menu(button_list_chart, 4, header_buttons=header)
     reply_markup_chart = InlineKeyboardMarkup(button_list_chart)
