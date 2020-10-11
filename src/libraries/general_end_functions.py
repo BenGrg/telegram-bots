@@ -41,16 +41,16 @@ def get_biz_no_meme(update: Update, context: CallbackContext, re_4chan):
 
 
 def get_price(update: Update, context: CallbackContext, contract, pair_contract, graphclient_eth, graphclient_uni, name, decimals):
-    (derivedETH_7d, rot_price_7d_usd, derivedETH_1d, rot_price_1d_usd, derivedETH_now,
-     rot_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
+    (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
+     token_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
 
     supply_cap_token = requests_util.get_supply_cap_raw(contract, decimals)
     supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token)))
-    market_cap = util.number_to_beautiful(int(float(supply_cap_token) * rot_price_now_usd))
+    market_cap = util.number_to_beautiful(int(float(supply_cap_token) * token_price_now_usd))
 
     vol_24h = requests_util.get_volume_24h(graphclient_uni, pair_contract)
-    var_7d = int(((rot_price_now_usd - rot_price_7d_usd) / rot_price_now_usd) * 100)
-    var_1d = int(((rot_price_now_usd - rot_price_1d_usd) / rot_price_now_usd) * 100)
+    var_7d = int(((token_price_7d_usd - token_price_now_usd) / token_price_7d_usd) * 100)
+    var_1d = int(((token_price_1d_usd - token_price_now_usd) / token_price_1d_usd) * 100)
 
     var_7d_str = "+" + str(var_7d) + "%" if var_7d > 0 else str(var_7d) + "%"
     var_1d_str = "+" + str(var_1d) + "%" if var_1d > 0 else str(var_1d) + "%"
@@ -63,7 +63,7 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
 
     message = "<code>" + name \
               + "\nETH: Ξ" + str(derivedETH_now)[0:10] \
-              + "\nUSD: $" + str(rot_price_now_usd)[0:10] \
+              + "\nUSD: $" + str(token_price_now_usd)[0:10] \
               + "\n24H:  " + var_1d_str \
               + "\n7D :  " + var_7d_str \
               + "\n" \

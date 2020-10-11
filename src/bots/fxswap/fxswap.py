@@ -60,7 +60,6 @@ def get_help(update: Update, context: CallbackContext):
     general_end_functions.get_help(update, context)
 
 
-
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
