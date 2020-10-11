@@ -110,7 +110,7 @@ def get_help(update: Update, context: CallbackContext):
 def get_twitter(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     res = scrap_websites_util.get_last_tweets(twitter, ticker)
-    context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html')
+    context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
 
 
 def main():
@@ -132,5 +132,6 @@ if __name__ == '__main__':
 commands = """
 chart - Display price chart of DRC.
 price - Get current price of DRC.
-help - How to use the bot
+help - How to use the bot.
+twitter - Get the last tweets with the token marker.
 """
