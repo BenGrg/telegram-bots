@@ -37,6 +37,7 @@ ticker = 'FXSWAP'
 decimals = 1000000000000000000  # that's 18
 
 
+# button refresh: h:int-d:int-t:token
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
@@ -48,11 +49,11 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to,
-                                                          chat_id)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to,
-                                                      chat_id)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def get_price_token(update: Update, context: CallbackContext):
