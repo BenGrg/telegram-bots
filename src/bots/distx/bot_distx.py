@@ -107,8 +107,10 @@ def get_help(update: Update, context: CallbackContext):
     general_end_functions.get_help(update, context)
 
 
-def twitter():
-    scrap_websites_util.get_last_tweets(twitter, ticker)
+def get_twitter(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = scrap_websites_util.get_last_tweets(twitter, ticker)
+    context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html')
 
 
 def main():
@@ -119,6 +121,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
     dp.add_handler(CommandHandler('help', get_help))
+    dp.add_handler(CommandHandler('twitter', get_twitter))
     updater.start_polling()
     updater.idle()
 
