@@ -158,6 +158,13 @@ def refresh_price(update: Update, context: CallbackContext):
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price)
 
 
+def delete_message(update: Update, context: CallbackContext):
+    print("deleting chart")
+    chat_id = update.callback_query.message.chat_id
+    message_id = update.callback_query.message.message_id
+    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
 def add_favorite_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     username = update.message.from_user.username
@@ -211,6 +218,7 @@ def main():
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
+    dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
     updater.start_polling()
     updater.idle()
 
