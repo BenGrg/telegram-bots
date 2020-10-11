@@ -5,6 +5,7 @@ import os
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
+import from graphqlclient import GraphQLClient
 import time
 from datetime import datetime
 import pprint
@@ -27,6 +28,9 @@ charts_path = BASE_PATH + 'log_files/chart_bot/'
 default_token = 'ROT'
 
 locale.setlocale(locale.LC_ALL, 'en_US')
+
+graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
+graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
 
 def read_favorites(path):
@@ -129,6 +133,13 @@ def see_fav_token(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=msgs)
 
 
+def get_price_token(update: Update, context: CallbackContext):
+    contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
+    name = "ROT"
+    pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
+    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_eth, name)
+
+
 def add_favorite_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     username = update.message.from_user.username
@@ -159,6 +170,7 @@ def main():
     dp.add_handler(CommandHandler('see_fav', see_fav_token))
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
+    dp.add_handler(CommandHandler('price', get_price_token))
     updater.start_polling()
     updater.idle()
 
@@ -172,4 +184,5 @@ charts_fav - Display your favorite charts
 add_fav - Add a favorite token.
 see_fav - See your favorites tokens.
 remove_fav - Remove a token from your favorites.
+prive - get price of a token
 """
