@@ -155,7 +155,7 @@ def get_price_token(update: Update, context: CallbackContext):
 def refresh_price(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
-    button_list = [InlineKeyboardMarkup("refresh", callback_data=refresh_price)]
+    button_list = [InlineKeyboardMarkup("refresh", callback_data="refresh")]
     reply_markup = InlineKeyboardMarkup(
         util.build_menu(button_list, n_cols=1))
     update.callback_query.edit_message_text(message)
