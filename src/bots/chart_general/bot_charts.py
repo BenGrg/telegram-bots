@@ -40,6 +40,7 @@ graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/bloc
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
 
+
 def read_favorites(path):
     with open(path) as f:
         msgs = [line.rstrip() for line in f]
@@ -80,6 +81,7 @@ def check_query_fav(query_received):
 
 
 def refresh_chart(update: Update, context: CallbackContext):
+    pprint.pprint(update.message)
     pprint.pprint(update.callback_query.message)
     # chat_id = update.message.chat_id
     #
