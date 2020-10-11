@@ -157,6 +157,8 @@ def city(update, context):
     context.bot.send_message(chat_id=update.message.chat_id, text='Choose from the following',
                              reply_markup=reply_markup)
 
+def erode(update, context):
+    pprint.pprint("coucou")
 
 def add_favorite_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
@@ -190,6 +192,7 @@ def main():
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('city', city))
+    dp.add_handler(CommandHandler('Erods', erode))
     updater.start_polling()
     updater.idle()
 
