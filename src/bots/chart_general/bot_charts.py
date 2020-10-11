@@ -183,25 +183,16 @@ def add_favorite_token(update: Update, context: CallbackContext):
 def refresh_chart(update: Update, context: CallbackContext):
     print("refreshing chart")
     query = update.callback_query.data
-    k_h = int(re.search(r'\d+', query.split('h:')[1]).group())
-    k_d = int(re.search(r'\d+', query.split('d:')[1]).group())
+    k_hours = int(re.search(r'\d+', query.split('h:')[1]).group())
+    k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
 
-    chat_id = update.message.chat_id
-
-    query_received = update.message.text.split(' ')
-
-    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
-    if isinstance(tokens, list):
-        for token in tokens:
-            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-            update.callback_query.edit_message_media(media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
-    else:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-        update.callback_query.send_photo(media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
+
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    update.callback_query.send_photo(media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def main():
