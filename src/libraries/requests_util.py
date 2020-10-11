@@ -113,7 +113,6 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     except KeyError:  # trying again, as sometimes the block that we query has not yet been indexed. For that, we read
         # the error message returned by uniswap and work on the last indexed block that is return in the error message
         # TODO: work with regex as block numbers can be < 10000000
-        pprint.pprint(res_uni_query)
         last_block_indexed = str(res_uni_query).split('indexed up to block number ')[1][0:8]
         query_uni_updated = query_uni.replace("CONTRACT", token_contract) \
             .replace("NUMBER_T1", str(block_from_7d)) \
@@ -152,8 +151,6 @@ def get_volume_24h(graphclient_uni, pair_contract):
     yesterday = now - 3600 * 24
 
     res = graphclient_uni.execute(req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract))
-
-    pprint.pprint(req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract))
 
     json_resp_eth = json.loads(res)
 
