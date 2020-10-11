@@ -12,12 +12,13 @@ import pprint
 import os.path
 import re
 
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
+import libraries.util as util
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
@@ -32,7 +33,8 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-decimals = 1000000000000000000 # that's 18
+decimals = 1000000000000000000  # that's 18
+
 
 def read_favorites(path):
     with open(path) as f:
@@ -84,9 +86,11 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+            general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to,
+                                                          chat_id)
     else:
-        general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+        general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to,
+                                                      chat_id)
 
 
 def see_fav_charts(update: Update, context: CallbackContext):
@@ -103,7 +107,8 @@ def see_fav_charts(update: Update, context: CallbackContext):
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
     for token in tokens:
-        general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+        general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to,
+                                                      chat_id)
 
 
 def delete_fav_token(update: Update, context: CallbackContext):
@@ -138,7 +143,19 @@ def get_price_token(update: Update, context: CallbackContext):
     contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
     name = "ROT"
     pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
-    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni,
+                                    name, decimals)
+
+
+def city(update, context):
+    list_of_cities = ['Erode', 'Coimbatore', 'London', 'Thunder Bay', 'California']
+    button_list = []
+    for each in list_of_cities:
+        button_list.append(InlineKeyboardButton(each, callback_data=each))
+    reply_markup = InlineKeyboardMarkup(
+        util.build_menu(button_list, n_cols=1))  # n_cols = 1 is for single column and mutliple rows
+    context.bot.send_message(chat_id=update.message.chat_id, text='Choose from the following',
+                             reply_markup=reply_markup)
 
 
 def add_favorite_token(update: Update, context: CallbackContext):
@@ -172,6 +189,7 @@ def main():
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
+    dp.add_handler(CommandHandler('city', city))
     updater.start_polling()
     updater.idle()
 
