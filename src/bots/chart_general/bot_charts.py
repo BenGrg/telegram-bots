@@ -81,6 +81,7 @@ def check_query_fav(query_received):
 
 
 def refresh_chart(update: Update, context: CallbackContext):
+    print("coucou")
     pprint.pprint(update.message)
     pprint.pprint(update.callback_query.message)
     # chat_id = update.message.chat_id
