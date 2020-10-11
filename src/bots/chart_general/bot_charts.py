@@ -1,4 +1,6 @@
 import locale
+import sys
+sys.path.insert(1, '/root/telegram-bots/src')
 import os
 import time
 from datetime import datetime
