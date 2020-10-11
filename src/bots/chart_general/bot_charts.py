@@ -1,9 +1,10 @@
 import locale
 import sys
-
-sys.path.insert(1, '/root/telegram-bots/src')
-
 import os
+
+BASE_PATH = os.environ.get('BASE_PATH')
+sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
+
 import time
 from datetime import datetime
 import pprint
@@ -18,10 +19,12 @@ import libraries.commands_util as commands_util
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
-BASE_PATH = os.environ.get('BASE_PATH')
+
 
 # log_file
-charts_path = BASE_PATH + 'chart_bot/log_files/'
+charts_path = BASE_PATH + 'log_files/chart_bot/'
+
+default_token = 'ROT'
 
 locale.setlocale(locale.LC_ALL, 'en_US')
 
@@ -68,12 +71,16 @@ def check_query_fav(query_received):
     return time_type, k_hours, k_days
 
 
-def get_candlestick_pyplot(update: Update, context: CallbackContext):
+def get_candlestick(update: Update, context: CallbackContext):
+    get_candlestick_pyplot(update, context, default_token)
+
+
+def get_candlestick_pyplot(update: Update, context: CallbackContext, default_token):
     chat_id = update.message.chat_id
 
     query_received = update.message.text.split(' ')
 
-    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, "ROT")
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
