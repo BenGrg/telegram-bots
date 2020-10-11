@@ -17,7 +17,15 @@ def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
     last_price = graphs_util.print_candlestick(token, t_from, t_to, path)
 
     callback_message = 'refresh_chart_' + "h:" + str(k_hours) + "d:" + str(k_days) + "t:" + token
-    button_list_chart = [[InlineKeyboardButton('refresh', callback_data=callback_message)]]
+    callback_message_1_w = 'refresh_chart_' + "h:" + str(0) + "d:" + str(7) + "t:" + token
+    callback_message_1_d = 'refresh_chart_' + "h:" + str(0) + "d:" + str(1) + "t:" + token
+    callback_message_1_m = 'refresh_chart_' + "h:" + str(0) + "d:" + str(30) + "t:" + token
+    callback_message_2_h = 'refresh_chart_' + "h:" + str(2) + "d:" + str(0) + "t:" + token
+    button_list_chart = [[InlineKeyboardButton('refresh ⌛', callback_data=callback_message)],
+                         [InlineKeyboardButton('Chart 2 h', callback_data=callback_message_2_h)],
+                         [InlineKeyboardButton('Chart 1 day', callback_data=callback_message_1_d)],
+                         [InlineKeyboardButton('Chart 1 week', callback_data=callback_message_1_w)],
+                         [InlineKeyboardButton('Chart 1 month', callback_data=callback_message_1_m)]]
     reply_markup_chart = InlineKeyboardMarkup(button_list_chart)
     msg_time = " last " + str(k_days) + " day(s) " if k_days > 0 else " last " + str(k_hours) + " hour(s) "
     ad = util.get_ad()
