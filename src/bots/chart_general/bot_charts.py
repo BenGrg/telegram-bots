@@ -113,8 +113,8 @@ def see_fav_charts(update: Update, context: CallbackContext):
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
     for token in tokens:
-        general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to,
-                                                      chat_id)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
 
 
 def delete_fav_token(update: Update, context: CallbackContext):
@@ -198,6 +198,7 @@ def refresh_chart(update: Update, context: CallbackContext):
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
 
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
