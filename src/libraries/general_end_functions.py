@@ -45,7 +45,7 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
      rot_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
 
     supply_cap_rot = requests_util.get_supply_cap_raw(contract)
-    supply_cat_pretty = str(round(supply_cap_rot))
+    supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_rot)))
     market_cap = util.number_to_beautiful(int(float(supply_cap_rot) * rot_price_now_usd))
 
     vol_24h = requests_util.get_volume_24h(graphclient_uni, pair_contract)
