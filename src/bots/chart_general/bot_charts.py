@@ -185,28 +185,23 @@ def refresh_chart(update: Update, context: CallbackContext):
     query = update.callback_query.data
     k_h = int(re.search(r'\d+', query.split('h:')[1]).group())
     k_d = int(re.search(r'\d+', query.split('d:')[1]).group())
-    token = query.split('t:')[1][len('t:'):]
-    pprint.pprint(k_h)
-    pprint.pprint(k_d)
-    pprint.pprint(token)
-    pprint.pprint(query.split('t:')[1])
+    token = query.split('t:')[1]
 
-    # print(headline.translate(trans).split()[0])
-    # chat_id = update.message.chat_id
-    #
-    # query_received = update.message.text.split(' ')
-    #
-    # time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
-    # t_to = int(time.time())
-    # t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
-    #
-    # if isinstance(tokens, list):
-    #     for token in tokens:
-    #         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-    #         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
-    # else:
-    #     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-    #     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+    chat_id = update.message.chat_id
+
+    query_received = update.message.text.split(' ')
+
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
+    t_to = int(time.time())
+    t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+
+    if isinstance(tokens, list):
+        for token in tokens:
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+            update.callback_query.edit_message_media(chat_id=chat_id, media=open(path, 'rb'), message=message, parse_mode="html")
+    else:
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+        update.callback_query.send_photo(chat_id=chat_id, media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def main():
