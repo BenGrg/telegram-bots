@@ -146,7 +146,7 @@ def see_fav_token(update: Update, context: CallbackContext):
     create_file_if_not_existing(favorite_path)
     msgs = read_favorites(favorite_path)
     pprint.pprint(msgs)
-    if msgs == "" or msgs is None:
+    if msgs == "" or msgs is None or msgs == []:
         msgs = "No favorites for the moment"
     else:
         msgs = ', '.join(msgs)
