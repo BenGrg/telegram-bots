@@ -185,7 +185,7 @@ def refresh_chart(update: Update, context: CallbackContext):
     query = update.callback_query.data
     k_h = int(re.search(r'\d+', query.split('h:')[1]).group())
     k_d = int(re.search(r'\d+', query.split('d:')[1]).group())
-    token = query.split('token:')[1][len('token'):]
+    token = query.split('t:')[1][len('t:'):]
     pprint.pprint(k_h)
     pprint.pprint(k_d)
     pprint.pprint(token)
