@@ -45,7 +45,7 @@ contract = "0x4b4701f3f827e1331fb22ff8e2beac24b17eb055"
 name = "DISTX"
 pair_contract = "0x7835a44f91b9d196076cb2b38280bbc4bf237924"
 ticker = 'DISTX'
-decimals = 1
+decimals = 1000000000000000000  # that's 18
 
 
 twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
