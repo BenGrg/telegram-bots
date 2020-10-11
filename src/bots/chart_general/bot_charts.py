@@ -189,6 +189,7 @@ def refresh_chart(update: Update, context: CallbackContext):
     pprint.pprint(k_h)
     pprint.pprint(k_d)
     pprint.pprint(token)
+    pprint.pprint(query.split('t:')[1])
 
     # print(headline.translate(trans).split()[0])
     # chat_id = update.message.chat_id
