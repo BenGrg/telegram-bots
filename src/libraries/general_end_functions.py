@@ -44,7 +44,7 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
     (derivedETH_7d, rot_price_7d_usd, derivedETH_1d, rot_price_1d_usd, derivedETH_now,
      rot_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
 
-    supply_cap_token = requests_util.get_supply_cap_raw(contract)
+    supply_cap_token = requests_util.get_supply_cap_raw(contract, decimals)
     supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token)))
     market_cap = util.number_to_beautiful(int(float(supply_cap_token) * rot_price_now_usd))
 
