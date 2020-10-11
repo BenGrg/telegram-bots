@@ -31,11 +31,11 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-TELEGRAM_KEY = os.environ.get('DRC_TELEGRAM_KEY')
-contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
-name = "DRC"
-pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
-ticker = 'DRC.3EE606'
+TELEGRAM_KEY = os.environ.get('DISTX_TELEGRAM_KEY')
+contract = "0x4B4701f3f827E1331fb22FF8e2BEaC24b17Eb055"
+name = "DISTX"
+pair_contract = "0x7835a44f91b9d196076cb2b38280bbc4bf237924"
+ticker = 'DISTX'
 decimals = 1
 
 
