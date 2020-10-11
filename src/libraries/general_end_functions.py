@@ -64,7 +64,7 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
     msg_vol_24 = "\nVol 24H = $" + vol_24_pretty if vol_24_pretty != "0" else ""
 
     holders = requests_util.get_number_holder_token(contract)
-
+    ad = util.get_ad()
     message = "<code>" + name \
               + "\nETH: Ξ" + str(derivedETH_now)[0:10] \
               + "\nUSD: $" + str(token_price_now_usd)[0:10] \
@@ -74,7 +74,8 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
               + msg_vol_24 \
               + "\nS.  Cap = " + supply_cat_pretty \
               + "\nM.  Cap = $" + market_cap \
-              + "\nHolders = " + str(holders) + "</code>"
+              + "\nHolders = " + str(holders) \
+              + "\n" + ad + "</code>"
     return message
 
 
