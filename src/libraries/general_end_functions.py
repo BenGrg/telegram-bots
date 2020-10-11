@@ -73,3 +73,14 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
               + "\nHolders = " + str(holders) + "</code>"
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
+
+
+def get_help(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    message = """<b>How to use the bot:</b>
+<b>/price:</b> display the price of the token as well as relevant metrics
+<b>/chart:</b> display a candlestick chart of the last 24 hours.
+To show the last 14 days: use /chart 14 d
+To show the last 7 hours: use /chart 7 h
+A problem? Suggestion? Want this bot for your token? -> contact @ rotted_ben"""
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')

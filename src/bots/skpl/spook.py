@@ -57,11 +57,16 @@ def get_price_token(update: Update, context: CallbackContext):
     general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
 
 
+def get_help(update: Update, context: CallbackContext):
+    general_end_functions.get_help(update, context)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
+
     updater.start_polling()
     updater.idle()
 
@@ -72,4 +77,5 @@ if __name__ == '__main__':
 commands = """
 chart - Display a chart of the price.
 price - Get the current price.
+help - How to use the bot.
 """
