@@ -154,6 +154,8 @@ def get_volume_24h(graphclient_uni, pair_contract):
 
     res = graphclient_uni.execute(req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract))
 
+    pprint.pprint(req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract))
+
     json_resp_eth = json.loads(res)
 
     pprint.pprint(json_resp_eth)
