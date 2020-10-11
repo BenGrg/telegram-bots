@@ -13,7 +13,7 @@ import os.path
 import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
 
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
@@ -104,7 +104,9 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
-
+    dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
+    dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
+    dp.add_handler(CommandHandler('help', get_help))
     updater.start_polling()
     updater.idle()
 
