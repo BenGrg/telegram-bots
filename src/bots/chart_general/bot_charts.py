@@ -198,10 +198,10 @@ def refresh_chart(update: Update, context: CallbackContext):
     if isinstance(tokens, list):
         for token in tokens:
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-            update.callback_query.edit_message_media(chat_id=chat_id, media=open(path, 'rb'), message=message, parse_mode="html")
+            update.callback_query.edit_message_media(media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-        update.callback_query.send_photo(chat_id=chat_id, media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
+        update.callback_query.send_photo(media=open(path, 'rb'), message=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def main():
