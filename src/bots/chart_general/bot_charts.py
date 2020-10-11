@@ -147,7 +147,7 @@ def get_price_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
     button_list = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
-    reply_markup = InlineKeyboardMarkup(button_list, resize_keyboard=True, selective=True)
+    reply_markup = InlineKeyboardMarkup(button_list, resize_keyboard=False)  # , selective=True)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup)
 
 
