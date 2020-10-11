@@ -49,7 +49,7 @@ def get_price(update: Update, context: CallbackContext, contract, pair_contract,
     market_cap = util.number_to_beautiful(int(float(supply_cap_token) * rot_price_now_usd))
 
     vol_24h = requests_util.get_volume_24h(graphclient_uni, pair_contract)
-    var_7d = 0  # int(((rot_price_now_usd - rot_price_7d_usd) / rot_price_now_usd) * 100)
+    var_7d = int(((rot_price_now_usd - rot_price_7d_usd) / rot_price_now_usd) * 100)
     var_1d = int(((rot_price_now_usd - rot_price_1d_usd) / rot_price_now_usd) * 100)
 
     var_7d_str = "+" + str(var_7d) + "%" if var_7d > 0 else str(var_7d) + "%"
