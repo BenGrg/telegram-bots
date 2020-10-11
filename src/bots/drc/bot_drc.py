@@ -32,13 +32,17 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
+contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
+name = "ROT"
+pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
+
 
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
     query_received = update.message.text.split(' ')
 
-    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, contract)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
@@ -50,9 +54,6 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
-    name = "ROT"
-    pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
     general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name)
 
 
