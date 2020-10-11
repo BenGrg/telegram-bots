@@ -5,6 +5,7 @@ import os
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
+from twython import Twython, TwythonError
 from graphqlclient import GraphQLClient
 import time
 from datetime import datetime
@@ -18,6 +19,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
+import libraries.scrap_websites_util as scrap_websites_util
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -31,12 +33,22 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
+
+APP_KEY = os.environ.get('TWITTER_API_KEY')
+APP_SECRET = os.environ.get('TWITTER_API_KEY_SECRET')
+ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
+ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
+
+
 TELEGRAM_KEY = os.environ.get('DISTX_TELEGRAM_KEY')
 contract = "0x4B4701f3f827E1331fb22FF8e2BEaC24b17Eb055"
 name = "DISTX"
 pair_contract = "0x7835a44f91b9d196076cb2b38280bbc4bf237924"
 ticker = 'DISTX'
 decimals = 1
+
+
+twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
 
 
 # button refresh: h:int-d:int-t:token
@@ -93,6 +105,10 @@ def refresh_price(update: Update, context: CallbackContext):
 
 def get_help(update: Update, context: CallbackContext):
     general_end_functions.get_help(update, context)
+
+
+def twitter():
+    scrap_websites_util.get_last_tweets(twitter, ticker)
 
 
 def main():
