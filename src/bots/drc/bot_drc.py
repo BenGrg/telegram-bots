@@ -62,8 +62,8 @@ def get_price_token(update: Update, context: CallbackContext):
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler('charts', get_candlestick))
-    dp.add_handler(CommandHandler('price', get_price_token))
+    dp.add_handler(CommandHandler('chart', get_candlestick))
+    dp.add_handler(CommandHandler('drc', get_price_token))
     updater.start_polling()
     updater.idle()
 
