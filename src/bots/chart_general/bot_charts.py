@@ -32,6 +32,7 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
+decimals = 1000000000000000000
 
 def read_favorites(path):
     with open(path) as f:
@@ -137,7 +138,7 @@ def get_price_token(update: Update, context: CallbackContext):
     contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
     name = "ROT"
     pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
-    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name)
+    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
 
 
 def add_favorite_token(update: Update, context: CallbackContext):

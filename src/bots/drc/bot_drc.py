@@ -36,6 +36,7 @@ contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
 name = "DRC"
 pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
 ticker = 'DRC.3EE606'
+decimals = 1
 
 
 def get_candlestick(update: Update, context: CallbackContext):
@@ -55,7 +56,7 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name)
+    general_end_functions.get_price(update, context, contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
 
 
 def main():

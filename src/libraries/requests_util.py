@@ -140,9 +140,8 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     token_per_eth_7d, token_price_7d_usd, token_per_eth_1d, token_price_1d_usd, token_per_eth_now, token_price_now_usd)
 
 
-def get_supply_cap_raw(contract_addr):
+def get_supply_cap_raw(contract_addr, decimals):
     base_addr = 'https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=' + contract_addr + '&apikey=' + etherscan_api_key
-    decimals = 1000000000000000000
     supply_cap = float(requests.post(base_addr).json()['result']) / decimals
     return supply_cap
 
@@ -157,10 +156,6 @@ def get_volume_24h(graphclient_uni, pair_contract):
     pprint.pprint(req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract))
 
     json_resp_eth = json.loads(res)
-
-    pprint.pprint(json_resp_eth)
-
-    # pprint.pprint(res)
 
     all_values = json_resp_eth['data']['pairHourDatas']
 

@@ -40,13 +40,13 @@ def get_biz_no_meme(update: Update, context: CallbackContext, re_4chan):
         context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 
-def get_price(update: Update, context: CallbackContext, contract, pair_contract, graphclient_eth, graphclient_uni, name):
+def get_price(update: Update, context: CallbackContext, contract, pair_contract, graphclient_eth, graphclient_uni, name, decimals):
     (derivedETH_7d, rot_price_7d_usd, derivedETH_1d, rot_price_1d_usd, derivedETH_now,
      rot_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
 
-    supply_cap_rot = requests_util.get_supply_cap_raw(contract)
-    supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_rot)))
-    market_cap = util.number_to_beautiful(int(float(supply_cap_rot) * rot_price_now_usd))
+    supply_cap_token = requests_util.get_supply_cap_raw(contract)
+    supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token)))
+    market_cap = util.number_to_beautiful(int(float(supply_cap_token) * rot_price_now_usd))
 
     vol_24h = requests_util.get_volume_24h(graphclient_uni, pair_contract)
     var_7d = 0  # int(((rot_price_now_usd - rot_price_7d_usd) / rot_price_now_usd) * 100)
