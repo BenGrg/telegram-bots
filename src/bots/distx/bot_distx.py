@@ -113,6 +113,13 @@ def get_twitter(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
 
 
+def delete_message(update: Update, context: CallbackContext):
+    print("deleting chart")
+    chat_id = update.callback_query.message.chat_id
+    message_id = update.callback_query.message.message_id
+    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -120,6 +127,7 @@ def main():
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
+    dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
     dp.add_handler(CommandHandler('help', get_help))
     dp.add_handler(CommandHandler('twitter', get_twitter))
     updater.start_polling()
@@ -130,8 +138,8 @@ if __name__ == '__main__':
     main()
 
 commands = """
-chart - Display price chart of DRC.
-price - Get current price of DRC.
+chart - Display a chart of the price.
+price - Get the current price.
 help - How to use the bot.
 twitter - Get the last tweets with the token marker.
 """
