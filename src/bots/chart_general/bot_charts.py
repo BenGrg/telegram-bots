@@ -81,7 +81,7 @@ def check_query_fav(query_received):
 
 
 def refresh_chart(update: Update, context: CallbackContext):
-    print("coucou")
+    print("refreshing chart")
     pprint.pprint(update.message)
     pprint.pprint(update.callback_query.message)
     # chat_id = update.message.chat_id
@@ -113,11 +113,11 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, token, charts_path, k_days, k_hours, t_from, t_to, chat_id)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html")
     else:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(context, tokens, charts_path, k_days, k_hours, t_from, t_to, chat_id)
-        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup = reply_markup_chart)
 
 
 def see_fav_charts(update: Update, context: CallbackContext):
@@ -173,6 +173,7 @@ def get_price_token(update: Update, context: CallbackContext):
 
 
 def refresh_price(update: Update, context: CallbackContext):
+    print("refreshing price")
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price)

@@ -10,7 +10,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 last_time_checked_4chan = 0
 
 
-def send_candlestick_pyplot(context: CallbackContext, token, charts_path, k_days, k_hours, t_from, t_to, chat_id):
+def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
     print("requesting coin " + token + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
 
     path = charts_path + token + '.png'
