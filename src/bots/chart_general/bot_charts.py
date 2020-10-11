@@ -1,6 +1,8 @@
 import locale
 import sys
+
 sys.path.insert(1, '/root/telegram-bots/src')
+
 import os
 import time
 from datetime import datetime
@@ -12,6 +14,7 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 import libraries.graphs_util as graphs_util
+import libraries.commands_util as commands_util
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
@@ -34,23 +37,8 @@ def create_file_if_not_existing(path):
         f = open(path, "x")
         f.close()
 
-def get_from_query(query_received):
-    time_type = query_received[2]
-    try:
-        time_start = int(query_received[1])
-    except ValueError:
-        time_start = int(re.search(r'\d+', query_received[1]).group())
-        time_type = query_received[1][-1]
 
-    if time_start < 0:
-        time_start = - time_start
-    k_hours = 0
-    k_days = 0
-    if time_type == 'h' or time_type == 'H':
-        k_hours = time_start
-    if time_type == 'd' or time_type == 'D':
-        k_days = time_start
-    return time_type, k_hours, k_days
+
 
 
 def strp_date(raw_date):
@@ -69,23 +57,6 @@ def delete_line_from_file(path, msg):
                 f.write(line)
 
 
-def check_query(query_received):
-    time_type, k_hours, k_days, tokens = 'd', 0, 1, "ROT"
-    if len(query_received) == 1:
-        pass
-    elif len(query_received) == 2:
-        tokens = [query_received[1]]
-    elif len(query_received) == 3:
-        time_type, k_hours, k_days = get_from_query(query_received)
-    elif len(query_received) == 4:
-        time_type, k_hours, k_days = get_from_query(query_received)
-        tokens = [query_received[-1]]
-    else:
-        time_type, k_hours, k_days = get_from_query(query_received)
-        tokens = query_received[3:]
-    return time_type, k_hours, k_days, tokens
-
-
 def check_query_fav(query_received):
     time_type, k_hours, k_days = 'd', 0, 1
     if len(query_received) == 1:
@@ -93,7 +64,7 @@ def check_query_fav(query_received):
     elif len(query_received) == 2:
         pass
     else:
-        time_type, k_hours, k_days = get_from_query(query_received)
+        time_type, k_hours, k_days = commands_util.get_from_query(query_received)
     return time_type, k_hours, k_days
 
 
@@ -102,7 +73,7 @@ def get_candlestick_pyplot(update: Update, context: CallbackContext):
 
     query_received = update.message.text.split(' ')
 
-    time_type, k_hours, k_days, tokens = check_query(query_received)
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, "ROT")
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 

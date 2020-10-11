@@ -23,7 +23,6 @@ def get_graphex_data(token, resolution, t_from, t_to):
     if token in symbol_chartex:
         symbol = symbol_chartex.get(token)
     else:
-        print("requesting token not found in dic: " + str(token))
         symbol = token
     url = create_url_request_graphex(symbol, resolution, t_from, t_to)
     resp = requests.get(url)
