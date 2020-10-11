@@ -41,7 +41,7 @@ ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 
 
 TELEGRAM_KEY = os.environ.get('DISTX_TELEGRAM_KEY')
-contract = "0x4B4701f3f827E1331fb22FF8e2BEaC24b17Eb055"
+contract = "0x4b4701f3f827e1331fb22ff8e2beac24b17eb055"
 name = "DISTX"
 pair_contract = "0x7835a44f91b9d196076cb2b38280bbc4bf237924"
 ticker = 'DISTX'
