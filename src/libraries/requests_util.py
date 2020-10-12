@@ -124,8 +124,10 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
         json_resp_uni = json.loads(res_uni_query)
         token_per_eth_now = float(json_resp_uni['data']['tnow']['derivedETH'])
 
-    token_per_eth_7d = float(json_resp_uni['data']['t1']['derivedETH']) if 'derivedETH' in json_resp_uni['data']['t1'] else 0.0
-    token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data']['t2'] else 0.0
+    token_per_eth_7d = float(json_resp_uni['data']['t1']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
+        't1'] else 0.0
+    token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
+        't2'] else 0.0
 
     eth_price_7d = float(json_resp_uni['data']['b1']['ethPrice'])
     eth_price_1d = float(json_resp_uni['data']['b2']['ethPrice'])
@@ -136,7 +138,8 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     token_price_now_usd = token_per_eth_now * eth_price_now
 
     return (
-    token_per_eth_7d, token_price_7d_usd, token_per_eth_1d, token_price_1d_usd, token_per_eth_now, token_price_now_usd)
+        token_per_eth_7d, token_price_7d_usd, token_per_eth_1d, token_price_1d_usd, token_per_eth_now,
+        token_price_now_usd)
 
 
 def get_supply_cap_raw(contract_addr, decimals):
@@ -149,7 +152,8 @@ def get_supply_cap_raw(contract_addr, decimals):
 def get_volume_24h(graphclient_uni, pair_contract):
     now = int(time.time())
     yesterday = now - 3600 * 24
-    updated_req = req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract)
+    updated_req = req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE",
+                                                                                                 pair_contract)
     res = graphclient_uni.execute(updated_req)
     json_resp_eth = json.loads(res)
 
