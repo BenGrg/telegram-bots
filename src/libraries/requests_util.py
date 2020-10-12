@@ -126,10 +126,14 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
         pprint.pprint(json_resp_uni)
         token_per_eth_now = float(json_resp_uni['data']['tnow']['derivedETH'])
 
-    token_per_eth_7d = float(json_resp_uni['data']['t1']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
-        't1'] else 0.0
-    token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
-        't2'] else 0.0
+    try:
+        token_per_eth_7d = float(json_resp_uni['data']['t1']['derivedETH']) if 'derivedETH' in json_resp_uni['data']['t1'] else 0.0
+    except TypeError:
+        token_per_eth_7d = 0.0
+    try:
+        token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
+    except TypeError:
+        token_per_eth_1d = 0.0
 
     eth_price_7d = float(json_resp_uni['data']['b1']['ethPrice'])
     eth_price_1d = float(json_resp_uni['data']['b2']['ethPrice'])
