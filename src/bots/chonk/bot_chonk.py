@@ -41,7 +41,7 @@ ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 
 
 TELEGRAM_KEY = os.environ.get('CHONK_TELEGRAM_KEY')
-contract = "0x84679bc467DC6c2c40ab04538813AfF3796351f1"
+contract = "0x84679bc467DC6c2c40ab04538813AfF3796351f1".lower()
 name = "CHONK"
 pair_contract = "0x7835a44f91b9d196076cb2b38280bbc4bf237924"
 ticker = 'CHONK'
