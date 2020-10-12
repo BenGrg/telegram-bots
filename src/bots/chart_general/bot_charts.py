@@ -152,10 +152,11 @@ def get_price_token(update: Update, context: CallbackContext):
     if len(query_received) == 2:
         ticker = query_received[1]
         contract_from_ticker = requests_util.get_token_contract_address(ticker)
+        pprint.pprint(contract_from_ticker)
         if contract_from_ticker is None:
             context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
         else:
-            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, ticker, decimals)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired tocken.')
@@ -164,7 +165,7 @@ def get_price_token(update: Update, context: CallbackContext):
 def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
-                                              name, decimals)
+                                              "", decimals)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price)
 
 
