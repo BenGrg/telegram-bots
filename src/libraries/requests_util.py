@@ -129,18 +129,18 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     try:
         token_per_eth_7d = float(json_resp_uni['data']['t1']['derivedETH']) if 'derivedETH' in json_resp_uni['data']['t1'] else 0.0
     except TypeError:
-        token_per_eth_7d = 0.0
+        token_per_eth_7d = None
     try:
         token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data']['t2'] else 0.0
     except TypeError:
-        token_per_eth_1d = 0.0
+        token_per_eth_1d = None
 
     eth_price_7d = float(json_resp_uni['data']['b1']['ethPrice'])
     eth_price_1d = float(json_resp_uni['data']['b2']['ethPrice'])
     eth_price_now = float(json_resp_uni['data']['bnow']['ethPrice'])
 
-    token_price_7d_usd = token_per_eth_7d * eth_price_7d
-    token_price_1d_usd = token_per_eth_1d * eth_price_1d
+    token_price_7d_usd = token_per_eth_7d * eth_price_7d if token_per_eth_7d is not None else None
+    token_price_1d_usd = token_per_eth_1d * eth_price_1d if token_per_eth_1d is not None else None
     token_price_now_usd = token_per_eth_now * eth_price_now
 
     return (
