@@ -4,6 +4,8 @@ import time
 import json
 import os
 
+get_address_endpoint = "https://visitly.azurewebsites.net/api/pairs/ERC-20/"
+
 etherscan_api_key = os.environ.get('ETH_API_KEY')
 
 ethexplorer_holder_base_url = "https://ethplorer.io/service/service.php?data="
@@ -170,10 +172,30 @@ def get_number_holder_token(token):
     holders = res['pager']['holders']['records']
     return int(holders)
 
+
+def get_token_contract_address(token_ticker):
+    url = get_address_endpoint + token_ticker
+    res = requests.get(url).json()
+    for i in res:
+        if 'token1' in i:
+            if 'symbol' in i['token1']:
+                if i['token1']['symbol'] == token_ticker:
+                    if 'id' in i['token1']:
+                        return i['token1']['id']
+
+                elif i['token0']['symbol'] == token_ticker:
+                    if 'id' in i['token0']:
+                        return i['token0']['id']
+    return None
+    # pprint.pprint(res)
+
+#
 # def main():
-#     now = int(time.time())
-#     before = now - 3600 * 5
-#     get_graphex_data("ROT", 5, before, now)
+#     res = get_token_contract_address('ROT')
+#     if res is None:
+#         print("ticker not found")
+#     else:
+#         print("OK, addr = " + res)
 #
 #
 # if __name__ == '__main__':

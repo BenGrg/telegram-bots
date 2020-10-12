@@ -18,6 +18,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
+import libraries.requests_util as requests_util
 import libraries.util as util
 
 # ENV FILES
@@ -146,9 +147,19 @@ def see_fav_token(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
+
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        ticker = query_received[1]
+        contract_from_ticker = requests_util.get_token_contract_address(ticker)
+        if contract_from_ticker is None:
+            context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
+        else:
+            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+            context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
+    else:
+        context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired tocken.')
 
 
 def refresh_price(update: Update, context: CallbackContext):
