@@ -123,6 +123,7 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
             .replace("NUMBER_TNOW", str(last_block_indexed))
         res_uni_query = graphql_client_uni.execute(query_uni_updated)
         json_resp_uni = json.loads(res_uni_query)
+        pprint.pprint(json_resp_uni)
         token_per_eth_now = float(json_resp_uni['data']['tnow']['derivedETH'])
 
     token_per_eth_7d = float(json_resp_uni['data']['t1']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
