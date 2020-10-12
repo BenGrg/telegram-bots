@@ -89,7 +89,6 @@ def refresh_chart(update: Update, context: CallbackContext):
 
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
-    pprint.pprint(chat_id)
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)

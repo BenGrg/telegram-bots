@@ -138,7 +138,6 @@ def see_fav_token(update: Update, context: CallbackContext):
     favorite_path = charts_path + username + '.txt'
     create_file_if_not_existing(favorite_path)
     msgs = read_favorites(favorite_path)
-    pprint.pprint(msgs)
     if msgs == "" or msgs is None or msgs == []:
         msgs = "No favorites for the moment. Add some with /add_fav"
     else:
@@ -211,7 +210,6 @@ def refresh_chart(update: Update, context: CallbackContext):
 
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
-    pprint.pprint(chat_id)
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
