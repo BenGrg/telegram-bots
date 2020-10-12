@@ -131,7 +131,7 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     except TypeError:
         token_per_eth_7d = 0.0
     try:
-        token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data'][
+        token_per_eth_1d = float(json_resp_uni['data']['t2']['derivedETH']) if 'derivedETH' in json_resp_uni['data']['t2'] else 0.0
     except TypeError:
         token_per_eth_1d = 0.0
 
