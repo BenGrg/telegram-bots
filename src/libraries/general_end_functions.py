@@ -69,7 +69,7 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
     supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token)))
     market_cap = util.number_to_beautiful(int(float(supply_cap_token) * token_price_now_usd))
 
-    vol_24h = requests_util.get_volume_24h(graphclient_uni, pair_contract)
+    vol_24h = requests_util.get_volume_24h(graphclient_uni, contract)
     var_7d = - int(((token_price_7d_usd - token_price_now_usd) / token_price_7d_usd) * 100) if token_price_7d_usd > token_price_now_usd else int(((token_price_now_usd - token_price_7d_usd) / token_price_7d_usd) * 100)
     var_1d = - int(((token_price_1d_usd - token_price_now_usd) / token_price_1d_usd) * 100) if token_price_1d_usd > token_price_now_usd else int(((token_price_now_usd - token_price_1d_usd) / token_price_1d_usd) * 100)
 
