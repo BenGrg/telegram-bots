@@ -76,6 +76,8 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
     var_7d_str = "+" + str(var_7d) + "%" if var_7d > 0 else str(var_7d) + "%"
     var_1d_str = "+" + str(var_1d) + "%" if var_1d > 0 else str(var_1d) + "%"
 
+    print("vol 24: " + str(vol_24h))
+
     vol_24_pretty = util.number_to_beautiful(vol_24h)
 
     msg_vol_24 = "\nVol 24H = $" + vol_24_pretty if vol_24_pretty != "0" else ""

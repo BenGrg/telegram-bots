@@ -151,7 +151,7 @@ def get_volume_24h(graphclient_uni, pair_contract):
     yesterday = now - 3600 * 24
 
     res = graphclient_uni.execute(req_graphql_vol24h_rot.replace("TIMESTAMP_MINUS_24_H", str(yesterday)).replace("PAIR_CHANGE", pair_contract))
-
+    pprint.pprint(res)
     json_resp_eth = json.loads(res)
 
     all_values = json_resp_eth['data']['pairHourDatas']
