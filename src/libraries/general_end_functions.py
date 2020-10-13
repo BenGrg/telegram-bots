@@ -4,6 +4,7 @@ import libraries.graphs_util as graphs_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.requests_util as requests_util
 import libraries.util as util
+from libraries.util import float_to_str
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
@@ -36,9 +37,9 @@ def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
     # menu = util.build_menu(button_list_chart, 4, header_buttons=header)
     reply_markup_chart = InlineKeyboardMarkup(button_list_chart)
     msg_time = " " + str(k_days) + " day(s) " if k_days > 0 else " last " + str(k_hours) + " hour(s) "
-    print(str(last_price))
+    print(float_to_str(last_price))
     ad = util.get_ad()
-    message = "<b>" + token + "</b>" + msg_time + "<code>$" + str(last_price)[0:10] + "</code>\n" + ad + ""
+    message = "<b>" + token + "</b>" + msg_time + "<code>$" + float_to_str(last_price)[0:10] + "</code>\n" + ad + ""
 
     return message, path, reply_markup_chart
 
@@ -91,8 +92,8 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
     holders = requests_util.get_number_holder_token(contract)
     ad = util.get_ad()
     message = "<code>" + name \
-              + "\nETH: Ξ" + str(derivedETH_now)[0:10] \
-              + "\nUSD: $" + str(token_price_now_usd)[0:10] \
+              + "\nETH: Ξ" + float_to_str(derivedETH_now)[0:10] \
+              + "\nUSD: $" + float_to_str(token_price_now_usd)[0:10] \
               + "\n24H:  " + var_1d_str \
               + "\n7D :  " + var_7d_str \
               + "\n" \

@@ -1,8 +1,10 @@
 import locale
 import os
 import random
+import decimal
 
 BASE_PATH = os.environ.get('BASE_PATH')
+
 
 # convert int to nice string: 1234567 => 1 234 567
 def number_to_beautiful(nbr):
@@ -25,3 +27,19 @@ def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
     if footer_buttons:
         menu.append(footer_buttons)
     return menu
+
+
+# create a new context for this task
+ctx = decimal.Context()
+
+# 20 digits should be enough for everyone :D
+ctx.prec = 20
+
+
+def float_to_str(f):
+    """
+    Convert the given float to a string,
+    without resorting to scientific notation
+    """
+    d1 = ctx.create_decimal(repr(f))
+    return format(d1, 'f')
