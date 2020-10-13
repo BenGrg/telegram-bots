@@ -100,8 +100,8 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
               + msg_vol_24 \
               + "\nS.  Cap = " + supply_cat_pretty \
               + "\nM.  Cap = $" + market_cap \
-              + "\nHolders = " + str(holders) \
-              + "\n" + ad + "</code>"
+              + "\nHolders = " + str(holders) + "</code>" \
+              + "\n" + ad
     return message
 
 
