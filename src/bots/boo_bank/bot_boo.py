@@ -15,12 +15,14 @@ import os.path
 import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
+import libraries.git_util as git_util
+
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -42,11 +44,16 @@ graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/unis
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
 TELEGRAM_KEY = os.environ.get('BOO_TELEGRAM_KEY')
+MEME_GIT_REPO = os.environ.get('BOO_MEME_GIT_REPO')
 contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
 name = "Boo Bank"
 pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
 ticker = 'BOOB'
 decimals = 1000000000000000000  # that's 18
+git_url = "https://api.github.com/repos/boobank/boo-memes/contents/memesFolder"
+
+# add meme
+git_handler = git_util.MemeHandler(MEME_GIT_REPO)
 
 
 # button refresh: h:int-d:int-t:token
@@ -110,11 +117,33 @@ def get_twitter(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
 
 
-def delete_message(update: Update, context: CallbackContext):
+def delete_chart_message(update: Update, context: CallbackContext):
     print("deleting chart")
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+def handle_new_image(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    try:
+        caption = update['message']['caption']
+        if caption == "/add_meme":
+            if git_handler.add_meme(update, context):
+                context.bot.send_message(chat_id=chat_id, text="Got it boss!")
+            else:
+                error_msg = "Adding image failed: no image provided. Make sure to send it as a file and not an image."
+                context.bot.send_message(chat_id=chat_id, text=error_msg)
+        else:
+            pass
+    except KeyError:
+        pass
+
+
+def send_meme_to_chat(update: Update, context: CallbackContext):
+    url = git_handler.get_url_meme()
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id=chat_id, photo=url)
 
 
 def main():
@@ -124,9 +153,11 @@ def main():
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
-    dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
+    dp.add_handler(CallbackQueryHandler(delete_chart_message, pattern='delete_message'))
     dp.add_handler(CommandHandler('help', get_help))
     dp.add_handler(CommandHandler('twitter', get_twitter))
+    dp.add_handler(MessageHandler(Filters.photo, handle_new_image))
+    dp.add_handler(CommandHandler('give_meme', send_meme_to_chat))
     updater.start_polling()
     updater.idle()
 
