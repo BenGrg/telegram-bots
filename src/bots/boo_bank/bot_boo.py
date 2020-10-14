@@ -53,7 +53,7 @@ decimals = 1000000000000000000  # that's 18
 git_url = "https://api.github.com/repos/boobank/boo-memes/contents/memesFolder"
 
 # add meme
-git_handler = git_util.MemeHandler(MEME_GIT_REPO)
+git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
 
 
 # button refresh: h:int-d:int-t:token
