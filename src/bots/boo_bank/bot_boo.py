@@ -170,4 +170,6 @@ chart - Display a chart of the price.
 price - Get the current price.
 help - How to use the bot.
 twitter - Get the last tweets concerning $BOOB.
+add_meme - Add a meme to the meme folder.
+give_meme - Returns a random meme from the meme folder.
 """
