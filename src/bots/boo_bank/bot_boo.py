@@ -22,7 +22,7 @@ import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
-from bots.boo_bank.boo_bot_values import links
+from bots.boo_bank.bot_boo_values import links
 
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
@@ -181,7 +181,6 @@ def get_biz(update: Update, context: CallbackContext):
 def get_links(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=links, disable_web_page_preview=True, parse_mode='html')
-
 
 
 def main():
