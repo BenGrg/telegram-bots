@@ -43,3 +43,7 @@ def float_to_str(f):
     """
     d1 = ctx.create_decimal(repr(f))
     return format(d1, 'f')
+
+
+def create_href_str(url, message):
+    return "<a href=\"" + url + "\">" + message + "</a>"

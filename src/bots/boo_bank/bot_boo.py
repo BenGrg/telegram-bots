@@ -2,11 +2,11 @@ import locale
 import sys
 import os
 
-from twython import Twython
 
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
+from twython import Twython
 from graphqlclient import GraphQLClient
 import time
 from datetime import datetime
@@ -22,6 +22,7 @@ import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
+from boo_bot_values import links
 
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
@@ -34,6 +35,9 @@ ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 
 twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
 
+# time
+last_time_checked_4chan = 0
+last_time_checked_twitter = 0
 
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
@@ -43,6 +47,7 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
+re_4chan = re.compile(r'\$BOOB|BOOB')
 TELEGRAM_KEY = os.environ.get('BOO_TELEGRAM_KEY')
 MEME_GIT_REPO = os.environ.get('BOO_MEME_GIT_REPO')
 contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
@@ -146,6 +151,39 @@ def send_meme_to_chat(update: Update, context: CallbackContext):
     context.bot.send_photo(chat_id=chat_id, photo=url)
 
 
+# sends the current biz threads
+def get_biz(update: Update, context: CallbackContext):
+    global last_time_checked_4chan
+    chat_id = update.message.chat_id
+    new_time = round(time.time())
+    if new_time - last_time_checked_4chan > 60:
+        last_time_checked_4chan = new_time
+        threads_ids = scrap_websites_util.get_biz_threads(re_4chan)
+
+        base_url = "boards.4channel.org/biz/thread/"
+        message = """Plz go bump the /biz/ threads:
+"""
+        for thread_id in threads_ids:
+            excerpt = thread_id[2] + " | " + thread_id[1]
+            message += base_url + str(thread_id[0]) + " -- " + excerpt[0: 100] + "[...] \n"
+        if not threads_ids:
+            meme_url = git_handler.get_url_meme()
+            meme_caption = "There hasn't been a Boobie /biz/ thread for a while. Here's a meme, go make one https://boards.4channel.org/biz/."
+            context.bot.send_photo(chat_id=chat_id, photo=meme_url, caption=meme_caption)
+        else:
+            context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
+    else:
+        context.bot.send_message(chat_id=chat_id,
+                                 text='Only checking 4chan/twitter/charts once per minute. Don\'t spam.')
+
+
+# sends the main links
+def get_links(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text=links, disable_web_page_preview=True, parse_mode='html')
+
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -158,6 +196,8 @@ def main():
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(MessageHandler(Filters.photo, handle_new_image))
     dp.add_handler(CommandHandler('give_meme', send_meme_to_chat))
+    dp.add_handler(CommandHandler('biz', get_biz))
+    dp.add_handler(CommandHandler('links', get_links))
     updater.start_polling()
     updater.idle()
 
