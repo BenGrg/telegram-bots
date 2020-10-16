@@ -7,7 +7,7 @@ import libraries.util as util
 from libraries.util import float_to_str
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
-
+from libraries.images import Ocr
 last_time_checked_4chan = 0
 
 
@@ -114,3 +114,20 @@ To show the last 14 days: use /chart 14 d
 To show the last 7 hours: use /chart 7 h
 A problem? Suggestion? Want this bot for your token? -> contact @ rotted_ben"""
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
+
+
+def download_image(update: Update, context: CallbackContext, path):
+    image = context.bot.getFile(update.message.photo[-1])
+    file_id = str(image.file_id)
+    print("file_id: " + file_id)
+    img_path = path + file_id + ".png"
+    image.download(img_path)
+    return img_path
+
+
+def ocr_image(update: Update, context: CallbackContext, tmp_path):
+    img_path = download_image(update, context, tmp_path)
+    ocr = Ocr(img_path)
+    text_in_ocr = ocr.start_ocr().replace('\n', ' ')
+    print("recognized text = " + text_in_ocr)
+    return text_in_ocr

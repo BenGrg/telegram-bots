@@ -18,7 +18,7 @@ url_dextools_boo = 'https://www.dextools.io/app/uniswap/pair-explorer/BOO'
 url_twitter_boobank = 'https://twitter.com/BooBank'
 url_discord_boobank = 'https://discord.com/invite/wypm8B'
 
-links = '<b>Website:</b> ' + create_href_str(url_website, 'rottenswap.org') + '\n' \
+links = '<b>Website:</b> ' + create_href_str(url_website, 'boobank.org') + '\n' \
         + '<b>Uniswap:</b> ' + create_href_str(url_uniswap_boo, "$BOOB") + " " + create_href_str(url_uniswap_ecto,
                                                                                                 '$ECTO') + '\n' \
         + '<b>Pools:</b> ' + create_href_str(url_uniswap_pool_boo_eht, '$BOOB-$ETH') + ' ' + create_href_str(
@@ -29,3 +29,6 @@ links = '<b>Website:</b> ' + create_href_str(url_website, 'rottenswap.org') + '\
     url_dextools_boo, 'DexTools') + '\n' \
         + '<b>Social medias: </b>' + create_href_str(url_twitter_boobank, 'Twitter') + ' ' + create_href_str(url_discord_boobank, 'Discord') + '\n' \
         + '<b>Telegram groups:</b> @BooBankToken @BooBankNews'
+
+
+test_error_token = "Looks like you need to either: increase slippage (see /howtoslippage) to at least 4% and/or remove the decimals from the amount of $BOOB you're trying to buy"

@@ -22,7 +22,7 @@ import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
-from bots.boo_bank.bot_boo_values import links
+from bots.boo_bank.bot_boo_values import links, test_error_token
 
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
@@ -50,6 +50,7 @@ graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/bloc
 re_4chan = re.compile(r'\$BOOB|BOOB')
 TELEGRAM_KEY = os.environ.get('BOO_TELEGRAM_KEY')
 MEME_GIT_REPO = os.environ.get('BOO_MEME_GIT_REPO')
+TMP_FOLDER = BASE_PATH + 'tmp/'
 contract = "0xa150db9b1fa65b44799d4dd949d922c0a33ee606"
 name = "Boo Bank"
 pair_contract = "0x53455f3b566d6968e9282d982dd1e038e78033ac"
@@ -137,11 +138,23 @@ def handle_new_image(update: Update, context: CallbackContext):
             if git_handler.add_meme(update, context):
                 context.bot.send_message(chat_id=chat_id, text="Got it boss!")
             else:
-                error_msg = "Adding image failed: no image provided. Make sure to send it as a file and not an image."
+                error_msg = "Adding image failed: no image provided or incorrect format."
                 context.bot.send_message(chat_id=chat_id, text=error_msg)
         else:
-            pass
+            __send_message_if_ocr(update, context)
     except KeyError:
+        __send_message_if_ocr(update, context)
+
+
+def __send_message_if_ocr(update, context):
+    message_id = update.message.message_id
+    chat_id = update.message.chat_id
+    try:
+        text_in_ocr = general_end_functions.ocr_image(update, context, TMP_FOLDER)
+        if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
+                'transaction will not succeed' and 'price movement or' in text_in_ocr):
+            context.bot.send_message(chat_id=chat_id, text=test_error_token, reply_to_message_id=message_id)
+    except IndexError:
         pass
 
 
@@ -168,7 +181,7 @@ def get_biz(update: Update, context: CallbackContext):
             message += base_url + str(thread_id[0]) + " -- " + excerpt[0: 100] + "[...] \n"
         if not threads_ids:
             meme_url = git_handler.get_url_meme()
-            meme_caption = "There hasn't been a Boobie /biz/ thread for a while. Here's a meme, go make one https://boards.4channel.org/biz/."
+            meme_caption = "There hasn't been a BoobBank /biz/ thread for a while. Here's a meme, go make one https://boards.4channel.org/biz/."
             context.bot.send_photo(chat_id=chat_id, photo=meme_url, caption=meme_caption)
         else:
             context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
