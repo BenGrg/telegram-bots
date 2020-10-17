@@ -185,11 +185,11 @@ def get_token_contract_address(token_ticker):
     for i in res:
         if 'token1' in i:
             if 'symbol' in i['token1']:
-                if i['token1']['symbol'] == token_ticker:
+                if i['token1']['symbol'].lower() == token_ticker.lower():
                     if 'id' in i['token1']:
                         return i['token1']['id']
 
-                elif i['token0']['symbol'] == token_ticker:
+                elif i['token0']['symbol'].lower() == token_ticker.lower():
                     if 'id' in i['token0']:
                         return i['token0']['id']
     return None
