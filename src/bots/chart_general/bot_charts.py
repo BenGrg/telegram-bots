@@ -227,6 +227,31 @@ def refresh_chart(update: Update, context: CallbackContext):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
+# sends the current biz threads
+def get_biz(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        word = query_received[-1]
+        word_regex_friendly = word.replace('$', '\\$')
+        threads_ids = scrap_websites_util.get_biz_threads(re.compile(word_regex_friendly))
+
+        base_url = "boards.4channel.org/biz/thread/"
+        message = """Plz go bump the /biz/ threads:
+"""
+        for thread_id in threads_ids:
+            excerpt = thread_id[2] + " | " + thread_id[1]
+            message += base_url + str(thread_id[0]) + " -- " + excerpt[0: 100] + "[...] \n"
+        if not threads_ids:
+            meme_caption = "No current /biz/ thread containing the word $WORD. Go make one https://boards.4channel.org/biz/.".replace("$WORD", word)
+            context.bot.send_message(chat_id=chat_id, text=meme_caption)
+        else:
+            context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
+    else:
+        context.bot.send_message(chat_id=chat_id,
+                                 text='Please use the format /biz WORD')
+
+
 def get_twitter(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
