@@ -244,7 +244,7 @@ def get_biz(update: Update, context: CallbackContext):
             message += base_url + str(thread_id[0]) + " -- " + excerpt[0: 100] + "[...] \n"
         if not threads_ids:
             meme_caption = "No current /biz/ thread containing the word $WORD. Go make one https://boards.4channel.org/biz/.".replace("$WORD", word)
-            context.bot.send_message(chat_id=chat_id, text=meme_caption)
+            context.bot.send_message(chat_id=chat_id, text=meme_caption, disable_web_page_preview=True)
         else:
             context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
     else:
