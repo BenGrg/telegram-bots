@@ -2,6 +2,8 @@ import locale
 import sys
 import os
 
+from twython import Twython
+
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
@@ -20,6 +22,14 @@ import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.requests_util as requests_util
 import libraries.util as util
+import libraries.scrap_websites_util as scrap_websites_util
+
+# twitter
+APP_KEY = os.environ.get('TWITTER_API_KEY')
+APP_SECRET = os.environ.get('TWITTER_API_KEY_SECRET')
+ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
+ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
+twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
@@ -217,6 +227,18 @@ def refresh_chart(update: Update, context: CallbackContext):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
+def get_twitter(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        ticker = query_received[-1]
+        res = scrap_websites_util.get_last_tweets(twitter, ticker)
+        context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /twitter TOKEN_TICKER.", parse_mode='html', disable_web_page_preview=True)
+
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -226,6 +248,7 @@ def main():
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
+    dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
@@ -242,5 +265,5 @@ charts_fav - Display your favorite charts
 add_fav - Add a favorite token.
 see_fav - See your favorites tokens.
 remove_fav - Remove a token from your favorites.
-prive - get price of a token
+price - get price of a token
 """
