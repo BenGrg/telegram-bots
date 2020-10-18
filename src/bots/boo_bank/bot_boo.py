@@ -208,6 +208,7 @@ def main():
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(MessageHandler(Filters.photo, handle_new_image))
     dp.add_handler(CommandHandler('give_meme', send_meme_to_chat))
+    dp.add_handler(CommandHandler('meme', send_meme_to_chat))
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('links', get_links))
     updater.start_polling()
