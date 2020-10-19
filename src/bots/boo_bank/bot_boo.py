@@ -196,6 +196,11 @@ def get_links(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=links, disable_web_page_preview=True, parse_mode='html')
 
 
+def send_anthem(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    context.bot.send_audio(chat_id=chat_id, audio=open('audio/boo/boo_anthem.mp3', 'rb'), disable_web_page_preview=True, parse_mode='html')
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -211,6 +216,7 @@ def main():
     dp.add_handler(CommandHandler('meme', send_meme_to_chat))
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('links', get_links))
+    dp.add_handler(CommandHandler('anthem', send_anthem))
     updater.start_polling()
     updater.idle()
 
@@ -225,4 +231,5 @@ help - How to use the bot.
 twitter - Get the last tweets concerning $BOOB.
 add_meme - Add a meme to the meme folder.
 give_meme - Returns a random meme from the meme folder.
+anthem - send the Boo Bank Org. national anthem.
 """
