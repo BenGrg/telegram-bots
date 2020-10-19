@@ -198,7 +198,11 @@ def get_links(update: Update, context: CallbackContext):
 
 def send_anthem(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    context.bot.send_audio(chat_id=chat_id, audio=open(BASE_PATH + 'audio/boo/boo_anthem.mp3', 'rb'), disable_web_page_preview=True, parse_mode='html')
+    caption = "🎸🤘🎼 <i>I want my stacked boobiiiiieeesssss</i>🎼🤘🎸"
+    context.bot.send_audio(chat_id=chat_id,
+                           audio=open(BASE_PATH + 'audio/boo/boo_anthem.mp3', 'rb'),
+                           caption=caption,
+                           parse_mode='html')
 
 
 def main():
