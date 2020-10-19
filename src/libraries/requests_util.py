@@ -175,7 +175,10 @@ def get_volume_24h(graphclient_uni, pair_contract):
 def get_number_holder_token(token):
     url = ethexplorer_holder_base_url + token
     res = requests.get(url).json()
-    holders = res['pager']['holders']['records']
+    try:
+        holders = res['pager']['holders']['records']
+    except KeyError:
+        holders = -1
     return int(holders)
 
 
