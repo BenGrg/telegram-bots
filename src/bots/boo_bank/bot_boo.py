@@ -205,6 +205,12 @@ def send_anthem(update: Update, context: CallbackContext):
                            parse_mode='html')
 
 
+def send_flyer(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    path = BASE_PATH + 'images/boo/flyer.jpg'
+    context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'))
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -221,6 +227,7 @@ def main():
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('links', get_links))
     dp.add_handler(CommandHandler('anthem', send_anthem))
+    dp.add_handler(CommandHandler('flyer', send_flyer))
     updater.start_polling()
     updater.idle()
 
@@ -235,5 +242,7 @@ help - How to use the bot.
 twitter - Get the last tweets concerning $BOOB.
 add_meme - Add a meme to the meme folder.
 give_meme - Returns a random meme from the meme folder.
-anthem - send the Boo Bank Org. national anthem.
+anthem - Send the Boo Bank Org. national anthem.
+flyer - Show the flyer.
+biz - Display current 4chan threads.
 """
