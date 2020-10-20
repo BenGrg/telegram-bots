@@ -16,7 +16,7 @@ url_etherscan_ecto = 'https://etherscan.io/token/ECTO'
 url_astrotools_boo = 'https://app.astrotools.io/pair-explorer/BOO'
 url_dextools_boo = 'https://www.dextools.io/app/uniswap/pair-explorer/BOO'
 url_twitter_boobank = 'https://twitter.com/BooBank'
-url_discord_boobank = 'https://discord.com/invite/wypm8B'
+url_discord_boobank = 'https://discord.gg/cQDTQH7'
 
 links = '<b>Website:</b> ' + create_href_str(url_website, 'boobank.org') + '\n' \
         + '<b>Uniswap:</b> ' + create_href_str(url_uniswap_boo, "$BOOB") + " " + create_href_str(url_uniswap_ecto,
