@@ -11,6 +11,7 @@ from libraries.images import Ocr
 import csv
 import datetime
 import matplotlib
+import matplotlib.dates
 import matplotlib.pyplot as plt
 last_time_checked_4chan = 0
 
@@ -140,7 +141,7 @@ def ocr_image(update: Update, context: CallbackContext, tmp_path):
 
 
 def strp_date(raw_date):
-    return datetime.strptime(raw_date, '%m/%d/%Y,%H:%M:%S')
+    return datetime.datetime.strptime(raw_date, '%m/%d/%Y,%H:%M:%S')
 
 
 def print_chart_supply(dates_raw, supply_t1, name_t1, supply_t2, name_t2, chart_path):
