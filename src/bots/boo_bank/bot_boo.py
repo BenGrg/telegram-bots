@@ -24,6 +24,7 @@ import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
 import libraries.requests_util as requests_util
 from bots.boo_bank.bot_boo_values import links, test_error_token
+from libraries.timer_util import RepeatedTimer
 
 supply_file_path = 'log_files/boo_bot/supply_log.txt'
 
@@ -241,6 +242,7 @@ def main():
     dp.add_handler(CommandHandler('links', get_links))
     dp.add_handler(CommandHandler('anthem', send_anthem))
     dp.add_handler(CommandHandler('flyer', send_flyer))
+    RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
 
