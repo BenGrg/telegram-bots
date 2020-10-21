@@ -54,10 +54,12 @@ TELEGRAM_KEY = os.environ.get('BOO_TELEGRAM_KEY')
 MEME_GIT_REPO = os.environ.get('BOO_MEME_GIT_REPO')
 TMP_FOLDER = BASE_PATH + 'tmp/'
 boob_contract = "0xa9c44135b3a87e0688c41cf8c27939a22dd437c9"
-ecto_contract = "0x921c87490ccbef90a3b0fc1951bd9064f7220af6"
 name = "Boo Bank"
-pair_contract = "0x6e31ef0b62a8abe30d80d35476ca78897dffa769"
 ticker = 'BOOB'
+ecto_contract = "0x921c87490ccbef90a3b0fc1951bd9064f7220af6"
+ecto_name = "Ectoplasma"
+ecto_ticker = 'ECTO'
+pair_contract = "0x6e31ef0b62a8abe30d80d35476ca78897dffa769"
 decimals = 1000000000000000000  # that's 18
 git_url = "https://api.github.com/repos/boobank/boo-memes/contents/memesFolder"
 
@@ -89,6 +91,12 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
+
+
+def get_price_ecto(update: Update, context: CallbackContext):
+    message = general_end_functions.get_price(ecto_contract, pair_contract, graphql_client_eth, graphql_client_uni, ecto_name, decimals)
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
 
@@ -265,6 +273,8 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
+    dp.add_handler(CommandHandler('boo', get_price_token))
+    dp.add_handler(CommandHandler('ecto', get_price_ecto))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
     dp.add_handler(CallbackQueryHandler(delete_chart_message, pattern='delete_message'))
@@ -288,7 +298,8 @@ if __name__ == '__main__':
 
 commands = """
 chart - Display a chart of the price.
-price - Get the current price.
+boob - Get the current price of $BOOB.
+ecto - Get the current price of $ECTO.
 help - How to use the bot.
 twitter - Get the last tweets concerning $BOOB.
 add_meme - Add a meme to the meme folder.
