@@ -188,8 +188,8 @@ def send_supply_two_pyplot(supply_file_path, k_days, k_hours, name_t1, name_t2, 
                        now - strp_date(x[0]) < datetime.timedelta(days=k_days, hours=k_hours)]
 
     dates_pure = keep_dates(filtered_values)
-    supply_t1 = [int(round(value[1])) for value in filtered_values]
-    supply_t2 = [int(round(value[2])) for value in filtered_values]
+    supply_t1 = [int(round(float(value[1]))) for value in filtered_values]
+    supply_t2 = [int(round(float(value[2]))) for value in filtered_values]
 
     print_chart_supply(dates_pure, supply_t1, name_t1, supply_t2, name_t2, chart_path)
     current_t1_str = supply_t1[-1]
