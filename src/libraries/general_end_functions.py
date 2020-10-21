@@ -205,6 +205,6 @@ def keep_dates(values_list):
 
     dates_datetime = []
     for date_str in dates_str:
-        date_datetime = datetime.strptime(date_str, '%m/%d/%Y,%H:%M:%S')
+        date_datetime = datetime.datetime.strptime(date_str, '%m/%d/%Y,%H:%M:%S')
         dates_datetime.append(date_datetime)
     return dates_datetime
