@@ -241,8 +241,8 @@ def get_chart_supply(update: Update, context: CallbackContext):
                                                                                       "ECTO",
                                                                                       supply_chart_path)
 
-    current_boob_str = util.number_to_beautiful(current_boob_nbr[-1])
-    current_ecto_str = util.number_to_beautiful(current_ecto_nbr[-1])
+    current_boob_str = util.number_to_beautiful(current_boob_nbr)
+    current_ecto_str = util.number_to_beautiful(current_ecto_nbr)
 
     msg_time = " " + str(k_days) + " day(s) " if k_days > 0 else " last " + str(k_hours) + " hour(s) "
 
