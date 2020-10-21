@@ -26,8 +26,6 @@ import libraries.requests_util as requests_util
 from bots.boo_bank.bot_boo_values import links, test_error_token
 from libraries.timer_util import RepeatedTimer
 
-supply_file_path = 'log_files/boo_bot/supply_log.txt'
-
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
 
@@ -64,6 +62,8 @@ git_url = "https://api.github.com/repos/boobank/boo-memes/contents/memesFolder"
 
 # add meme
 git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
+
+supply_file_path = BASE_PATH + 'log_files/boo_bot/supply_log.txt'
 
 
 # button refresh: h:int-d:int-t:token
