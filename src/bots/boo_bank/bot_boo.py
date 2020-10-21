@@ -22,8 +22,10 @@ import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
+import libraries.requests_util as requests_util
 from bots.boo_bank.bot_boo_values import links, test_error_token
 
+supply_file_path = 'log_files/boo_bot/supply_log.txt'
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -51,7 +53,8 @@ re_4chan = re.compile(r'\$BOOB|BOOB')
 TELEGRAM_KEY = os.environ.get('BOO_TELEGRAM_KEY')
 MEME_GIT_REPO = os.environ.get('BOO_MEME_GIT_REPO')
 TMP_FOLDER = BASE_PATH + 'tmp/'
-contract = "0xa9c44135b3a87e0688c41cf8c27939a22dd437c9"
+boob_contract = "0xa9c44135b3a87e0688c41cf8c27939a22dd437c9"
+ecto_contract = "0x921c87490ccbef90a3b0fc1951bd9064f7220af6"
 name = "Boo Bank"
 pair_contract = "0x6e31ef0b62a8abe30d80d35476ca78897dffa769"
 ticker = 'BOOB'
@@ -82,7 +85,7 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price)
 
@@ -108,7 +111,7 @@ def refresh_chart(update: Update, context: CallbackContext):
 
 def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
-    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
+    message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price)
 
@@ -209,6 +212,16 @@ def send_flyer(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     path = BASE_PATH + 'images/boo/flyer.jpg'
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'))
+
+
+def log_current_supply():
+    number_boob = requests_util.get_supply_cap_raw(boob_contract, decimals)
+    number_ecto = requests_util.get_supply_cap_raw(ecto_contract, decimals)
+    with open(supply_file_path, "a") as supply_file:
+        time_now = datetime.now()
+        date_time_str = time_now.strftime("%m/%d/%Y,%H:%M:%S")
+        message_to_write = date_time_str + " " + str(number_boob) + " " + str(number_ecto) + "\n"
+        supply_file.write(message_to_write)
 
 
 def main():
