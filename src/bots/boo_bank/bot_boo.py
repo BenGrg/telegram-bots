@@ -16,7 +16,7 @@ import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
-
+import telegram.error
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
@@ -94,6 +94,7 @@ def get_price_token(update: Update, context: CallbackContext):
 
 
 def refresh_chart(update: Update, context: CallbackContext):
+
     print("refreshing chart")
     query = update.callback_query.data
 
@@ -108,8 +109,12 @@ def refresh_chart(update: Update, context: CallbackContext):
     message_id = update.callback_query.message.message_id
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
-    context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
-    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+    try:
+        context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+    except telegram.error.BadRequest:
+        print("couldn't find message to deleted but catched the error")
+        pass
 
 
 def refresh_price(update: Update, context: CallbackContext):
