@@ -8,6 +8,10 @@ from libraries.util import float_to_str
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from libraries.images import Ocr
+import csv
+import datetime
+import matplotlib
+import matplotlib.pyplot as plt
 last_time_checked_4chan = 0
 
 
@@ -133,3 +137,73 @@ def ocr_image(update: Update, context: CallbackContext, tmp_path):
     text_in_ocr = ocr.start_ocr().replace('\n', ' ')
     print("recognized text = " + text_in_ocr)
     return text_in_ocr
+
+
+def strp_date(raw_date):
+    return datetime.strptime(raw_date, '%m/%d/%Y,%H:%M:%S')
+
+
+def print_chart_supply(dates_raw, supply_t1, name_t1, supply_t2, name_t2, chart_path):
+    dates = matplotlib.dates.date2num(dates_raw)
+    cb91_green = '#47DBCD'
+    plt.style.use('dark_background')
+
+    matplotlib.rcParams.update({'font.size': 22})
+    f = plt.figure(figsize=(16, 9))
+
+    ax = f.add_subplot(111)
+    ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+    plot1 = ax.plot_date(dates, supply_t1, 'r', label=name_t1)
+
+    ax2 = ax.twinx()
+    ax2.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+    plot2 = ax2.plot_date(dates, supply_t2, cb91_green, label=name_t2)
+
+    ax.set_ylabel(name_t1)
+    ax2.set_ylabel(name_t1)
+
+    plots = plot1 + plot2
+    labs = [l.get_label() for l in plots]
+    ax.legend(plots, labs, bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+              ncol=2, mode="expand", borderaxespad=0.)
+
+    plt.gcf().autofmt_xdate()
+    plt.savefig(chart_path, bbox_inches='tight', dpi=300)
+    plt.close(f)
+
+
+def send_supply_two_pyplot(supply_file_path, k_days, k_hours, name_t1, name_t2, chart_path):
+
+    list_time_supply = []
+
+    with open(supply_file_path, newline='') as csv_file:
+        reader = csv.reader(csv_file, delimiter=' ', quotechar='|')
+        for row in reader:
+            list_time_supply.append((row[0], row[1], row[2]))
+
+    now = datetime.datetime.utcnow()
+
+    filtered_values = [x for x in list_time_supply if
+                       now - strp_date(x[0]) < datetime.timedelta(days=k_days, hours=k_hours)]
+
+    dates_pure = keep_dates(filtered_values)
+    supply_t1 = [int(value[1]) for value in filtered_values]
+    supply_t2 = [int(value[2]) for value in filtered_values]
+
+    print_chart_supply(dates_pure, supply_t1, name_t1, supply_t2, name_t2, chart_path)
+    current_t1_str = supply_t1[-1]
+    current_t2_str = supply_t2[-1]
+    return current_t1_str, current_t2_str
+
+
+# util for get_chart_pyplot
+def keep_dates(values_list):
+    dates_str = []
+    for values in values_list:
+        dates_str.append(values[0])
+
+    dates_datetime = []
+    for date_str in dates_str:
+        date_datetime = datetime.strptime(date_str, '%m/%d/%Y,%H:%M:%S')
+        dates_datetime.append(date_datetime)
+    return dates_datetime

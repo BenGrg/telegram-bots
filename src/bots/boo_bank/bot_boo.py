@@ -23,6 +23,7 @@ import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
 import libraries.requests_util as requests_util
+import libraries.util as util
 from bots.boo_bank.bot_boo_values import links, test_error_token
 from libraries.timer_util import RepeatedTimer
 
@@ -64,6 +65,7 @@ git_url = "https://api.github.com/repos/boobank/boo-memes/contents/memesFolder"
 git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
 
 supply_file_path = BASE_PATH + 'log_files/boo_bot/supply_log.txt'
+supply_chart_path = BASE_PATH + 'log_files/boo_bot/supply_chart.png'
 
 
 # button refresh: h:int-d:int-t:token
@@ -225,6 +227,34 @@ def log_current_supply():
         supply_file.write(message_to_write)
 
 
+def get_chart_supply(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+
+    query_received = update.message.text.split(' ')
+
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, ticker)
+
+    current_boob_nbr, current_ecto_nbr = general_end_functions.send_supply_two_pyplot(supply_file_path
+                                                                                      ,k_days,
+                                                                                      k_hours,
+                                                                                      "BOOB",
+                                                                                      "ECTO",
+                                                                                      supply_chart_path)
+
+    current_boob_str = util.number_to_beautiful(current_boob_nbr[-1])
+    current_ecto_str = util.number_to_beautiful(current_ecto_nbr[-1])
+
+    msg_time = " " + str(k_days) + " day(s) " if k_days > 0 else " last " + str(k_hours) + " hour(s) "
+
+    caption = "Supply of the last " + msg_time + ".\nCurrent supply: \n<b>BOOB:</b> <pre>" + current_boob_str + \
+              "</pre> \n<b>ECTO:</b> <pre>" + current_ecto_str + "</pre>"
+
+    context.bot.send_photo(chat_id=chat_id,
+                           photo=open(supply_chart_path, 'rb'),
+                           caption=caption,
+                           parse_mode="html")
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -242,6 +272,7 @@ def main():
     dp.add_handler(CommandHandler('links', get_links))
     dp.add_handler(CommandHandler('anthem', send_anthem))
     dp.add_handler(CommandHandler('flyer', send_flyer))
+    dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
