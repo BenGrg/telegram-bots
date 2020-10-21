@@ -273,7 +273,7 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
-    dp.add_handler(CommandHandler('boo', get_price_token))
+    dp.add_handler(CommandHandler('boob', get_price_token))
     dp.add_handler(CommandHandler('ecto', get_price_ecto))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
