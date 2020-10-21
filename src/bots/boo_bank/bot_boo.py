@@ -234,8 +234,8 @@ def get_chart_supply(update: Update, context: CallbackContext):
 
     time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, ticker)
 
-    current_boob_nbr, current_ecto_nbr = general_end_functions.send_supply_two_pyplot(supply_file_path
-                                                                                      ,k_days,
+    current_boob_nbr, current_ecto_nbr = general_end_functions.send_supply_two_pyplot(supply_file_path,
+                                                                                      k_days,
                                                                                       k_hours,
                                                                                       "BOOB",
                                                                                       "ECTO",

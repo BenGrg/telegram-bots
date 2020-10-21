@@ -161,7 +161,7 @@ def print_chart_supply(dates_raw, supply_t1, name_t1, supply_t2, name_t2, chart_
     plot2 = ax2.plot_date(dates, supply_t2, cb91_green, label=name_t2)
 
     ax.set_ylabel(name_t1)
-    ax2.set_ylabel(name_t1)
+    ax2.set_ylabel(name_t2)
 
     plots = plot1 + plot2
     labs = [l.get_label() for l in plots]
