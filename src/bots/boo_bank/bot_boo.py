@@ -24,7 +24,7 @@ import libraries.scrap_websites_util as scrap_websites_util
 import libraries.git_util as git_util
 import libraries.requests_util as requests_util
 import libraries.util as util
-from bots.boo_bank.bot_boo_values import links, test_error_token
+from bots.boo_bank.bot_boo_values import links, test_error_token, how_to_swap
 from libraries.timer_util import RepeatedTimer
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
@@ -268,6 +268,11 @@ def get_chart_supply(update: Update, context: CallbackContext):
                            parse_mode="html")
 
 
+def send_how_to_swap(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text=how_to_swap, disable_web_page_preview=True, parse_mode='html')
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -288,6 +293,7 @@ def main():
     dp.add_handler(CommandHandler('anthem', send_anthem))
     dp.add_handler(CommandHandler('flyer', send_flyer))
     dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
+    dp.add_handler(CommandHandler('how_to_swap', send_how_to_swap))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
@@ -297,10 +303,11 @@ if __name__ == '__main__':
     main()
 
 commands = """
+help - How to use the bot.
 chart - Display a chart of the price.
 boob - Get the current price of $BOOB.
 ecto - Get the current price of $ECTO.
-help - How to use the bot.
+chart_supply - Display a chart of the supply (BOOB and ECTO).
 twitter - Get the last tweets concerning $BOOB.
 add_meme - Add a meme to the meme folder.
 give_meme - Returns a random meme from the meme folder.

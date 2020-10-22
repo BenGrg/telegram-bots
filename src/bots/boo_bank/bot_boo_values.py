@@ -32,3 +32,12 @@ links = '<b>Website:</b> ' + create_href_str(url_website, 'boobank.org') + '\n' 
 
 
 test_error_token = "Looks like you need to either: increase slippage (see /howtoslippage) to at least 4% and/or remove the decimals from the amount of $BOOB you're trying to buy"
+
+
+how_to_swap = """Swapping <b>ECTO for ETH:</b>
+In order to successfully swap ecto for eth:
+- Make sure to increase the slippage to at least 5%
+- Keep at least 0.05 ecto for every ecto that you wish to swap in your wallet
+- Fast gas is always a plus
+Swapping <b>ECTO - BOB:</b>
+- Same, but slippage at 10%"""
