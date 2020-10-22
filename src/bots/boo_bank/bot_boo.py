@@ -308,7 +308,7 @@ def main():
     dp.add_handler(CommandHandler('flyer', send_flyer))
     dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     dp.add_handler(CommandHandler('how_to_swap', send_how_to_swap))
-    dp.add_handler('convert', do_convert)
+    dp.add_handler(CommandHandler('convert', do_convert))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
