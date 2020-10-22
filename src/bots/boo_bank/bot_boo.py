@@ -273,6 +273,20 @@ def send_how_to_swap(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=how_to_swap, disable_web_page_preview=True, parse_mode='html')
 
 
+def do_convert(update: Update, context: CallbackContext):
+    query_received = update.message.text.split(' ')
+    chat_id = update.message.chat_id
+    if len(query_received) == 3:
+        ticker_req = query_received[2]
+        amount = float(query_received[1])
+        res = general_end_functions.convert_to_usd(amount, ticker_req, graphql_client_uni, graphql_client_eth)
+        message = str(amount) + " " + ticker_req + " = " + res + " USD"
+        context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
+
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -294,6 +308,7 @@ def main():
     dp.add_handler(CommandHandler('flyer', send_flyer))
     dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     dp.add_handler(CommandHandler('how_to_swap', send_how_to_swap))
+    dp.add_handler('convert', do_convert)
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
@@ -314,4 +329,6 @@ give_meme - Returns a random meme from the meme folder.
 anthem - Send the Boo Bank Org. national anthem.
 flyer - Show the flyer.
 biz - Display current 4chan threads.
+how_to_swap - Guide on how to swap ecto
+convert - convert AMOUNT MONEY
 """

@@ -208,3 +208,16 @@ def keep_dates(values_list):
         date_datetime = datetime.datetime.strptime(date_str, '%m/%d/%Y,%H:%M:%S')
         dates_datetime.append(date_datetime)
     return dates_datetime
+
+
+def convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth):
+    contract_from_ticker = requests_util.get_token_contract_address(currency_ticker)
+    (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
+     token_price_now_usd) = requests_util.get_price_raw(graphqlclient_eth, graphqlclient_uni, contract_from_ticker)
+    total = amount * token_price_now_usd
+    return total
+
+
+def convert_to_usd(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth):
+    total = convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth)
+    total_str = util.number_to_beautiful(round(total)) if round(total) > 10 else float_to_str(total)
