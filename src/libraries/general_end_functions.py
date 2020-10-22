@@ -220,4 +220,4 @@ def convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient
 
 def convert_to_usd(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth):
     total = convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth)
-    total_str = util.number_to_beautiful(round(total)) if round(total) > 10 else float_to_str(total)
+    return util.number_to_beautiful(round(total)) if round(total) > 10 else float_to_str(total)
