@@ -291,7 +291,7 @@ def do_convert(update: Update, context: CallbackContext):
         res = amount * (res_req / res_to_convert)
         res_req_str = util.number_to_beautiful(round(res_req)) if round(res_req) > 10 else util.float_to_str(res_req)
         res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)
-        message = str(amount) + " " + ticker_req + " = " + res_req_str + " USD or " + res_str " " + ticker_to
+        message = str(amount) + " " + ticker_req + " = " + res_req_str + " USD or " + res_str + " " + ticker_to
         context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
