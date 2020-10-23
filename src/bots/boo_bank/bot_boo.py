@@ -52,6 +52,7 @@ graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/bloc
 re_4chan = re.compile(r'\$BOOB|BOOB')
 TELEGRAM_KEY = os.environ.get('BOO_TELEGRAM_KEY')
 MEME_GIT_REPO = os.environ.get('BOO_MEME_GIT_REPO')
+MEME_PWD = os.environ.get('BOO_MEME_GIT_REPO_DELETE_PWD')
 TMP_FOLDER = BASE_PATH + 'tmp/'
 boob_contract = "0xa9c44135b3a87e0688c41cf8c27939a22dd437c9"
 name = "Boo Bank"
@@ -291,7 +292,7 @@ def do_convert(update: Update, context: CallbackContext):
         res_req = general_end_functions.convert_to_usd_raw(1, ticker_req, graphql_client_uni, graphql_client_eth)
         if ticker_to == 'lambo':
             res = amount * (res_req / float(lambo_price_usd))
-            res_req_usd_str = util.number_to_beautiful(round(res_req * amount)) if round(res_req  * amount) > 10 else util.float_to_str(res_req  * amount)
+            res_req_usd_str = util.number_to_beautiful(round(res_req * amount)) if round(res_req * amount) > 10 else util.float_to_str(res_req * amount)
             res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
             message = str(amount) + " " + ticker_req + " = " + res_req_usd_str + " USD or roughly " + res_str + " lamborghini huracan"
         else:
@@ -303,6 +304,10 @@ def do_convert(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
+
+
+def delete_meme(update: Update, context: CallbackContext):
+    git_handler.delete_meme(update, context, MEME_PWD)
 
 
 def main():
@@ -327,6 +332,7 @@ def main():
     dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     dp.add_handler(CommandHandler('how_to_swap', send_how_to_swap))
     dp.add_handler(CommandHandler('convert', do_convert))
+    dp.add_handler(CommandHandler('delete_meme_secret', delete_meme))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
