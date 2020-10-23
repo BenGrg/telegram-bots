@@ -282,9 +282,19 @@ def do_convert(update: Update, context: CallbackContext):
         res = general_end_functions.convert_to_usd(amount, ticker_req, graphql_client_uni, graphql_client_eth)
         message = str(amount) + " " + ticker_req + " = " + res + " USD"
         context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 4:
+        ticker_req = query_received[2]
+        amount = float(query_received[1])
+        ticker_to = query_received[3]
+        res_req = general_end_functions.convert_to_usd_raw(1, ticker_req, graphql_client_uni, graphql_client_eth)
+        res_to_convert = general_end_functions.convert_to_usd_raw(1, ticker_to, graphql_client_uni, graphql_client_eth)
+        res = amount * (res_req / res_to_convert)
+        res_req_str = util.number_to_beautiful(round(res_req)) if round(res_req) > 10 else util.float_to_str(res_req)
+        res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)
+        message = str(amount) + " " + ticker_req + " = " + res_req_str + " USD or " + res_str " " + ticker_to
+        context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
-
 
 
 def main():
