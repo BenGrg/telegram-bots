@@ -69,6 +69,8 @@ git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
 supply_file_path = BASE_PATH + 'log_files/boo_bot/supply_log.txt'
 supply_chart_path = BASE_PATH + 'log_files/boo_bot/supply_chart.png'
 
+lambo_price_usd = 220000
+
 
 # button refresh: h:int-d:int-t:token
 def get_candlestick(update: Update, context: CallbackContext):
@@ -287,11 +289,17 @@ def do_convert(update: Update, context: CallbackContext):
         amount = float(query_received[1])
         ticker_to = query_received[3]
         res_req = general_end_functions.convert_to_usd_raw(1, ticker_req, graphql_client_uni, graphql_client_eth)
-        res_to_convert = general_end_functions.convert_to_usd_raw(1, ticker_to, graphql_client_uni, graphql_client_eth)
-        res = amount * (res_req / res_to_convert)
-        res_req_str = util.number_to_beautiful(round(res_req)) if round(res_req) > 10 else util.float_to_str(res_req)[0:10]
-        res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
-        message = str(amount) + " " + ticker_req + " = " + res_req_str + " USD or " + res_str + " " + ticker_to
+        if ticker_to == 'lambo':
+            res = amount * (res_req / float(lambo_price_usd))
+            res_req_str = util.number_to_beautiful(round(res_req)) if round(res_req) > 10 else util.float_to_str(res_req)[0:10]
+            res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
+            message = str(amount) + " " + ticker_req + " = " + res_req_str + " USD or roughly " + res_str + " lamborghini huracan"
+        else:
+            res_to_convert = general_end_functions.convert_to_usd_raw(1, ticker_to, graphql_client_uni, graphql_client_eth)
+            res = amount * (res_req / res_to_convert)
+            res_req_str = util.number_to_beautiful(round(res_req)) if round(res_req) > 10 else util.float_to_str(res_req)[0:10]
+            res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
+            message = str(amount) + " " + ticker_req + " = " + res_req_str + " USD or " + res_str + " " + ticker_to
         context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
