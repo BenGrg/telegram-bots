@@ -39,5 +39,5 @@ In order to successfully swap ecto for eth:
 - Make sure to increase the slippage to at least 5%
 - Keep at least 0.05 ecto for every ecto that you wish to swap in your wallet
 - Fast gas is always a plus
-Swapping <b>ECTO - BOB:</b>
+Swapping <b>ECTO - BOOB:</b>
 - Same, but slippage at 10%"""
