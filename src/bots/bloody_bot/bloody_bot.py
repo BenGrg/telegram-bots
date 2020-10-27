@@ -84,8 +84,7 @@ def get_candlestick(update: Update, context: CallbackContext):
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
-# have to use custom function as supply is 50x what etherscan tells us
-def get_price_token(update: Update, context: CallbackContext):
+def special_custom_price():
     (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
      token_price_now_usd) = requests_util.get_price_raw(graphql_client_eth, graphql_client_uni, bloody_contract)
 
@@ -126,6 +125,12 @@ def get_price_token(update: Update, context: CallbackContext):
               + holders_str \
               + "</code>" \
               + "\n"
+    return message
+
+
+# have to use custom function as supply is 50x what etherscan tells us
+def get_price_token(update: Update, context: CallbackContext):
+    message = special_custom_price()
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
@@ -156,8 +161,7 @@ def refresh_chart(update: Update, context: CallbackContext):
 
 def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
-    message = general_end_functions.get_price(bloody_contract, pair_contract, graphql_client_eth, graphql_client_uni,
-                                              name, decimals)
+    message = special_custom_price()
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
