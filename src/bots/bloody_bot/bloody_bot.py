@@ -84,8 +84,48 @@ def get_candlestick(update: Update, context: CallbackContext):
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
+# have to use custom function as supply is 50x what etherscan tells us
 def get_price_token(update: Update, context: CallbackContext):
-    message = general_end_functions.get_price(bloody_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
+    (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
+     token_price_now_usd) = requests_util.get_price_raw(graphql_client_eth, graphql_client_uni, bloody_contract)
+
+    supply_cap_token = requests_util.get_supply_cap_raw(bloody_contract, decimals)
+    supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token * 50)))
+    market_cap = util.number_to_beautiful(int(float(supply_cap_token) * token_price_now_usd))
+
+    vol_24h = requests_util.get_volume_24h(graphql_client_uni, bloody_contract)
+    if token_price_7d_usd is not None and token_price_7d_usd != 0.0:
+        var_7d = - int(((token_price_7d_usd - token_price_now_usd) / token_price_7d_usd) * 100) if token_price_7d_usd > token_price_now_usd else int(((token_price_now_usd - token_price_7d_usd) / token_price_7d_usd) * 100)
+        var_7d_str = "+" + str(var_7d) + "%" if var_7d > 0 else str(var_7d) + "%"
+    else:
+        var_7d_str = "Not available"
+    if token_price_1d_usd is not None and token_price_1d_usd != 0.0:
+        var_1d = - int(((token_price_1d_usd - token_price_now_usd) / token_price_1d_usd) * 100) if token_price_1d_usd > token_price_now_usd else int(((token_price_now_usd - token_price_1d_usd) / token_price_1d_usd) * 100)
+        var_1d_str = "+" + str(var_1d) + "%" if var_1d > 0 else str(var_1d) + "%"
+    else:
+        var_1d_str = "Not available"
+
+    print("vol 24: " + str(vol_24h))
+
+    vol_24_pretty = util.number_to_beautiful(vol_24h)
+
+    msg_vol_24 = "\nVol 24H = $" + vol_24_pretty if vol_24_pretty != "0" else ""
+
+    holders = requests_util.get_number_holder_token(bloody_contract)
+    holders_str = "\nHolders = " + str(holders) if holders != -1 else ""
+    ad = util.get_ad()
+    message = "<code>" + name \
+              + "\nETH: Ξ" + util.float_to_str(derivedETH_now)[0:10] \
+              + "\nUSD: $" + util.float_to_str(token_price_now_usd)[0:10] \
+              + "\n24H:  " + var_1d_str \
+              + "\n7D :  " + var_7d_str \
+              + "\n" \
+              + msg_vol_24 \
+              + "\nS.  Cap = " + supply_cat_pretty \
+              + "\nM.  Cap = $" + market_cap \
+              + holders_str \
+              + "</code>" \
+              + "\n" + ad
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
