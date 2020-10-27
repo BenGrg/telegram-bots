@@ -91,7 +91,7 @@ def get_price_token(update: Update, context: CallbackContext):
 
     supply_cap_token = requests_util.get_supply_cap_raw(bloody_contract, decimals)
     supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token * 50)))
-    market_cap = util.number_to_beautiful(int(float(supply_cap_token) * token_price_now_usd))
+    market_cap = util.number_to_beautiful(int(float(supply_cap_token * 50) * token_price_now_usd))
 
     vol_24h = requests_util.get_volume_24h(graphql_client_uni, bloody_contract)
     if token_price_7d_usd is not None and token_price_7d_usd != 0.0:
