@@ -23,6 +23,7 @@ import libraries.commands_util as commands_util
 import libraries.requests_util as requests_util
 import libraries.util as util
 import libraries.scrap_websites_util as scrap_websites_util
+from libraries.common_values import *
 
 # twitter
 APP_KEY = os.environ.get('TWITTER_API_KEY')
@@ -263,11 +264,41 @@ def get_twitter(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Please use the format /twitter TOKEN_TICKER.", parse_mode='html', disable_web_page_preview=True)
 
 
+def do_convert(update: Update, context: CallbackContext):
+    query_received = update.message.text.split(' ')
+    chat_id = update.message.chat_id
+    if len(query_received) == 3:
+        ticker_req = query_received[2]
+        amount = float(query_received[1])
+        res = general_end_functions.convert_to_usd(amount, ticker_req, graphql_client_uni, graphql_client_eth)
+        message = str(amount) + " " + ticker_req + " = " + res + " USD"
+        context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 4:
+        ticker_req = query_received[2]
+        amount = float(query_received[1])
+        ticker_to = query_received[3]
+        res_req = general_end_functions.convert_to_usd_raw(1, ticker_req, graphql_client_uni, graphql_client_eth)
+        if ticker_to == 'lambo':
+            res = amount * (res_req / float(lambo_price_usd))
+            res_req_usd_str = util.number_to_beautiful(round(res_req * amount)) if round(res_req * amount) > 10 else util.float_to_str(res_req * amount)
+            res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
+            message = str(amount) + " " + ticker_req + " = " + res_req_usd_str + " USD or roughly " + res_str + " lamborghini huracan"
+        else:
+            res_ticker_to = general_end_functions.convert_to_usd_raw(1, ticker_to, graphql_client_uni, graphql_client_eth)
+            res = amount * (res_req / res_ticker_to)
+            res_req_usd_str = util.number_to_beautiful(round(res_req * amount)) if round(res_req * amount) > 10 else util.float_to_str(res_req * amount)
+            res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
+            message = str(amount) + " " + ticker_req + " = " + res_req_usd_str + " USD or " + res_str + " " + ticker_to
+        context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
+
 
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('charts', get_candlestick))
+    dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('add_fav', add_favorite_token))
     dp.add_handler(CommandHandler('see_fav', see_fav_token))
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))

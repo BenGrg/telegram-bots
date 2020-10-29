@@ -26,6 +26,7 @@ import libraries.requests_util as requests_util
 import libraries.util as util
 from bots.boo_bank.bot_boo_values import links, test_error_token, how_to_swap
 from libraries.timer_util import RepeatedTimer
+from libraries.common_values import *
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -69,8 +70,6 @@ git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
 
 supply_file_path = BASE_PATH + 'log_files/boo_bot/supply_log.txt'
 supply_chart_path = BASE_PATH + 'log_files/boo_bot/supply_chart.png'
-
-lambo_price_usd = 220000
 
 
 # button refresh: h:int-d:int-t:token

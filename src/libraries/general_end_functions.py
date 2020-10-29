@@ -211,11 +211,15 @@ def keep_dates(values_list):
 
 
 def convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth):
-    contract_from_ticker = requests_util.get_token_contract_address(currency_ticker)
-    (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
-     token_price_now_usd) = requests_util.get_price_raw(graphqlclient_eth, graphqlclient_uni, contract_from_ticker)
-    total = amount * token_price_now_usd
-    return total
+    if currency_ticker.lower() == 'eth':
+        eth_price = requests_util.get_eth_price_now()
+        return amount * eth_price
+    else:
+        contract_from_ticker = requests_util.get_token_contract_address(currency_ticker)
+        (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
+         token_price_now_usd) = requests_util.get_price_raw(graphqlclient_eth, graphqlclient_uni, contract_from_ticker)
+        total = amount * token_price_now_usd
+        return total
 
 
 def convert_to_usd(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth):

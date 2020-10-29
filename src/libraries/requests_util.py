@@ -4,6 +4,8 @@ import time
 import json
 import os
 
+url_eth_price_gecko = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+
 get_address_endpoint = "https://visitly.azurewebsites.net/api/pairs/ERC-20/"
 
 etherscan_api_key = os.environ.get('ETH_API_KEY')
@@ -198,13 +200,18 @@ def get_token_contract_address(token_ticker):
     return None
     # pprint.pprint(res)
 
+
+def get_eth_price_now():
+    res = requests.get(url_eth_price_gecko).json()
+    if 'ethereum' in res:
+        if 'usd' in res['ethereum']:
+            return res['ethereum']['usd']
+    return 0
+
 #
 # def main():
-#     res = get_token_contract_address('ROT')
-#     if res is None:
-#         print("ticker not found")
-#     else:
-#         print("OK, addr = " + res)
+#     res = get_eth_price_now()
+#     pprint.pprint(res)
 #
 #
 # if __name__ == '__main__':
