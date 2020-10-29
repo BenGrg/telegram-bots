@@ -306,6 +306,7 @@ def main():
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(CommandHandler('biz', get_biz))
+    dp.add_handler(CommandHandler('convert', do_convert))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
