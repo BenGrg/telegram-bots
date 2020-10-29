@@ -267,7 +267,13 @@ def get_twitter(update: Update, context: CallbackContext):
 def do_convert(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     chat_id = update.message.chat_id
-    if len(query_received) == 3:
+    if len(query_received) == 2:
+        ticker_req = query_received[1]
+        amount = 1.0
+        res = general_end_functions.convert_to_usd(amount, ticker_req, graphql_client_uni, graphql_client_eth)
+        message = str(amount) + " " + ticker_req + " = " + res + " USD"
+        context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 3:
         ticker_req = query_received[2]
         amount = float(query_received[1])
         res = general_end_functions.convert_to_usd(amount, ticker_req, graphql_client_uni, graphql_client_eth)
