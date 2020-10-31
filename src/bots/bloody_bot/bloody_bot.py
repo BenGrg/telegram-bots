@@ -166,7 +166,10 @@ def refresh_price(update: Update, context: CallbackContext):
 
 
 def get_help(update: Update, context: CallbackContext):
-    general_end_functions.get_help(update, context)
+    chat_id = update.message.chat_id
+    message = "Some bloody explanations right there: \n https://twitter.com/bag_hodler/status/1322371044506701824?s=21"
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', disable_web_page_preview=True)
+    # general_end_functions.get_help(update, context)
 
 
 def get_twitter(update: Update, context: CallbackContext):
