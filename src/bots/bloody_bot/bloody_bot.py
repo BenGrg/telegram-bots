@@ -137,6 +137,7 @@ def special_custom_price():
 def get_price_token(update: Update, context: CallbackContext):
     message = special_custom_price()
     chat_id = update.message.chat_id
+    pprint.pprint(chat_id)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
