@@ -312,6 +312,7 @@ def do_convert(update: Update, context: CallbackContext):
 
 def handle_new_image(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
+    pprint.pprint(chat_id)
     try:
         caption = update['message']['caption']
         if caption == "/add_meme" and chat_id == -1001407194758:
