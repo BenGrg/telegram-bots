@@ -305,11 +305,13 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('charts', get_candlestick))
     dp.add_handler(CommandHandler('chart', get_candlestick))
+    dp.add_handler(CommandHandler('c', get_candlestick))
     dp.add_handler(CommandHandler('add_fav', add_favorite_token))
     dp.add_handler(CommandHandler('see_fav', see_fav_token))
     dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
     dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
+    dp.add_handler(CommandHandler('p', get_price_token))
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('convert', do_convert))

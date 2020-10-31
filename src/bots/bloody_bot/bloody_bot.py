@@ -35,6 +35,11 @@ APP_SECRET = os.environ.get('TWITTER_API_KEY_SECRET')
 ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
 ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 
+TMP_FOLDER = BASE_PATH + 'tmp/'
+MEME_GIT_REPO = os.environ.get('BLOODY_MEME_GIT_REPO')
+git_url = "https://api.github.com/repos/rottedben/bloodyMemes/contents/memesFolder"
+git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
+
 twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
 
 # time
@@ -304,6 +309,41 @@ def do_convert(update: Update, context: CallbackContext):
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong format. Please use /convert AMOUNT CURRENCY", disable_web_page_preview=True, parse_mode='html')
 
+
+def handle_new_image(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    try:
+        caption = update['message']['caption']
+        if caption == "/add_meme" and chat_id == -1001187740219:
+            if git_handler.add_meme(update, context):
+                context.bot.send_message(chat_id=chat_id, text="Got it boss!")
+            else:
+                error_msg = "Adding image failed: no image provided or incorrect format."
+                context.bot.send_message(chat_id=chat_id, text=error_msg)
+        else:
+            __send_message_if_ocr(update, context)
+    except KeyError:
+        __send_message_if_ocr(update, context)
+
+
+def __send_message_if_ocr(update, context):
+    message_id = update.message.message_id
+    chat_id = update.message.chat_id
+    try:
+        text_in_ocr = general_end_functions.ocr_image(update, context, TMP_FOLDER)
+        if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
+                'transaction will not succeed' and 'price movement or' in text_in_ocr):
+            context.bot.send_message(chat_id=chat_id, text=test_error_token, reply_to_message_id=message_id)
+    except IndexError:
+        pass
+
+
+def send_meme_to_chat(update: Update, context: CallbackContext):
+    url = git_handler.get_url_meme()
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id=chat_id, photo=url)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -316,6 +356,9 @@ def main():
     dp.add_handler(CommandHandler('help', get_help))
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(CommandHandler('biz', get_biz))
+    dp.add_handler(MessageHandler(Filters.photo, handle_new_image))
+    dp.add_handler(CommandHandler('give_meme', send_meme_to_chat))
+    dp.add_handler(CommandHandler('meme', send_meme_to_chat))
     # dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     dp.add_handler(CommandHandler('convert', do_convert))
     # RepeatedTimer(120, log_current_supply)
