@@ -8,6 +8,7 @@ from libraries.util import float_to_str
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from libraries.images import Ocr
+from libraries.common_values import *
 import csv
 import datetime
 import matplotlib
@@ -225,3 +226,31 @@ def convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient
 def convert_to_usd(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth):
     total = convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient_eth)
     return util.number_to_beautiful(round(total)) if round(total) > 10 else float_to_str(total)
+
+
+def convert_to_something(query_received, graphql_client_uni, graphql_client_eth):
+    if len(query_received) == 3:
+        ticker_req = query_received[2]
+        amount = float(query_received[1])
+        res = convert_to_usd(amount, ticker_req, graphql_client_uni, graphql_client_eth)
+        message = str(amount) + " " + ticker_req + " = " + res + " USD"
+        return message
+    elif len(query_received) == 4:
+        ticker_req = query_received[2]
+        amount = float(query_received[1])
+        ticker_to = query_received[3]
+        res_req = convert_to_usd_raw(1, ticker_req, graphql_client_uni, graphql_client_eth)
+        if ticker_to == 'lambo':
+            res = amount * (res_req / float(lambo_price_usd))
+            res_req_usd_str = util.number_to_beautiful(round(res_req * amount)) if round(res_req * amount) > 10 else util.float_to_str(res_req * amount)
+            res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
+            message = str(amount) + " " + ticker_req + " = " + res_req_usd_str + " USD or roughly " + res_str + " lamborghini huracan"
+        else:
+            res_ticker_to = convert_to_usd_raw(1, ticker_to, graphql_client_uni, graphql_client_eth)
+            res = amount * (res_req / res_ticker_to)
+            res_req_usd_str = util.number_to_beautiful(round(res_req * amount)) if round(res_req * amount) > 10 else util.float_to_str(res_req * amount)
+            res_str = util.number_to_beautiful(round(res)) if round(res) > 10 else util.float_to_str(res)[0:10]
+            message = str(amount) + " " + ticker_req + " = " + res_req_usd_str + " USD or " + res_str + " " + ticker_to
+        return message
+    else:
+        return "Wrong format. Please use /convert AMOUNT CURRENCY (optional: CURRENCY_TO)"
