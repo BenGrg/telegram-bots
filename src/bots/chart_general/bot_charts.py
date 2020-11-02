@@ -110,7 +110,7 @@ def get_candlestick(update: Update, context: CallbackContext):
         if tokens == 'kp3r' or 'KP3R':
             value = general_end_functions.convert_to_usd_raw(1, 'kp3r', graphql_client_uni, graphql_client_eth)
             if value < 190:
-                context.bot.send_message(chat_id=chat_id, message="Stop it you're just hurting yourself. You've got to believe in Andre")
+                context.bot.send_message(chat_id=chat_id, text="Stop it you're just hurting yourself. You've got to believe in Andre")
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
@@ -231,7 +231,7 @@ def refresh_chart(update: Update, context: CallbackContext):
         value = general_end_functions.convert_to_usd_raw(1, 'kp3r', graphql_client_uni, graphql_client_eth)
         print(str(value))
         if value < 190:
-            context.bot.send_message(chat_id=chat_id, message="Stop it you're just hurting yourself. You've got to believe in Andre")
+            context.bot.send_message(chat_id=chat_id, text="Stop it you're just hurting yourself. You've got to believe in Andre")
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
