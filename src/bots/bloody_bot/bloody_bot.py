@@ -94,8 +94,8 @@ def special_custom_price():
      token_price_now_usd) = requests_util.get_price_raw(graphql_client_eth, graphql_client_uni, bloody_contract)
 
     supply_cap_token = requests_util.get_supply_cap_raw(bloody_contract, decimals)
-    supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token * 50)))
-    market_cap = util.number_to_beautiful(int(float(supply_cap_token * 50) * token_price_now_usd))
+    supply_cat_pretty = str(util.number_to_beautiful(round(supply_cap_token * 55)))
+    market_cap = util.number_to_beautiful(int(float(supply_cap_token * 55) * token_price_now_usd))
 
     vol_24h = requests_util.get_volume_24h(graphql_client_uni, bloody_contract)
     if token_price_7d_usd is not None and token_price_7d_usd != 0.0:
@@ -133,7 +133,7 @@ def special_custom_price():
     return message
 
 
-# have to use custom function as supply is 50x what etherscan tells us
+# have to use custom function as supply is 55x what etherscan tells us
 def get_price_token(update: Update, context: CallbackContext):
     message = special_custom_price()
     chat_id = update.message.chat_id
