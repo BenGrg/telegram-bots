@@ -109,7 +109,7 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
               + "\nS.  Cap = " + supply_cat_pretty \
               + "\nM.  Cap = $" + market_cap \
               + holders_str + "</code>"\
-              + links \
+              + "\n" + links \
               + "\n" + ad
     return message
 
