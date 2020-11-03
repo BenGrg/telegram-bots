@@ -176,11 +176,9 @@ def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
     query = update.callback_query.data
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
-    pprint.pprint(contract_from_ticker)
     token_name = query.split('_t_')[1]
-    pprint.pprint(token_name)
     message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni,
-                                              "", decimals)
+                                              token_name.upper(), decimals)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
