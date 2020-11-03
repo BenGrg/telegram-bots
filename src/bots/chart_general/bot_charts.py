@@ -166,7 +166,7 @@ def get_price_token(update: Update, context: CallbackContext):
         else:
             button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
             reply_markup_price = InlineKeyboardMarkup(button_list_price)
-            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, ticker, decimals)
+            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, ticker.upper(), decimals)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
