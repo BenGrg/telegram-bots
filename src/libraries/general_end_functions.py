@@ -97,6 +97,7 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
 
     holders = requests_util.get_number_holder_token(contract)
     holders_str = "\nHolders = " + str(holders) if holders != -1 else ""
+    links = '<a href="etherscan.io/token/' + contract + '">Etherscan</a>|<a href="https://app.uniswap.org/#/swap?inputCurrency=' + contract + '">Uni</a>'
     ad = util.get_ad()
     message = "<code>" + name \
               + "\nETH: Ξ" + float_to_str(derivedETH_now)[0:10] \
@@ -107,8 +108,8 @@ def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, d
               + msg_vol_24 \
               + "\nS.  Cap = " + supply_cat_pretty \
               + "\nM.  Cap = $" + market_cap \
-              + holders_str \
-              + "</code>" \
+              + holders_str + "</code>"\
+              + links \
               + "\n" + ad
     return message
 
