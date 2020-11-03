@@ -49,9 +49,6 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
-reply_markup_price = InlineKeyboardMarkup(button_list_price)
-
 
 def read_favorites(path):
     with open(path) as f:
@@ -104,17 +101,9 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            if tokens == 'kp3r' or tokens == 'KP3R' or tokens == ['kp3r'] or tokens == ['KP3R']:
-                value = general_end_functions.convert_to_usd_raw(1, 'kp3r', graphql_client_uni, graphql_client_eth)
-                if value < 190:
-                    context.bot.send_message(chat_id=chat_id, text="Stop it you're just hurting yourself. You've got to believe in Andre")
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        if tokens == 'kp3r' or tokens == 'KP3R' or tokens == ['kp3r'] or tokens == ['KP3R']:
-            value = general_end_functions.convert_to_usd_raw(1, 'kp3r', graphql_client_uni, graphql_client_eth)
-            if value < 190:
-                context.bot.send_message(chat_id=chat_id, text="Stop it you're just hurting yourself. You've got to believe in Andre")
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
@@ -175,16 +164,23 @@ def get_price_token(update: Update, context: CallbackContext):
         if contract_from_ticker is None:
             context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
         else:
+            button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
+            reply_markup_price = InlineKeyboardMarkup(button_list_price)
             message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, ticker, decimals)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
     else:
-        context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired tocken.')
+        context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
 
 
 def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
-    message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
+    query = update.callback_query.data
+    contract_from_ticker = query.split('contract_from_ticker_')[1]
+    pprint.pprint(contract_from_ticker)
+    message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni,
                                               "", decimals)
+    button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
+    reply_markup_price = InlineKeyboardMarkup(button_list_price)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -230,12 +226,6 @@ def refresh_chart(update: Update, context: CallbackContext):
 
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
-
-    if token == 'kp3r' or 'KP3R':
-        value = general_end_functions.convert_to_usd_raw(1, 'kp3r', graphql_client_uni, graphql_client_eth)
-        print(str(value))
-        if value < 190:
-            context.bot.send_message(chat_id=chat_id, text="Stop it you're just hurting yourself. You've got to believe in Andre")
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
