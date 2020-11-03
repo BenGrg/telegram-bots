@@ -164,7 +164,7 @@ def get_price_token(update: Update, context: CallbackContext):
         if contract_from_ticker is None:
             context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
         else:
-            button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
+            button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker + "_ticker_" + ticker)]]
             reply_markup_price = InlineKeyboardMarkup(button_list_price)
             message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, ticker, decimals)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
@@ -175,9 +175,10 @@ def get_price_token(update: Update, context: CallbackContext):
 def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
     query = update.callback_query.data
-    pprint.pprint(query)
-    contract_from_ticker = query.split('refresh_price_')[1]
+    contract_from_ticker = query.split('refresh_price_')[1].split('_ticker')[0]
     pprint.pprint(contract_from_ticker)
+    token_name = query.split('_ticker_')[1]
+    pprint.pprint(token_name)
     message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni,
                                               "", decimals)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
