@@ -176,7 +176,7 @@ def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
     query = update.callback_query.data
     pprint.pprint(query)
-    contract_from_ticker = query.split('contract_from_ticker_')[1]
+    contract_from_ticker = query.split('refresh_price_')[1]
     pprint.pprint(contract_from_ticker)
     message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni,
                                               "", decimals)
