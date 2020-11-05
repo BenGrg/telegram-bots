@@ -513,7 +513,7 @@ def get_price_maggot_raw():
     rot_per_maggot = get_ratio_rot_per_maggot(json.loads(resp_maggot))
 
     (derivedETH_7d, rot_price_7d_usd, derivedETH_1d, rot_price_1d_usd, derivedETH_now,
-     rot_price_now_usd) = requests_util.get_price_raw(graphql_client_eth, graphql_client_uni, rot_contract)
+     rot_price_now_usd) = requests_util.get_price_raw(graphql_client_eth, graphql_client_uni, rot_contract_formatted_uni)
 
     dollar_per_maggot = rot_price_now_usd * rot_per_maggot
     eth_per_maggot = derivedETH_now * rot_per_maggot
