@@ -13,6 +13,7 @@ from datetime import datetime
 import pprint
 import os.path
 import re
+import random
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
@@ -217,6 +218,14 @@ def get_links(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=links, disable_web_page_preview=True, parse_mode='html')
 
 
+def send_music(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    filename = random.sample(os.listdir(BASE_PATH + 'audio/boo/'), 1)[0]
+    context.bot.send_audio(chat_id=chat_id,
+                           audio=open(filename, 'rb'),
+                           parse_mode='html')
+
+
 def send_anthem(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     caption = "🎸🤘🎼 <i>I want my stacked boobiiiiieeesssss</i>🎼🤘🎸"
@@ -304,6 +313,7 @@ def main():
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('links', get_links))
     dp.add_handler(CommandHandler('anthem', send_anthem))
+    dp.add_handler(CommandHandler('music', send_music))
     dp.add_handler(CommandHandler('flyer', send_flyer))
     dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     dp.add_handler(CommandHandler('how_to_swap', send_how_to_swap))
@@ -327,6 +337,7 @@ twitter - Get the last tweets concerning $BOOB.
 add_meme - Add a meme to the meme folder.
 give_meme - Returns a random meme from the meme folder.
 anthem - Send the Boo Bank Org. national anthem.
+music - Send a random music from the jukebox.
 flyer - Show the flyer.
 biz - Display current 4chan threads.
 how_to_swap - Guide on how to swap ecto
