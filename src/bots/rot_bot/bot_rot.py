@@ -19,7 +19,6 @@ import random
 import locale
 import os
 import json
-from libraries.timer_util import RepeatedTimer
 import plotly.graph_objects as go
 import pprint
 import sys
@@ -28,6 +27,7 @@ BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
 
+from libraries.timer_util import RepeatedTimer
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
