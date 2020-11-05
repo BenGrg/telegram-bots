@@ -81,6 +81,26 @@ last_time_checked = 0
 last_time_checked_twitter = 0
 last_time_checked_ads = 0
 
+req_graphql_maggot = '''{
+swaps(
+    first: 1, 
+    where: { pair: "0x5cfd4ee2886cf42c716be1e20847bda15547c693" } 
+    orderBy: timestamp, 
+    orderDirection: desc) 
+    {transaction 
+      {id timestamp}
+      id
+      pair {
+        token0 
+            {id symbol}
+        token1 
+            {id symbol}}
+         amount0In 
+         amount0Out 
+         amount1In 
+         amount1Out  
+ }}'''
+
 re_4chan = re.compile(r'^rot |rot$| rot |rotten|rotting|ROT')
 
 twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
@@ -472,15 +492,71 @@ def delete_meme(update: Update, context: CallbackContext):
                 context.bot.send_message(chat_id=chat_id, text="removed" + filename)
 
 
+# return the amount of maggot per rot
+def get_ratio_rot_per_maggot(last_swaps_maggot_rot_pair):
+    interesting_part = last_swaps_maggot_rot_pair['data']['swaps'][0]
+    last_swaps_amount_maggot_in = float(interesting_part['amount0In'])
+    last_swaps_amount_maggot_out = float(interesting_part['amount0Out'])
+    last_swaps_amount_rot_in = float(interesting_part['amount1In'])
+    last_swaps_amount_rot_out = float(interesting_part['amount1Out'])
+    # check which direction the transaction took place. For that, if amount1In = 0, it was maggot -> rot
+    transaction_direction_maggot_to_rot = (last_swaps_amount_rot_in == 0)
+    if transaction_direction_maggot_to_rot:
+        return last_swaps_amount_rot_out / last_swaps_amount_maggot_in
+    else:
+        return last_swaps_amount_rot_in / last_swaps_amount_maggot_out
+
+
+def get_price_maggot_raw():
+    resp_maggot = graphql_client_uni.execute(req_graphql_maggot)
+
+    rot_per_maggot = get_ratio_rot_per_maggot(json.loads(resp_maggot))
+
+    (derivedETH_7d, rot_price_7d_usd, derivedETH_1d, rot_price_1d_usd, derivedETH_now,
+     rot_price_now_usd) = requests_util.get_price_raw(graphql_client_eth, graphql_client_uni, rot_contract)
+
+    dollar_per_maggot = rot_price_now_usd * rot_per_maggot
+    eth_per_maggot = derivedETH_now * rot_per_maggot
+
+    return eth_per_maggot, dollar_per_maggot, rot_per_maggot
+
+
+def get_number_holder_token(token):
+    url = ethexplorer_holder_base_url + token
+    res = requests.get(url).json()
+    try:
+        holders = res['pager']['holders']['records']
+    except KeyError:
+        holders = -1
+    return int(holders)
+
+
 def get_price_maggot(update: Update, context: CallbackContext):
+    (eth_per_maggot, dollar_per_maggot, rot_per_maggot) = get_price_maggot_raw()
+
+    supply_cap_maggot = get_supply_cap_raw(maggot_contract)
+    supply_cat_pretty = number_to_beautiful(supply_cap_maggot)
+    market_cap = number_to_beautiful(int(float(supply_cap_maggot) * dollar_per_maggot))
+
+    maggot_per_rot = 1 / rot_per_maggot
+
+    holders = get_number_holder_token(maggot_contract)
+    message = ""
+
+    if str(dollar_per_maggot)[0:10] == "0.07514950":
+        message = message + "Parts of Uniswap info seems down. Price might be outdated.\n"
+
+    message = message + "<code>(MAGGOT) MaggotToken" \
+              + "\nETH: Ξ" + str(eth_per_maggot)[0:10] \
+              + "\nUSD: $" + str(dollar_per_maggot)[0:10] \
+              + "\n" \
+              + "\n1ROT    = " + str(maggot_per_rot)[0:4] + " MAGGOT" \
+              + "\nS.  Cap = " + supply_cat_pretty \
+              + "\nM.  Cap = $" + market_cap \
+              + "\nHolders = " + str(holders) + "</code>"
+
     chat_id = update.message.chat_id
-    ticker = "MAGGOT"
-    contract_from_ticker = requests_util.get_token_contract_address(ticker)
-    pprint.pprint(contract_from_ticker)
-    button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
-    reply_markup_price = InlineKeyboardMarkup(button_list_price)
-    message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni, ticker.upper(), 10**18)
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
 
 
 def get_price_rot(update: Update, context: CallbackContext):
