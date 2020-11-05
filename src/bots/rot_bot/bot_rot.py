@@ -20,10 +20,13 @@ import locale
 import os
 import json
 from libraries.timer_util import RepeatedTimer
-from images import Ocr
-import graphs_util
 import plotly.graph_objects as go
 import pprint
+import sys
+
+BASE_PATH = os.environ.get('BASE_PATH')
+sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
+
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
@@ -34,6 +37,8 @@ import libraries.scrap_websites_util as scrap_websites_util
 
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
+TMP_FOLDER = BASE_PATH + 'tmp/'
+
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('TELEGRAM_KEY')
 etherscan_api_key = os.environ.get('ETH_API_KEY')
@@ -42,7 +47,6 @@ APP_SECRET = os.environ.get('TWITTER_API_KEY_SECRET')
 ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
 ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 MEME_GIT_REPO = os.environ.get('MEME_GIT_REPO')
-BASE_PATH = os.environ.get('BASE_PATH')
 
 ethexplorer_holder_base_url = "https://ethplorer.io/service/service.php?data="
 
@@ -385,7 +389,7 @@ def handle_new_image(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     try:
         caption = update['message']['caption']
-        if caption == "/add_meme" and chat_id == -1001382715556:
+        if caption == "/add_meme" and chat_id == -1001187740219:
             try:
                 tmp_path = download_image(update, context)
                 img_hash = calculate_hash(tmp_path)
@@ -401,27 +405,21 @@ def handle_new_image(update: Update, context: CallbackContext):
                 error_msg = "Adding image failed: no image provided. Make sure to send it as a file and not an image."
                 context.bot.send_message(chat_id=chat_id, text=error_msg)
         else:
-            try:
-                tmp_path = download_image(update, context)
-                ocr = Ocr(tmp_path)
-                text_in_ocr = ocr.start_ocr().replace('\n', ' ')
-                print("recognized text = " + text_in_ocr)
-                if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
-                        'transaction will not succeed' and 'price movement or' in text_in_ocr):
-                    context.bot.send_message(chat_id=chat_id, text=test_error_token)
-            except IndexError:
-                pass
+            __send_message_if_ocr(update, context)
     except KeyError:
-        try:
-            tmp_path = download_image(update, context)
-            ocr = Ocr(tmp_path)
-            text_in_ocr = ocr.start_ocr().replace('\n', ' ')
-            print("recognized text = " + text_in_ocr)
-            if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
-                    'transaction will not succeed' and 'price movement or' in text_in_ocr):
-                context.bot.send_message(chat_id=chat_id, text=test_error_token)
-        except IndexError:
-            pass
+        __send_message_if_ocr(update, context)
+
+
+def __send_message_if_ocr(update, context):
+    message_id = update.message.message_id
+    chat_id = update.message.chat_id
+    try:
+        text_in_ocr = general_end_functions.ocr_image(update, context, TMP_FOLDER)
+        if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
+                'transaction will not succeed' and 'price movement or' in text_in_ocr):
+            context.bot.send_message(chat_id=chat_id, text=test_error_token, reply_to_message_id=message_id)
+    except IndexError:
+        pass
 
 
 def copy_file_to_git_meme_folder(path, hash_with_extension):
