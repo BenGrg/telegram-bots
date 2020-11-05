@@ -222,7 +222,7 @@ def send_music(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     filename = random.sample(os.listdir(BASE_PATH + 'audio/boo/'), 1)[0]
     context.bot.send_audio(chat_id=chat_id,
-                           audio=open(filename, 'rb'),
+                           audio=open(BASE_PATH + 'audio/boo/' + filename, 'rb'),
                            parse_mode='html')
 
 
