@@ -1,6 +1,7 @@
 import os
 import json
 from pprint import pprint
+from web3 import Web3
 
 BASE_PATH = os.environ.get('BASE_PATH')
 
@@ -17,7 +18,8 @@ def get_abi_erc20():
 
 
 def get_balance_token_wallet_raw(w3, wallet, token):
-    contract = w3.eth.contract(address=token, abi=get_abi_erc20())
+    token_checksum = Web3.toChecksumAddress(token)
+    contract = w3.eth.contract(address=token_checksum, abi=get_abi_erc20())
     decimals = get_decimals_contract(contract)
     res = contract.functions.balanceOf(wallet).call() / 10 ** decimals
     return res
