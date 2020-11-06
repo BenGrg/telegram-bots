@@ -112,6 +112,8 @@ def get_price_raw_now(graphql_client_eth, graphql_client_uni, token_contract):
 
     latest_block = int(json_resp_eth['data']['tnow'][0]['number'])
 
+    pprint.pprint(token_contract)
+
     query_uni_updated = query_uni_now.replace("CONTRACT", token_contract) \
         .replace("NUMBER_TNOW", str(latest_block))
 
@@ -164,7 +166,7 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     query_uni_updated = query_uni.replace("CONTRACT", token_contract) \
         .replace("NUMBER_T1", str(block_from_7d)) \
         .replace("NUMBER_T2", str(block_from_1d)) \
-        .replace("NUMBER_TNOW", str(latest_block - 2))
+        .replace("NUMBER_TNOW", str(latest_block))
 
     print(str(query_uni_updated))
     res_uni_query = graphql_client_uni.execute(query_uni_updated)
@@ -183,7 +185,7 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
         query_uni_updated = query_uni.replace("CONTRACT", token_contract) \
             .replace("NUMBER_T1", str(block_from_7d)) \
             .replace("NUMBER_T2", str(block_from_1d)) \
-            .replace("NUMBER_TNOW", str(last_block_indexed - 1))
+            .replace("NUMBER_TNOW", str(last_block_indexed))
         res_uni_query = graphql_client_uni.execute(query_uni_updated)
         json_resp_uni = json.loads(res_uni_query)
         pprint.pprint(json_resp_uni)
