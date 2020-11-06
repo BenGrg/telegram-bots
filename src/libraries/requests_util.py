@@ -145,6 +145,8 @@ def get_price_raw_now(graphql_client_eth, graphql_client_uni, token_contract):
 # graphql_client_uni_2 = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 # graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
+
+    pprint.pprint(token_contract)
     now = int(time.time())
 
     before_7d = now - 3600 * 24 * 7
@@ -248,7 +250,7 @@ def get_number_holder_token(token):
 
 
 def get_token_contract_address(token_ticker):
-    if token_ticker == "eth" or "ETH":
+    if token_ticker == "eth" or token_ticker == "ETH":
         return "0x0000000000000000000000000000000000000000"
     url = get_address_endpoint + token_ticker
     res = requests.get(url).json()
