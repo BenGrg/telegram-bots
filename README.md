@@ -1,2 +1,2 @@
 # telegram-bots
-Telegram bot for crypto addicted degens / relax to
+Telegram bots for crypto addicted degens / relax to
