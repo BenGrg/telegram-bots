@@ -282,7 +282,7 @@ def balance(update: Update, context: CallbackContext):
         wallet = query_received[1]
         ticker = query_received[2]
         contract_from_ticker = requests_util.get_token_contract_address(ticker)
-        res = con
+        # res = con
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
 
