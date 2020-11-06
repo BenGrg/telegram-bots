@@ -155,6 +155,8 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     res_eth_query = graphql_client_eth.execute(updated_eth_query)
     json_resp_eth = json.loads(res_eth_query)
 
+    pprint.pp(json_resp_eth)
+
     block_from_7d = int(json_resp_eth['data']['t1'][0]['number'])
     block_from_1d = int(json_resp_eth['data']['t2'][0]['number'])
     latest_block = int(json_resp_eth['data']['tnow'][0]['number'])
