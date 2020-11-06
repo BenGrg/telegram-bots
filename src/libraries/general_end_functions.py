@@ -9,11 +9,14 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from libraries.images import Ocr
 from libraries.common_values import *
+import libraries.web3_calls as web3_util
 import csv
 import datetime
 import matplotlib
 import matplotlib.dates
 import matplotlib.pyplot as plt
+
+
 last_time_checked_4chan = 0
 
 
@@ -254,3 +257,10 @@ def convert_to_something(query_received, graphql_client_uni, graphql_client_eth)
         return message
     else:
         return "Wrong format. Please use /convert AMOUNT CURRENCY (optional: CURRENCY_TO)"
+
+
+def get_balance_token_wallet(w3, wallet, ticker, graphqlclient_uni, graphqlclient_eth):
+    contract_from_ticker = requests_util.get_token_contract_address(ticker)
+    amount = web3_util.get_balance_token_wallet_raw(w3, wallet, contract_from_ticker)
+    amount_usd = convert_to_usd(amount, ticker, graphqlclient_uni, graphqlclient_eth)
+    return amount, amount_usd

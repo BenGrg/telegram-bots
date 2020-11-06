@@ -24,6 +24,7 @@ import libraries.requests_util as requests_util
 import libraries.util as util
 import libraries.scrap_websites_util as scrap_websites_util
 from libraries.common_values import *
+from web3 import Web3
 
 # twitter
 APP_KEY = os.environ.get('TWITTER_API_KEY')
@@ -38,6 +39,10 @@ contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
 name = "ROT"
 pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
 decimals = 1000000000000000000  # that's 18
+
+# web3
+infura_url = os.environ.get('INFURA_URL')
+w3 = Web3(Web3.HTTPProvider(infura_url))
 
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
@@ -275,13 +280,15 @@ def do_convert(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
-def balance(update: Update, context: CallbackContext):
+def balance_token_in_wallet(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     chat_id = update.message.chat_id
     if len(query_received) == 3:
         wallet = query_received[1]
         ticker = query_received[2]
-        contract_from_ticker = requests_util.get_token_contract_address(ticker)
+        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni, graphql_client_uni)
+        message = "wallet " + str(wallet) + " contains " + str(amount) + " " + ticker + " = " + str(amount_usd) + " usd."
+        context.bot.send_message(chat_id=chat_id, text=message)
         # res = con
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
@@ -298,6 +305,7 @@ def main():
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('convert', do_convert))
+    dp.add_handler(CommandHandler('balance', balance_token_in_wallet))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
