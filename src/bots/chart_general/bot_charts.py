@@ -287,7 +287,7 @@ def balance_token_in_wallet(update: Update, context: CallbackContext):
     if len(query_received) == 3:
         wallet = query_received[1]
         ticker = query_received[2]
-        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni, graphql_client_uni)
+        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni, graphql_client_eth)
         message = "wallet " + str(wallet) + " contains " + str(amount) + " " + ticker + " = " + str(amount_usd) + " usd."
         context.bot.send_message(chat_id=chat_id, text=message)
         # res = con
