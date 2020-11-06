@@ -902,6 +902,13 @@ def delete_message(update: Update, context: CallbackContext):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
+def do_convert(update: Update, context: CallbackContext):
+    query_received = update.message.text.split(' ')
+    chat_id = update.message.chat_id
+    message = general_end_functions.convert_to_something(query_received, graphql_client_uni, graphql_client_eth)
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -916,6 +923,7 @@ def main():
     dp.add_handler(CommandHandler('rot', get_price_rot))
     dp.add_handler(CommandHandler('maggot', get_price_maggot))
     dp.add_handler(CommandHandler('help', get_help))
+    dp.add_handler(CommandHandler('convert', do_convert))
     dp.add_handler(CommandHandler('fake_price', get_fake_price))
     dp.add_handler(CommandHandler('chart', get_chart_price_pyplot))
     dp.add_handler(CommandHandler('chartSupply', get_chart_supply_pyplot))
