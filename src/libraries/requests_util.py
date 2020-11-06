@@ -176,10 +176,11 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
         # TODO: work with regex as block numbers can be < 10000000
         pprint.pprint(res_uni_query)
         last_block_indexed = str(res_uni_query).split('indexed up to block number ')[1][0:8]
+        pprint(last_block_indexed)
         query_uni_updated = query_uni.replace("CONTRACT", token_contract) \
             .replace("NUMBER_T1", str(block_from_7d)) \
             .replace("NUMBER_T2", str(block_from_1d)) \
-            .replace("NUMBER_TNOW", str(last_block_indexed))
+            .replace("NUMBER_TNOW", str(last_block_indexed - 1))
         res_uni_query = graphql_client_uni.execute(query_uni_updated)
         json_resp_uni = json.loads(res_uni_query)
         pprint.pprint(json_resp_uni)
