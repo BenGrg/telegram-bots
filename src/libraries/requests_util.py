@@ -162,7 +162,7 @@ def get_price_raw(graphql_client_eth, graphql_client_uni, token_contract):
     query_uni_updated = query_uni.replace("CONTRACT", token_contract) \
         .replace("NUMBER_T1", str(block_from_7d)) \
         .replace("NUMBER_T2", str(block_from_1d)) \
-        .replace("NUMBER_TNOW", str(latest_block))
+        .replace("NUMBER_TNOW", str(latest_block - 2))
 
     res_uni_query = graphql_client_uni.execute(query_uni_updated)
     json_resp_uni = json.loads(res_uni_query)
