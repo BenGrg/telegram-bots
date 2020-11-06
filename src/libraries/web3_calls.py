@@ -11,7 +11,7 @@ def get_decimals_contract(contract):
 
 
 def get_abi_erc20():
-    with open(os.path.abspath(BASE_PATH + "erc20.abi")) as f:
+    with open(os.path.abspath(BASE_PATH + "config_files/erc20.abi")) as f:
         abi: str = json.load(f)
     return abi
 
