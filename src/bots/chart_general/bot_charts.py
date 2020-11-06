@@ -291,6 +291,12 @@ def balance_token_in_wallet(update: Update, context: CallbackContext):
         message = "wallet " + str(wallet) + " contains " + str(amount) + " " + ticker + " = " + str(amount_usd) + " usd."
         context.bot.send_message(chat_id=chat_id, text=message)
         # res = con
+    elif len(query_received) == 1 and query_received[1] == "jackpot":
+        wallet = "0x9284b7fb2c842666dae4e87ddb49106b72820d26"
+        ticker = "LUCKY"
+        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni, graphql_client_eth)
+        message = "Lucky jackpot " + str(wallet) + " contains " + str(amount) + " " + ticker + " = " + str(amount_usd) + " usd."
+        context.bot.send_message(chat_id=chat_id, text=message)
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
 
