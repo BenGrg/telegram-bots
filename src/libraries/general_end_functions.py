@@ -260,7 +260,9 @@ def convert_to_something(query_received, graphql_client_uni, graphql_client_eth)
 
 
 def get_balance_token_wallet(w3, wallet, ticker, graphqlclient_uni, graphqlclient_eth):
+    print(str(wallet))
+    print(str(ticker))
     contract_from_ticker = requests_util.get_token_contract_address(ticker)
     amount = web3_util.get_balance_token_wallet_raw(w3, wallet, contract_from_ticker)
-    amount_usd = convert_to_usd(amount, ticker, graphqlclient_uni, graphqlclient_eth)
+    amount_usd = convert_to_usd(amount, ticker, graphqlclient_uni, graphqlclient_eth)  # TODO: add contract_from_ticker in convert_to_usd to avoid double call
     return amount, amount_usd
