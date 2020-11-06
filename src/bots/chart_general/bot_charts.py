@@ -275,16 +275,23 @@ def do_convert(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+def balance(update: Update, context: CallbackContext):
+    query_received = update.message.text.split(' ')
+    chat_id = update.message.chat_id
+    if len(query_received) == 3:
+        wallet = query_received[1]
+        ticker = query_received[2]
+        contract_from_ticker = requests_util.get_token_contract_address(ticker)
+        res = con
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('charts', get_candlestick))
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('c', get_candlestick))
-    dp.add_handler(CommandHandler('add_fav', add_favorite_token))
-    dp.add_handler(CommandHandler('see_fav', see_fav_token))
-    dp.add_handler(CommandHandler('remove_fav', delete_fav_token))
-    dp.add_handler(CommandHandler('charts_fav', see_fav_charts))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('p', get_price_token))
     dp.add_handler(CommandHandler('twitter', get_twitter))
@@ -301,10 +308,9 @@ if __name__ == '__main__':
     main()
 
 commands = """
-charts - Display some charts.
-charts_fav - Display your favorite charts
-add_fav - Add a favorite token.
-see_fav - See your favorites tokens.
-remove_fav - Remove a token from your favorites.
-price - get price of a token
+chart - <TICKER> Display charts of the TICKER.
+twitter - <TICKER> Get latests twitter containing $<TICKER> 
+price - <TICKER> get price of the <TICKER> token
+biz - <WORD> get 4chan/biz threads containing <WORD>
+convert - <AMOUNT> <TICKER> option(<TICKER>) convert amount of ticker to usd (and to the second ticker if specified) 
 """

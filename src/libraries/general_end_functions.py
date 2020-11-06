@@ -218,8 +218,7 @@ def convert_to_usd_raw(amount, currency_ticker, graphqlclient_uni, graphqlclient
         return amount * eth_price
     else:
         contract_from_ticker = requests_util.get_token_contract_address(currency_ticker)
-        (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
-         token_price_now_usd) = requests_util.get_price_raw(graphqlclient_eth, graphqlclient_uni, contract_from_ticker)
+        (derivedETH_now, token_price_now_usd) = requests_util.get_price_raw_now(graphqlclient_eth, graphqlclient_uni, contract_from_ticker)
         total = amount * token_price_now_usd
         return total
 

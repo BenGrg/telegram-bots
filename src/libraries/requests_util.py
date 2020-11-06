@@ -53,6 +53,27 @@ query_uni = '''query blocks {
 }
 '''
 
+
+query_eth_now = '''
+query blocks {
+    tnow: blocks(first: 1, orderBy: timestamp, orderDirection: desc, where: {timestamp_lt: %d}) {
+            number
+    }
+}
+'''
+
+
+query_uni_now = '''query blocks {
+    tnow: token(id: "CONTRACT", block: {number: NUMBER_TNOW}) {
+        derivedETH
+    }
+    bnow: bundle(id: "1", block: {number: NUMBER_TNOW}) {
+        ethPrice
+    }
+}
+'''
+
+
 req_graphql_vol24h_rot = '''{
   pairHourDatas(
     where: {hourStartUnix_gt: TIMESTAMP_MINUS_24_H, pair: "PAIR_CHANGE"})
@@ -80,6 +101,42 @@ def get_graphex_data(token, resolution, t_from, t_to):
     url = create_url_request_graphex(symbol, resolution, t_from, t_to)
     resp = requests.get(url)
     return resp
+
+
+def get_price_raw_now(graphql_client_eth, graphql_client_uni, token_contract):
+    now = int(time.time())
+
+    updated_eth_query = query_eth_now % now
+    res_eth_query = graphql_client_eth.execute(updated_eth_query)
+    json_resp_eth = json.loads(res_eth_query)
+
+    latest_block = int(json_resp_eth['data']['tnow'][0]['number'])
+
+    query_uni_updated = query_uni_now.replace("CONTRACT", token_contract) \
+        .replace("NUMBER_TNOW", str(latest_block))
+
+    res_uni_query = graphql_client_uni.execute(query_uni_updated)
+    json_resp_uni = json.loads(res_uni_query)
+
+    # pprint.pprint(json_resp_uni)
+
+    try:
+        token_per_eth_now = float(json_resp_uni['data']['tnow']['derivedETH'])
+    except KeyError:  # trying again, as sometimes the block that we query has not yet been indexed. For that, we read
+        # the error message returned by uniswap and work on the last indexed block that is return in the error message
+        # TODO: work with regex as block numbers can be < 10000000
+        last_block_indexed = str(res_uni_query).split('indexed up to block number ')[1][0:8]
+        query_uni_updated = query_uni.replace("CONTRACT", token_contract) \
+            .replace("NUMBER_TNOW", str(last_block_indexed))
+        res_uni_query = graphql_client_uni.execute(query_uni_updated)
+        json_resp_uni = json.loads(res_uni_query)
+        token_per_eth_now = float(json_resp_uni['data']['tnow']['derivedETH'])
+
+    eth_price_now = float(json_resp_uni['data']['bnow']['ethPrice'])
+
+    token_price_now_usd = token_per_eth_now * eth_price_now
+
+    return token_per_eth_now, token_price_now_usd
 
 
 # from graphqlclient import GraphQLClient
@@ -185,6 +242,8 @@ def get_number_holder_token(token):
 
 
 def get_token_contract_address(token_ticker):
+    if token_ticker == "eth" or "ETH":
+        return "0x0000000000000000000000000000000000000000"
     url = get_address_endpoint + token_ticker
     res = requests.get(url).json()
     for i in res:
