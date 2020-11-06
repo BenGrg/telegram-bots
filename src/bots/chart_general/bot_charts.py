@@ -42,6 +42,7 @@ decimals = 1000000000000000000  # that's 18
 
 # web3
 infura_url = os.environ.get('INFURA_URL')
+pprint.pprint(infura_url)
 w3 = Web3(Web3.HTTPProvider(infura_url))
 
 # log_file
