@@ -130,7 +130,6 @@ def __preprocess_gecko_charts_data(values):
     times = [float(x) for x in prices_and_t[0]]
     volumes = [float(x) for x in volumes_and_t[1]]
 
-    times_from_chartex = [datetime.datetime.fromtimestamp(round(x)) for x in times]
 
     pprint.pprint("times:")
     pprint.pprint(times)
@@ -138,6 +137,8 @@ def __preprocess_gecko_charts_data(values):
     pprint.pprint(prices)
     pprint.pprint("volumes:")
     pprint.pprint(volumes)
+
+    times_from_chartex = [datetime.datetime.fromtimestamp(round(x)) for x in times]
 
     closes = prices
     opens = prices
