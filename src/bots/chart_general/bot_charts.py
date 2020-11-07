@@ -324,11 +324,11 @@ def balance_token_in_wallet(update: Update, context: CallbackContext):
 def get_gas_average(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     asap, fast, average, low = general_end_functions.get_gas_price()
-    message = "<code><b>gas price:</b>\n" + \
+    message = "<b>gas price:</b>" + \
               "\nASAP: " + str(asap) + \
               "\nFast: " + str(fast) + \
               "\nAvg : " + str(average) + \
-              "\nSlow: " + str(low) + "</code>"
+              "\nSlow: " + str(low)
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
