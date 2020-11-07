@@ -99,8 +99,8 @@ def get_gecko_chart(token_name, t_from, t_to):
     print("f_from: " + str(t_from) + " - t_to: " + str(t_to))
     "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/range?vs_currency=usd&from=$T_FROM&to=$T_TO"
     gecko_url_updated = gecko_chart_url.replace("$TOKEN", token_name)\
-        .replace("T_FROM", t_from)\
-        .replace("T_TO", t_to)
+        .replace("T_FROM", str(t_from))\
+        .replace("T_TO", str(t_to))
     res = requests.get(gecko_url_updated).json()
     pprint.pprint(res)
 
