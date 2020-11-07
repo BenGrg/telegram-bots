@@ -126,9 +126,14 @@ def __preprocess_gecko_charts_data(values):
 
     prices_and_t = values['prices']
     volumes_and_t = values['total_volumes']
-    prices = [float(x) for x in prices_and_t[1]]
-    times = [float(x) for x in prices_and_t[0]]
-    volumes = [float(x) for x in volumes_and_t[1]]
+    prices = []
+    times = []
+    volumes = []
+    for t in prices_and_t:
+        prices.append(t[1])
+        times.append(t[0])
+    for t in volumes_and_t:
+        volumes.append(t[1])
 
 
     pprint.pprint("times:")
