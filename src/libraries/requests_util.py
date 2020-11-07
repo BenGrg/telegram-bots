@@ -14,6 +14,8 @@ ethexplorer_holder_base_url = "https://ethplorer.io/service/service.php?data="
 
 url_graphex_backend = "https://chartex.pro/api/history?symbol=UNISWAP%3A$SYMBOL&resolution=$RESOLUTION&from=$TFROM&to=$TTO"
 
+gecko_chart_url = "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/range?vs_currency=usd&from=$T_FROM&to=$T_TO"
+
 symbol_chartex = {
     'ROT': 'ROT.5AE9E2'
 }
@@ -91,6 +93,16 @@ def create_url_request_graphex(symbol, resolution, t_from, t_to):
         .replace("$RESOLUTION", str(resolution)) \
         .replace("$TFROM", str(t_from)) \
         .replace("$TTO", str(t_to))
+
+
+def get_gecko_chart(token_name, t_from, t_to):
+    print("f_from: " + str(t_from) + " - t_to: " + str(t_to))
+    "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/range?vs_currency=usd&from=$T_FROM&to=$T_TO"
+    gecko_url_updated = gecko_chart_url.replace("$TOKEN", token_name)\
+        .replace("T_FROM", t_from)\
+        .replace("T_TO", t_to)
+    res = requests.get(gecko_url_updated).json()
+    pprint.pprint(res)
 
 
 def get_graphex_data(token, resolution, t_from, t_to):

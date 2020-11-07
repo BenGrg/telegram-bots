@@ -174,7 +174,10 @@ def __preprocess_chartex_data(values, resolution):
 def print_candlestick(token, t_from, t_to, file_path):
     resolution = __calculate_resolution_from_time(t_from, t_to)
 
-    values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
+    if token == "eth" or token == "ETH" or token == "weth" or token == "WETH" or token == "ethereum" or token == "Ethereum":
+        values = requests_util.get_gecko_chart("ethereum", t_from, t_to)
+    else:
+        values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
 
     (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
 
