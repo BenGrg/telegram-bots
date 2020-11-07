@@ -152,7 +152,7 @@ def __preprocess_gecko_charts_data(values):
 
     date_list = pd.date_range(start=start, end=end, freq=freq).to_pydatetime().tolist()
 
-    return times_as_datetime, opens, closes, highs, lows, volumes
+    return date_list, opens, closes, highs, lows, volumes
 
 
 def __preprocess_chartex_data(values, resolution):
