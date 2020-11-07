@@ -135,6 +135,7 @@ def __preprocess_binance_charts_data(values):
 
     date_list = pd.date_range(start=time_start, end=time_end, freq=frequency).to_pydatetime().tolist()
 
+    pprint.pprint(times)
     pprint.pprint(date_list)
     pprint.pprint(time_start)
     pprint.pprint(time_end)
