@@ -136,7 +136,9 @@ def __preprocess_gecko_charts_data(values):
 
     start = times_as_datetime[0]
     end = times_as_datetime[-1]
-    diff = round(end - start)
+    start_ts = times[0]
+    end_ts = times[1]
+    diff = round(end_ts - start_ts)
     if diff < 3600 * 24:  # 0s < x < 1d
         freq = "1min"
     elif diff < 3600 * 24 * 90:  # 1d < x < 90 d -> hourly
