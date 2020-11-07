@@ -130,7 +130,7 @@ def get_binance_chart_data(token_name, t_from, t_to):
 
     client = Client(clef, secret)
 
-    candles = client.get_klines(symbol='BTCUSDT', interval=res, startTime=t_from_ms, endTime=t_to_ms)
+    candles = client.get_klines(symbol=token_name, interval=res, startTime=t_from_ms, endTime=t_to_ms)
     return candles
 
 

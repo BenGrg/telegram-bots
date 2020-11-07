@@ -135,12 +135,6 @@ def __preprocess_binance_charts_data(values):
 
     date_list = pd.date_range(start=time_start, end=time_end, freq=frequency).to_pydatetime().tolist()
 
-    pprint.pprint(times)
-    pprint.pprint(date_list)
-    pprint.pprint(time_start)
-    pprint.pprint(time_end)
-    pprint.pprint(frequency)
-
     return date_list, opens, closes, highs, lows, volumes
 
 
@@ -177,11 +171,6 @@ def __preprocess_gecko_charts_data(values):
     volumes = volumes
 
     date_list = pd.date_range(start=start, end=end, freq=freq).to_pydatetime().tolist()
-
-    pprint.pprint(date_list)
-    pprint.pprint(start)
-    pprint.pprint(end)
-    pprint.pprint(freq)
 
     return date_list, opens, closes, highs, lows, volumes
 
