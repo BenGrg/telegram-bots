@@ -134,6 +134,13 @@ def __preprocess_binance_charts_data(values):
     frequency = str(time_diff) + 'm'
     date_list = pd.date_range(start=time_start, end=time_end, freq=frequency).to_pydatetime().tolist()
 
+    pprint.pprint(date_list)
+    pprint.pprint(opens)
+    pprint.pprint(closes)
+    pprint.pprint(highs)
+    pprint.pprint(lows)
+    pprint.pprint(volumes)
+
     return date_list, opens, closes, highs, lows, volumes
 
 
