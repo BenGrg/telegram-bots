@@ -96,7 +96,7 @@ def create_url_request_graphex(symbol, resolution, t_from, t_to):
 
 
 def get_gecko_chart(token_name, t_from, t_to):
-    print("f_from: " + str(t_from) + " - t_to: " + str(t_to))
+    print("token: " + token_name +  "f_from: " + str(t_from) + " - t_to: " + str(t_to))
     "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/range?vs_currency=usd&from=$T_FROM&to=$T_TO"
     gecko_url_updated = gecko_chart_url.replace("$TOKEN", token_name)\
         .replace("T_FROM", str(t_from))\
