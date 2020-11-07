@@ -102,8 +102,7 @@ def get_gecko_chart(token_name, t_from, t_to):
         .replace("$T_FROM", str(t_from))\
         .replace("$T_TO", str(t_to))
     pprint.pprint(gecko_url_updated)
-    res = requests.get(gecko_url_updated).json()
-    pprint.pprint(res)
+    res = requests.get(gecko_url_updated)
     return res
 
 

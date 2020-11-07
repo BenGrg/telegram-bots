@@ -122,6 +122,35 @@ def __calculate_resolution_from_time(t_from, t_to):
         return 60
 
 
+def __preprocess_gecko_charts_data(values):
+
+    prices_and_t = values['prices']
+    volumes_and_t = values['total_volumes']
+    prices = [float(x) for x in prices_and_t[1]]
+    times = [float(x) for x in prices_and_t[0]]
+    volumes = [float(x) for x in volumes_and_t[1]]
+
+    times_from_chartex = [datetime.datetime.fromtimestamp(round(x)) for x in times]
+
+    pprint.pprint("times:")
+    pprint.pprint(times)
+    pprint.pprint("prices:")
+    pprint.pprint(prices)
+    pprint.pprint("volumes:")
+    pprint.pprint(volumes)
+
+    closes = prices
+    opens = prices
+    highs = prices
+    lows = prices
+    volumes = volumes
+
+    date_list = pd.date_range(start=times_from_chartex[0], end=times_from_chartex[-1]).to_pydatetime().tolist()
+
+
+    return (date_list, opens, closes, highs, lows, volumes)
+
+
 def __preprocess_chartex_data(values, resolution):
     times_from_chartex = [datetime.datetime.fromtimestamp(round(x)) for x in values['t']]
 
@@ -175,11 +204,12 @@ def print_candlestick(token, t_from, t_to, file_path):
     resolution = __calculate_resolution_from_time(t_from, t_to)
 
     if token == "eth" or token == "ETH" or token == "weth" or token == "WETH" or token == "ethereum" or token == "Ethereum":
-        values = requests_util.get_gecko_chart("ethereum", t_from, t_to)
+        values = requests_util.get_gecko_chart("ethereum", t_from, t_to).json()
+        print(str(values))
+        (date_list, opens, closes, highs, lows, volumes) = __preprocess_gecko_charts_data(values)
     else:
         values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
-
-    (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
+        (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
 
     __process_and_write_candlelight(date_list, opens, closes, highs, lows, volumes, file_path, token)
     return closes[-1]
