@@ -150,6 +150,11 @@ def __preprocess_gecko_charts_data(values):
     lows = prices
     volumes = volumes
 
+    pprint.pprint("start")
+    pprint.pprint(start)
+    pprint.pprint("emd")
+    pprint.pprint(end)
+
     date_list = pd.date_range(start=start, end=end, freq=freq).to_pydatetime().tolist()
 
     pprint.pprint(date_list)
