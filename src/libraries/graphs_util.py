@@ -132,6 +132,16 @@ def __preprocess_gecko_charts_data(values):
     for t in volumes_and_t:
         volumes.append(t[1])
 
+    start = times[0]
+    end = times[-1]
+    diff = round(end - start)
+    if diff < 3600 * 24:  # 0s < x < 1d
+        freq = "1m"
+    elif diff < 3600 * 24 * 90:  # 1d < x < 90 d -> hourly
+        freq = "60m"
+    else:
+        freq = "1440m"
+
     times_as_datetime = [datetime.datetime.fromtimestamp(round(x / 1000)) for x in times]
 
     closes = prices
@@ -139,6 +149,8 @@ def __preprocess_gecko_charts_data(values):
     highs = prices
     lows = prices
     volumes = volumes
+
+    date_list = pd.date_range(start=start, end=end, freq=freq).to_pydatetime().tolist()
 
     return times_as_datetime, opens, closes, highs, lows, volumes
 
