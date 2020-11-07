@@ -146,7 +146,6 @@ def __preprocess_gecko_charts_data(values):
     else:
         freq = "1440min"
 
-
     closes = prices
     opens = prices
     highs = prices
