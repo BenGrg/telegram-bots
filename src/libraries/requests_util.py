@@ -113,10 +113,8 @@ def get_binance_chart_data(token_name, t_from, t_to):
         res = "1m"
     elif delta < 13 * 3600:
         res = "5m"
-    elif delta < 24 * 3600:
+    elif delta < 24 * 3600 + 100:
         res = "15m"
-    elif delta < 24 * 3600 * 7 + 100:
-        res = "30m"
     elif delta < 24 * 3600 * 7 + 100:
         res = "1h"
     elif delta < 24 * 3600 * 30 + 100:
@@ -126,7 +124,7 @@ def get_binance_chart_data(token_name, t_from, t_to):
 
     t_from_ms = t_from * 1000
     t_to_ms = t_to * 1000
-    print("token: " + token_name + "f_from: " + str(t_from) + " - t_to: " + str(t_to) + " - resolution = "  + str(res))
+    print("token: " + token_name + "f_from: " + str(t_from) + " - t_to: " + str(t_to) + " - resolution = " + str(res))
     clef = os.environ.get('BINANCE_API_KEY')
     secret = os.environ.get('BINANCE_API_SECRET')
 
