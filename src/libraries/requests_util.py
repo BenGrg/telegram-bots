@@ -3,6 +3,8 @@ import pprint
 import time
 import json
 import os
+from binance.client import Client
+
 
 url_eth_price_gecko = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
 
@@ -97,13 +99,26 @@ def create_url_request_graphex(symbol, resolution, t_from, t_to):
 
 def get_gecko_chart(token_name, t_from, t_to):
     print("token: " + token_name +  "f_from: " + str(t_from) + " - t_to: " + str(t_to))
-    "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/range?vs_currency=usd&from=$T_FROM&to=$T_TO"
     gecko_url_updated = gecko_chart_url.replace("$TOKEN", token_name)\
         .replace("$T_FROM", str(t_from))\
         .replace("$T_TO", str(t_to))
     pprint.pprint(gecko_url_updated)
     res = requests.get(gecko_url_updated)
     return res
+
+
+def get_binance_chart_data(token_name, t_from, t_to, resolution):
+    t_from_ms = t_from * 1000
+    t_to_ms = t_to * 1000
+    print("token: " + token_name + "f_from: " + str(t_from) + " - t_to: " + str(t_to) + " - resolution = "  + str(resolution))
+    resolution_binance_friendly = str(resolution) + 'm'
+    clef = os.environ.get('BINANCE_API_KEY')
+    secret = os.environ.get('BINANCE_API_SECRET')
+
+    client = Client(clef, secret)
+
+    candles = client.get_klines(symbol='BTCUSDT', interval=resolution_binance_friendly, startTime=t_from_ms, endTime=t_to_ms)
+    return candles
 
 
 def get_graphex_data(token, resolution, t_from, t_to):

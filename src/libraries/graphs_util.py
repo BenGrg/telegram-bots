@@ -120,6 +120,24 @@ def __calculate_resolution_from_time(t_from, t_to):
         return 60
 
 
+def __preprocess_binance_charts_data(values):
+    times = [int(x[0]) for x in values]
+    opens = [float(x[1]) for x in values]
+    highs = [float(x[2]) for x in values]
+    lows = [float(x[3]) for x in values]
+    closes = [float(x[4]) for x in values]
+    volumes = [float(x[5]) for x in values]
+
+    time_start = datetime.datetime.fromtimestamp(round(times[0] / 1000))
+    time_end = datetime.datetime.fromtimestamp(round(times[-1] / 1000))
+    time_diff = (times[1] - times[0]) / (1000 * 3600)
+    frequency = str(time_diff) + 'm'
+    date_list = pd.date_range(start=time_start, end=time_end, freq=frequency).to_pydatetime().tolist()
+
+    return date_list, opens, closes, highs, lows, volumes
+
+
+
 def __preprocess_gecko_charts_data(values):
     prices_and_t = values['prices']
     volumes_and_t = values['total_volumes']
@@ -209,9 +227,12 @@ def __preprocess_chartex_data(values, resolution):
 def print_candlestick(token, t_from, t_to, file_path):
     resolution = __calculate_resolution_from_time(t_from, t_to)
 
-    if token == "eth" or token == "ETH" or token == "weth" or token == "WETH" or token == "ethereum" or token == "Ethereum":
+    if token == "btc" or token == "BTC":
+        values = requests_util.get_binance_chart_data("BTCUSDT", t_from, t_to, resolution)
+        (date_list, opens, closes, highs, lows, volumes) = __preprocess_gecko_charts_data(values, resolution)
+    elif token == "eth" or token == "ETH" or token == "weth" or token == "WETH" or token == "ethereum" or token == "Ethereum":
         values = requests_util.get_gecko_chart("ethereum", t_from, t_to).json()
-        (date_list, opens, closes, highs, lows, volumes) = __preprocess_gecko_charts_data(values)
+        (date_list, opens, closes, highs, lows, volumes) = __preprocess_gecko_charts_data(values, resolution)
     else:
         values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
         (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
