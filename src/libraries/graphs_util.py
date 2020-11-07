@@ -134,7 +134,6 @@ def __preprocess_gecko_charts_data(values):
 
     times_from_chartex = [datetime.datetime.fromtimestamp(round(x / 1000)) for x in times]
 
-    pprint.pprint(times_from_chartex)
 
     closes = prices
     opens = prices
@@ -143,7 +142,8 @@ def __preprocess_gecko_charts_data(values):
     volumes = volumes
 
     date_list = pd.date_range(start=times_from_chartex[0], end=times_from_chartex[-1]).to_pydatetime().tolist()
-
+    pprint.pprint(date_list)
+    pprint.pprint(opens)
     return date_list, opens, closes, highs, lows, volumes
 
 
