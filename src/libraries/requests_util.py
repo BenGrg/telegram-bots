@@ -107,20 +107,32 @@ def get_gecko_chart(token_name, t_from, t_to):
     return res
 
 
-def get_binance_chart_data(token_name, t_from, t_to, resolution):
+def get_binance_chart_data(token_name, t_from, t_to):
+    delta = round(t_to - t_from)
+    if delta < 6 * 3600:
+        res = "1m"
+    elif delta < 13 * 3600:
+        res = "5m"
+    elif delta < 24 * 3600:
+        res = "15m"
+    elif delta < 24 * 3600 * 7 + 100:
+        res = "30m"
+    elif delta < 24 * 3600 * 7 + 100:
+        res = "1h"
+    elif delta < 24 * 3600 * 30 + 100:
+        res = "6h"
+    else:
+        res = "1d"
+
     t_from_ms = t_from * 1000
     t_to_ms = t_to * 1000
     print("token: " + token_name + "f_from: " + str(t_from) + " - t_to: " + str(t_to) + " - resolution = "  + str(resolution))
-    if resolution == 60:
-        resolution_binance_friendly = "1h"
-    else:
-        resolution_binance_friendly = str(resolution) + 'm'
     clef = os.environ.get('BINANCE_API_KEY')
     secret = os.environ.get('BINANCE_API_SECRET')
 
     client = Client(clef, secret)
 
-    candles = client.get_klines(symbol='BTCUSDT', interval=resolution_binance_friendly, startTime=t_from_ms, endTime=t_to_ms)
+    candles = client.get_klines(symbol='BTCUSDT', interval=res, startTime=t_from_ms, endTime=t_to_ms)
     return candles
 
 

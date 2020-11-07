@@ -239,7 +239,7 @@ def print_candlestick(token, t_from, t_to, file_path):
     resolution = __calculate_resolution_from_time(t_from, t_to)
 
     if token == "btc" or token == "BTC":
-        values = requests_util.get_binance_chart_data("BTCUSDT", t_from, t_to, resolution)
+        values = requests_util.get_binance_chart_data("BTCUSDT", t_from, t_to)
         (date_list, opens, closes, highs, lows, volumes) = __preprocess_binance_charts_data(values)
     elif token == "eth" or token == "ETH" or token == "weth" or token == "WETH" or token == "ethereum" or token == "Ethereum":
         values = requests_util.get_gecko_chart("ethereum", t_from, t_to).json()
