@@ -130,7 +130,7 @@ def __preprocess_binance_charts_data(values):
 
     time_start = datetime.datetime.fromtimestamp(round(times[0] / 1000))
     time_end = datetime.datetime.fromtimestamp(round(times[-1] / 1000))
-    time_diff = (times[1] - times[0]) / (1000 * 3600)
+    time_diff = round((times[1] - times[0]) / (1000 * 60))
     frequency = str(time_diff) + 'm'
     date_list = pd.date_range(start=time_start, end=time_end, freq=frequency).to_pydatetime().tolist()
 
