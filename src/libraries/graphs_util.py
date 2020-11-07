@@ -12,8 +12,6 @@ INCREASING_COLOR = '#228B22'
 DECREASING_COLOR = '#FF0000'
 
 
-
-
 def __moving_average(interval, window_size=10):
     window = np.ones(int(window_size)) / float(window_size)
     return np.convolve(interval, window, 'same')
@@ -123,7 +121,6 @@ def __calculate_resolution_from_time(t_from, t_to):
 
 
 def __preprocess_gecko_charts_data(values):
-
     prices_and_t = values['prices']
     volumes_and_t = values['total_volumes']
     prices = []
@@ -135,18 +132,9 @@ def __preprocess_gecko_charts_data(values):
     for t in volumes_and_t:
         volumes.append(t[1])
 
-
-    pprint.pprint("times:")
-    pprint.pprint(times)
-    pprint.pprint("prices:")
-    pprint.pprint(prices)
-    pprint.pprint("volumes:")
-    pprint.pprint(volumes)
-
-    for x in times:
-        pprint.pprint(round(x))
-
     times_from_chartex = [datetime.datetime.fromtimestamp(round(x / 1000)) for x in times]
+
+    pprint.pprint(times_from_chartex)
 
     closes = prices
     opens = prices
@@ -156,8 +144,7 @@ def __preprocess_gecko_charts_data(values):
 
     date_list = pd.date_range(start=times_from_chartex[0], end=times_from_chartex[-1]).to_pydatetime().tolist()
 
-
-    return (date_list, opens, closes, highs, lows, volumes)
+    return date_list, opens, closes, highs, lows, volumes
 
 
 def __preprocess_chartex_data(values, resolution):
