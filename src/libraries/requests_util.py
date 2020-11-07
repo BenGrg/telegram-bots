@@ -262,6 +262,10 @@ def get_eth_price_now():
             return res['ethereum']['usd']
     return 0
 
+
+def get_gas_price_raw():
+    url = "https://ethgasstation.info/json/ethgasAPI.json"
+    return requests.get(url).json()
 #
 # def main():
 #     res = get_eth_price_now()

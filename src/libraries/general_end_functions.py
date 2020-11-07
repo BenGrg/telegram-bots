@@ -263,3 +263,12 @@ def get_balance_token_wallet(w3, wallet, ticker, graphqlclient_uni, graphqlclien
     amount = web3_util.get_balance_token_wallet_raw(w3, wallet, contract_from_ticker)
     amount_usd = convert_to_usd(amount, ticker, graphqlclient_uni, graphqlclient_eth)  # TODO: add contract_from_ticker in convert_to_usd to avoid double call
     return amount, amount_usd
+
+
+def get_gas_price():
+    gas_price_raw = requests_util.get_gas_price_raw()
+    asap = int(gas_price_raw['fastest'] / 10)
+    fast = int(gas_price_raw['fast'] / 10)
+    average = int(gas_price_raw['average'] / 10)
+    low = int(gas_price_raw['safeLow'] / 10)
+    return asap, fast, average, low

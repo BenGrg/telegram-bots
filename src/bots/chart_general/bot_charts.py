@@ -107,11 +107,16 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
-            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path,
+                                                                                                k_days, k_hours, t_from,
+                                                                                                t_to)
+            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
+                                   reply_markup=reply_markup_chart)
     else:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
-        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days,
+                                                                                            k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
+                               reply_markup=reply_markup_chart)
 
 
 def see_fav_charts(update: Update, context: CallbackContext):
@@ -128,8 +133,10 @@ def see_fav_charts(update: Update, context: CallbackContext):
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
     for token in tokens:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
-        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
+                                                                                            k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
+                               reply_markup=reply_markup_chart)
 
 
 def delete_fav_token(update: Update, context: CallbackContext):
@@ -170,10 +177,13 @@ def get_price_token(update: Update, context: CallbackContext):
         if contract_from_ticker is None:
             context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
         else:
-            button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
+            button_list_price = [
+                [InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
             reply_markup_price = InlineKeyboardMarkup(button_list_price)
-            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni, ticker.upper(), decimals)
-            context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
+            message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth,
+                                                      graphql_client_uni, ticker.upper(), decimals)
+            context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
+                                     disable_web_page_preview=True)
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
 
@@ -183,11 +193,13 @@ def refresh_price(update: Update, context: CallbackContext):
     query = update.callback_query.data
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
     token_name = query.split('_t_')[1]
-    message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth, graphql_client_uni,
+    message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth,
+                                              graphql_client_uni,
                                               token_name.upper(), decimals)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
-    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
+    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price,
+                                            disable_web_page_preview=True)
 
 
 def delete_message(update: Update, context: CallbackContext):
@@ -233,8 +245,10 @@ def refresh_chart(update: Update, context: CallbackContext):
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
-    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
-    context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
+                                                                                        k_hours, t_from, t_to)
+    context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
+                           reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
@@ -254,7 +268,8 @@ def get_biz(update: Update, context: CallbackContext):
             excerpt = thread_id[2] + " | " + thread_id[1]
             message += base_url + str(thread_id[0]) + " -- " + excerpt[0: 100] + "[...] \n"
         if not threads_ids:
-            meme_caption = "No current /biz/ thread containing the word $WORD. Go make one https://boards.4channel.org/biz/.".replace("$WORD", word)
+            meme_caption = "No current /biz/ thread containing the word $WORD. Go make one https://boards.4channel.org/biz/.".replace(
+                "$WORD", word)
             context.bot.send_message(chat_id=chat_id, text=meme_caption, disable_web_page_preview=True)
         else:
             context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
@@ -271,7 +286,8 @@ def get_twitter(update: Update, context: CallbackContext):
         res = scrap_websites_util.get_last_tweets(twitter, ticker)
         context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
     else:
-        context.bot.send_message(chat_id=chat_id, text="Please use the format /twitter TOKEN_TICKER.", parse_mode='html', disable_web_page_preview=True)
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /twitter TOKEN_TICKER.",
+                                 parse_mode='html', disable_web_page_preview=True)
 
 
 def do_convert(update: Update, context: CallbackContext):
@@ -287,18 +303,33 @@ def balance_token_in_wallet(update: Update, context: CallbackContext):
     if len(query_received) == 3:
         wallet = query_received[1]
         ticker = query_received[2]
-        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni, graphql_client_eth)
-        message = "wallet " + str(wallet) + " contains " + str(amount) + " " + ticker + " = " + str(amount_usd) + " usd."
+        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni,
+                                                                            graphql_client_eth)
+        message = "wallet " + str(wallet) + " contains " + str(amount) + " " + ticker + " = " + str(
+            amount_usd) + " usd."
         context.bot.send_message(chat_id=chat_id, text=message)
         # res = con
     elif len(query_received) == 2 and query_received[1] == "jackpot":
         wallet = "0x9284b7fb2c842666dae4e87ddb49106b72820d26"
         ticker = "LUCKY"
-        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni, graphql_client_eth)
-        message = "<b>Lucky Daily Jackpot Balance</b>," + str(amount) + " " + ticker + " = <b>" + str(amount_usd) + " usd</b>."
+        amount, amount_usd = general_end_functions.get_balance_token_wallet(w3, wallet, ticker, graphql_client_uni,
+                                                                            graphql_client_eth)
+        message = "<b>Lucky Daily Jackpot Balance</b>," + str(amount) + " " + ticker + " = <b>" + str(
+            amount_usd) + " usd</b>."
         context.bot.send_message(chat_id=chat_id, text=message, parse_mode="html")
     else:
         context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
+
+
+def get_gas_average(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    asap, fast, average, low = general_end_functions.get_gas_price()
+    message = "<code><b>gas price:</b>\n" + \
+              "\nASAP: " + str(asap) + \
+              "\nFast: " + str(fast) + \
+              "\nAvg : " + str(average) + \
+              "\nSlow: " + str(low) + "</code>"
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
 def main():
@@ -309,9 +340,11 @@ def main():
     dp.add_handler(CommandHandler('c', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('p', get_price_token))
+    dp.add_handler(CommandHandler('gas', get_gas_average))
     dp.add_handler(CommandHandler('twitter', get_twitter))
     dp.add_handler(CommandHandler('biz', get_biz))
     dp.add_handler(CommandHandler('convert', do_convert))
+    dp.add_handler(CommandHandler('gas', get_gas_average))
     dp.add_handler(CommandHandler('balance', balance_token_in_wallet))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
@@ -328,5 +361,7 @@ chart - <TICKER> Display charts of the TICKER.
 twitter - <TICKER> Get latests twitter containing $<TICKER> 
 price - <TICKER> get price of the <TICKER> token
 biz - <WORD> get 4chan/biz threads containing <WORD>
+gas - Get gas price.
 convert - <AMOUNT> <TICKER> option(<TICKER>) convert amount of ticker to usd (and to the second ticker if specified) 
+balance - <WALLET> <TICKER> check how much an address has of a specific coin
 """
