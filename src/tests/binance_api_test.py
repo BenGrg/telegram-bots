@@ -12,9 +12,14 @@ client = Client(clef, secret)
 t_from = 1604660400000
 to = 1604745000000
 
-# candles = client.get_klines(symbol='BTCUSDT', interval="5m", startTime=t_from, endTime=to)
+new_from = 1602154752000
+new_to = 1604746752000
 
-# pprint(candles)
+Client.KLINE_INTERVAL_30MINUTE
+
+candles = client.get_klines(symbol='BTCUSDT', interval="1h", startTime=t_from, endTime=new_to)
+
+pprint(candles)
 
 import pandas as pd
 
@@ -35,4 +40,5 @@ def datteeesss(t_from, t_to):
 
 
 if __name__ == '__main__':
-    datteeesss(t_from, to)
+    pass
+    # datteeesss(t_from, to)
