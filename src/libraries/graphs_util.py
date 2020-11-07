@@ -142,7 +142,9 @@ def __preprocess_gecko_charts_data(values):
 
     date_list = pd.date_range(start=times_as_datetime[0], end=times_as_datetime[-1]).to_pydatetime().tolist()
     pprint.pprint(times_as_datetime)
+    print("STOP!")
     pprint.pprint(date_list)
+    print("STOP!")
     pprint.pprint(opens)
     return date_list, opens, closes, highs, lows, volumes
 
