@@ -114,7 +114,7 @@ def get_binance_chart_data(token_name, t_from, t_to):
     elif delta < 13 * 3600:
         res = "5m"
     elif delta < 24 * 3600 + 100:
-        res = "15m"
+        res = "5m"
     elif delta < 24 * 3600 * 7 + 100:
         res = "1h"
     elif delta < 24 * 3600 * 30 + 100:
