@@ -146,7 +146,7 @@ def __preprocess_gecko_charts_data(values):
     pprint.pprint(date_list)
     print("STOP!")
     pprint.pprint(opens)
-    return date_list, opens, closes, highs, lows, volumes
+    return times_as_datetime, opens, closes, highs, lows, volumes
 
 
 def __preprocess_chartex_data(values, resolution):
