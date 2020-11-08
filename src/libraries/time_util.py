@@ -2,11 +2,15 @@ from datetime import datetime
 from dateparser import parse
 from pprint import pprint
 
-def get_duration(then, now=datetime.now(), interval="default"):
+
+def get_duration(then, now=None, interval="default"):
     # Returns a duration as specified by variable interval
     # Functions, except totalDuration, returns [quotient, remainder]
-
-    duration = then - now  # For build-in functions
+    if now is None:
+        new_now = datetime.now
+    else:
+        new_now = now
+    duration = then - new_now  # For build-in functions
     pprint("duration")
     pprint(duration)
     duration_in_s = int(duration.total_seconds())
