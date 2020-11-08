@@ -75,4 +75,7 @@ def parse_date(date_to_parse):
 
 def get_time_diff(date_to_parse):
     parsed_date = parse_date(date_to_parse)
-    return get_duration(parsed_date)
+    ts = parsed_date.timestamp()  # Have to do it to deal with timezome
+    dt_converted = datetime.fromtimestamp(ts)
+    return get_duration(dt_converted)
+
