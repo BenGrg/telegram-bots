@@ -21,7 +21,9 @@ def get_abi_erc20():
 
 
 def __get_pair_tokens(token0, token1, uni_wrapper):
-    return uni_wrapper.get_pair(token0, token1)
+    t0_checksum = Web3.toChecksumAddress(token0)
+    t1_checksum = Web3.toChecksumAddress(token1)
+    return uni_wrapper.get_pair(t0_checksum, t1_checksum)
 
 
 def does_pair_token_eth_exist(token, uni_wrapper):
