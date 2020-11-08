@@ -21,6 +21,7 @@ import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.requests_util as requests_util
+import libraries.time_util as time_util
 import libraries.util as util
 import libraries.scrap_websites_util as scrap_websites_util
 from libraries.common_values import *
@@ -332,6 +333,17 @@ def get_gas_average(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+def get_time_to(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text[7:]
+    pprint.pprint(query_received)
+
+    time_to = time_util.get_time_diff(query_received)
+    pprint(time_to)
+    message = str(query_received) + " is " + str(time_to) + " from now."
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -346,6 +358,7 @@ def main():
     dp.add_handler(CommandHandler('convert', do_convert))
     dp.add_handler(CommandHandler('gas', get_gas_average))
     dp.add_handler(CommandHandler('balance', balance_token_in_wallet))
+    dp.add_handler(CommandHandler('timeto', get_time_to))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
@@ -364,4 +377,5 @@ biz - <WORD> get 4chan/biz threads containing <WORD>
 gas - Get gas price.
 convert - <AMOUNT> <TICKER> option(<TICKER>) convert amount of ticker to usd (and to the second ticker if specified) 
 balance - <WALLET> <TICKER> check how much an address has of a specific coin
+timeto - time until date passed as argument
 """
