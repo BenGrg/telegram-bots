@@ -281,7 +281,7 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
     if pair is None:
         return None
     else:
-        last_actions = requests_util.get_latest_actions(pair, graphql_client_uni)
+        last_actions = requests_util.get_latest_actions(pair.lower(), graphql_client_uni)
         print(str(last_actions))
         return last_actions
         # last_actions_object = util.paste_last_actions()
