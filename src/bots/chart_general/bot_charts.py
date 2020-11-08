@@ -338,9 +338,10 @@ def get_time_to(update: Update, context: CallbackContext):
     query_received = update.message.text[7:]
     pprint.pprint(query_received)
 
-    time_to = time_util.get_time_diff(query_received)
+    higher, time_to = time_util.get_time_diff(query_received)
     pprint.pprint(time_to)
-    message = str(query_received) + " is " + str(time_to) + " from now."
+    word = ' is ' if higher else ' was '
+    message = str(query_received) + word + str(time_to) + " from now."
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 

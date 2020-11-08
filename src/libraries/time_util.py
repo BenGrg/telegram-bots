@@ -11,9 +11,14 @@ def get_duration(then, now=None, interval="default"):
     else:
         new_now = now
     duration = then - new_now  # For build-in functions
+
     pprint("duration")
     pprint(duration)
     duration_in_s = int(duration.total_seconds())
+    higher = True
+    if duration_in_s < 0:
+        duration_in_s = - duration_in_s
+        higher = False
     pprint("now: ")
     pprint(now)
     pprint("diff: " + str(duration_in_s))
@@ -65,7 +70,7 @@ def get_duration(then, now=None, interval="default"):
         if int(s[0]) != 0:
             message += str(int(s[0])) + " s"
         message = message.replace(")", "),")
-        return message
+        return higher, message
 
     return {
         'years': int(years()[0]),
