@@ -7,7 +7,11 @@ def get_duration(then, now=datetime.now(), interval="default"):
     # Functions, except totalDuration, returns [quotient, remainder]
 
     duration = then - now  # For build-in functions
+    pprint("duration")
+    pprint(duration)
     duration_in_s = int(duration.total_seconds())
+    pprint("now: ")
+    pprint(now)
     pprint("diff: " + str(duration_in_s))
 
     def years():
