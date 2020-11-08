@@ -7,7 +7,7 @@ def get_duration(then, now=None, interval="default"):
     # Returns a duration as specified by variable interval
     # Functions, except totalDuration, returns [quotient, remainder]
     if now is None:
-        new_now = datetime.now
+        new_now = datetime.now()
     else:
         new_now = now
     duration = then - new_now  # For build-in functions
