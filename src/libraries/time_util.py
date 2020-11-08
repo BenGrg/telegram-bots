@@ -1,6 +1,6 @@
 from datetime import datetime
 from dateparser import parse
-
+from pprint import pprint
 
 def get_duration(then, now=datetime.now(), interval="default"):
     # Returns a duration as specified by variable interval
@@ -8,6 +8,7 @@ def get_duration(then, now=datetime.now(), interval="default"):
 
     duration = then - now  # For build-in functions
     duration_in_s = duration.total_seconds()
+    pprint("diff: " + str(duration_in_s))
 
     def years():
         return divmod(duration_in_s, 31536000)  # Seconds in a year=31536000.
@@ -75,7 +76,10 @@ def parse_date(date_to_parse):
 
 def get_time_diff(date_to_parse):
     parsed_date = parse_date(date_to_parse)
+    pprint("Parsed data")
+    pprint(parsed_date)
     ts = parsed_date.timestamp()  # Have to do it to deal with timezome
+    pprint(ts)
     dt_converted = datetime.fromtimestamp(ts)
     return get_duration(dt_converted, interval='simple')
 
