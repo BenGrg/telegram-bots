@@ -6,6 +6,92 @@ import os
 from binance.client import Client
 
 
+query_get_latest = """
+query {  mints(first: 20, where: {pair_in: $PAIR}, orderBy: timestamp, orderDirection: desc) {
+    transaction {
+      id
+      timestamp
+      __typename
+    }
+    pair {
+      token0 {
+        id
+        symbol
+        __typename
+      }
+      token1 {
+        id
+        symbol
+        __typename
+      }
+      __typename
+    }
+    to
+    liquidity
+    amount0
+    amount1
+    amountUSD
+    __typename
+  }
+  burns(first: 20, where: {pair_in: $PAIR}, orderBy: timestamp, orderDirection: desc) {
+    transaction {
+      id
+      timestamp
+      __typename
+    }
+    pair {
+      token0 {
+        id
+        symbol
+        __typename
+      }
+      token1 {
+        id
+        symbol
+        __typename
+      }
+      __typename
+    }
+    sender
+    liquidity
+    amount0
+    amount1
+    amountUSD
+    __typename
+  }
+  swaps(first: 30, where: {pair_in: $PAIR}, orderBy: timestamp, orderDirection: desc) {
+    transaction {
+      id
+      timestamp
+      __typename
+    }
+    id
+    pair {
+      token0 {
+        id
+        symbol
+        __typename
+      }
+      token1 {
+        id
+        symbol
+        __typename
+      }
+      __typename
+    }
+    amount0In
+    amount0Out
+    amount1In
+    amount1Out
+    amountUSD
+    to
+    __typename
+  }
+}
+
+"""
+
+
 url_eth_price_gecko = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
 
 get_address_endpoint = "https://visitly.azurewebsites.net/api/pairs/ERC-20/"
@@ -307,6 +393,14 @@ def get_eth_price_now():
 def get_gas_price_raw():
     url = "https://ethgasstation.info/json/ethgasAPI.json"
     return requests.get(url).json()
+
+
+def get_latest_actions(pair, graphql_client_uni):
+    updated_eth_query = query_get_latest.replace("$PAIR", '["' + pair + '"]')
+    res_eth_query = graphql_client_uni.execute(updated_eth_query)
+    json_resp_eth = json.loads(res_eth_query)
+    return json_resp_eth
+
 #
 # def main():
 #     res = get_eth_price_now()

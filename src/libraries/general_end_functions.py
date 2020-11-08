@@ -272,3 +272,16 @@ def get_gas_price():
     average = int(gas_price_raw['average'] / 10)
     low = int(gas_price_raw['safeLow'] / 10)
     return asap, fast, average, low
+
+
+def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni):
+    token_contract = requests_util.get_token_contract_address(token_ticker)
+    pair = web3_util.does_pair_token_eth_exist(token_contract, uni_wrapper)
+    if pair is None:
+        return None
+    else:
+        last_actions = requests_util.get_latest_actions(pair, graphql_client_uni)
+        print(str(last_actions))
+        return last_actions
+        # last_actions_object = util.paste_last_actions()
+        # last_actions_ordered_beautiful = util.beautiful_actions()

@@ -24,6 +24,7 @@ import libraries.requests_util as requests_util
 import libraries.time_util as time_util
 import libraries.util as util
 import libraries.scrap_websites_util as scrap_websites_util
+from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
 
@@ -45,6 +46,9 @@ decimals = 1000000000000000000  # that's 18
 infura_url = os.environ.get('INFURA_URL')
 pprint.pprint(infura_url)
 w3 = Web3(Web3.HTTPProvider(infura_url))
+
+# web3 uni wrapper
+uni_wrapper = Uniswap(web3=w3)
 
 # log_file
 charts_path = BASE_PATH + 'log_files/chart_bot/'
@@ -345,6 +349,17 @@ def get_time_to(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 
+def get_latest_actions(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        token_ticker = query_received[1]
+        lastest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=lastest_actions_pretty)
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -360,6 +375,7 @@ def main():
     dp.add_handler(CommandHandler('gas', get_gas_average))
     dp.add_handler(CommandHandler('balance', balance_token_in_wallet))
     dp.add_handler(CommandHandler('timeto', get_time_to))
+    dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
