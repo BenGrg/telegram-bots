@@ -339,7 +339,7 @@ def get_time_to(update: Update, context: CallbackContext):
     pprint.pprint(query_received)
 
     time_to = time_util.get_time_diff(query_received)
-    pprint(time_to)
+    pprint.pprint(time_to)
     message = str(query_received) + " is " + str(time_to) + " from now."
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
