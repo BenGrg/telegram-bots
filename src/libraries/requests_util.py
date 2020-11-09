@@ -508,9 +508,19 @@ def parse_pair(pair):
 
 
 # TODO: stuff will need to be moved from here
-def pretty_print(stuff):
-    return list(map(lambda x: x.to_string(), stuff))
-
+def pretty_print(pair, graphql_client_uni):
+    last_actions = get_latest_actions(pair.lower(), graphql_client_uni)
+    parsed_swaps = parse_swaps(last_actions)
+    parsed_mints = parse_mint(last_actions)
+    parsed_burns = parse_burns(last_actions)
+    all_actions = parsed_burns + parsed_mints + parsed_swaps
+    all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
+    all_actions_light = all_actions_sorted[0:10]
+    from pprint import pprint
+    pprint(all_actions_light)
+    strings = list(map(lambda x: x.to_string(), all_actions_light))
+    pprint(strings)
+    return strings
 #
 # def main():
 #     res = get_eth_price_now()
