@@ -306,7 +306,12 @@ def delete_meme(update: Update, context: CallbackContext):
 def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
-    if len(query_received) == 2:
+    if len(query_received) == 1:
+        token_ticker = "BOOB"
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        print(latest_actions_pretty)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 2:
         token_ticker = query_received[1]
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
         print(latest_actions_pretty)
