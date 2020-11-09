@@ -4,7 +4,7 @@ import time
 import json
 import os
 from binance.client import Client
-from datetime import datetime
+from dataclasses import dataclass
 import os
 import sys
 
