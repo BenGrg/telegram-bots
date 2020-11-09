@@ -606,7 +606,7 @@ def get_volume_24h_nice():
 
 def get_price_nice(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    ticker = "ROT"
+    ticker = "NICE"
     contract_from_ticker = requests_util.get_token_contract_address(ticker)
     pprint.pprint(contract_from_ticker)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
@@ -843,7 +843,7 @@ def get_candlestick_pyplot(update: Update, context: CallbackContext):
 
     query_received = update.message.text.split(' ')
 
-    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, "ROT")
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, "NICE")
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
