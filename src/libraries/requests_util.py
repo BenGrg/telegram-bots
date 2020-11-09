@@ -539,7 +539,7 @@ def pretty_print(pair, graphql_client_uni):
     parsed_burns = parse_burns(last_actions)
     all_actions = parsed_burns + parsed_mints + parsed_swaps
     all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
-    all_actions_light = all_actions_sorted[0:10]
+    all_actions_light = all_actions_sorted[0:5]
     strings = list(map(lambda x: x.to_string(eth_price), all_actions_light))
     string = '\n'.join(strings)
     return string
