@@ -354,8 +354,9 @@ def get_latest_actions(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     if len(query_received) == 2:
         token_ticker = query_received[1]
-        lastest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
-        context.bot.send_message(chat_id=chat_id, text=lastest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        pprint.pp(latest_actions_pretty)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
 
