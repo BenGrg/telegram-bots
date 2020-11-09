@@ -444,7 +444,7 @@ class Burn:
     timestamp: int
 
     def to_string(self):
-        message = "💥 Removed " + util.float_to_str(self.token_0[1])[0:6] + self.token_0[0] + " and " + float_to_str(self.token_1[1])[0:6] + self.token_1[0] + " in liquidity."
+        message = "💥 Removed " + float_to_str(self.token_0[1])[0:6] + self.token_0[0] + " and " + float_to_str(self.token_1[1])[0:6] + self.token_1[0] + " in liquidity."
         message += " | " + '<a href=ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
