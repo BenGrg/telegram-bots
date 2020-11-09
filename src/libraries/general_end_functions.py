@@ -282,7 +282,11 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
         return None
     else:
         last_actions = requests_util.get_latest_actions(pair.lower(), graphql_client_uni)
-        print(str(last_actions))
-        return last_actions
-        # last_actions_object = util.paste_last_actions()
-        # last_actions_ordered_beautiful = util.beautiful_actions()
+        parsed_swaps = requests_util.parse_swaps(last_actions)
+        parsed_mints = requests_util.parse_mint(last_actions)
+        parsed_burns = requests_util.parse_burns(last_actions)
+        all_actions = parsed_burns + parsed_mints + parsed_swaps
+        all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
+        all_actions_light = all_actions_sorted[0:10]
+        strings = list(map(lambda x: x.to_string(), all_actions_light))
+        return strings
