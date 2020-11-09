@@ -288,5 +288,7 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
         all_actions = parsed_burns + parsed_mints + parsed_swaps
         all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
         all_actions_light = all_actions_sorted[0:10]
+        from pprint import pprint
+        pprint(all_actions_light)
         strings = list(map(lambda x: x.to_string(), all_actions_light))
         return strings
