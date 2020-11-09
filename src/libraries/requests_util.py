@@ -419,7 +419,7 @@ class Swap:
             message += "👍 Buy  " + float_to_str(self.buy[1])[0:6] + " " + self.buy[0] + " for " + float_to_str(self.sell[1])[0:6] + " ETH."
         else:
             message += "👎 Sell " + float_to_str(self.sell[1])[0:6] + " " + self.sell[0] + " for " + float_to_str(self.buy[1])[0:6] + " ETH."
-        message += " | " + '<a href=ehterscan.io/tx/' + str(self.id) + '">view</a>'
+        message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
 
@@ -432,7 +432,7 @@ class Mint:
 
     def to_string(self):
         message = "🏦 Add " + float_to_str(self.token_0[1])[0:6] + self.token_0[0] + " and " + float_to_str(self.token_1[1])[0:6] + self.token_1[0] + " in liquidity."
-        message += " | " + '<a href=ehterscan.io/tx/' + str(self.id) + '">view</a>'
+        message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
 
@@ -445,7 +445,7 @@ class Burn:
 
     def to_string(self):
         message = "💥 Removed " + float_to_str(self.token_0[1])[0:6] + self.token_0[0] + " and " + float_to_str(self.token_1[1])[0:6] + self.token_1[0] + " in liquidity."
-        message += " | " + '<a href=ehterscan.io/tx/' + str(self.id) + '">view</a>'
+        message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
 
