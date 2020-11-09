@@ -355,7 +355,6 @@ def get_latest_actions(update: Update, context: CallbackContext):
     if len(query_received) == 2:
         token_ticker = query_received[1]
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
-        print(latest_actions_pretty)
         context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")

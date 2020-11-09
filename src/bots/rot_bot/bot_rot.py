@@ -34,7 +34,9 @@ import libraries.commands_util as commands_util
 import libraries.requests_util as requests_util
 import libraries.util as util
 import libraries.scrap_websites_util as scrap_websites_util
-
+from libraries.uniswap import Uniswap
+from libraries.common_values import *
+from web3 import Web3
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
 TMP_FOLDER = BASE_PATH + 'tmp/'
@@ -47,6 +49,13 @@ APP_SECRET = os.environ.get('TWITTER_API_KEY_SECRET')
 ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
 ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 MEME_GIT_REPO = os.environ.get('MEME_GIT_REPO')
+
+# web3
+infura_url = os.environ.get('INFURA_URL')
+pprint.pprint(infura_url)
+w3 = Web3(Web3.HTTPProvider(infura_url))
+uni_wrapper = Uniswap(web3=w3)
+
 
 ethexplorer_holder_base_url = "https://ethplorer.io/service/service.php?data="
 
@@ -909,6 +918,21 @@ def do_convert(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+def get_latest_actions(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 1:
+        token_ticker = "ROT"
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 2:
+        token_ticker = query_received[1]
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -931,6 +955,7 @@ def main():
     dp.add_handler(CommandHandler('delete_meme_secret', delete_meme))
     dp.add_handler(CommandHandler('candlestick', get_candlestick))
     dp.add_handler(CommandHandler('remove_adds', remove_add))
+    dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
