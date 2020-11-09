@@ -27,7 +27,9 @@ import libraries.requests_util as requests_util
 import libraries.util as util
 from bots.boo_bank.bot_boo_values import links, test_error_token, how_to_swap
 from libraries.timer_util import RepeatedTimer
+from libraries.uniswap import Uniswap
 from libraries.common_values import *
+from web3 import Web3
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -47,6 +49,12 @@ last_time_checked_twitter = 0
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
 locale.setlocale(locale.LC_ALL, 'en_US')
+
+# web3
+infura_url = os.environ.get('INFURA_URL')
+pprint.pprint(infura_url)
+w3 = Web3(Web3.HTTPProvider(infura_url))
+uni_wrapper = Uniswap(web3=w3)
 
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
@@ -295,6 +303,20 @@ def delete_meme(update: Update, context: CallbackContext):
     git_handler.delete_meme(update, context, MEME_PWD)
 
 
+def get_latest_actions(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        token_ticker = query_received[1]
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        print(latest_actions_pretty)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -319,6 +341,7 @@ def main():
     dp.add_handler(CommandHandler('how_to_swap', send_how_to_swap))
     dp.add_handler(CommandHandler('convert', do_convert))
     dp.add_handler(CommandHandler('delete_meme_secret', delete_meme))
+    dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
