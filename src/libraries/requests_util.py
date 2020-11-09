@@ -410,16 +410,16 @@ class Swap:
     timestamp: int
 
     def is_positif(self):
-        return self.sell[0] == 'WETH'
+        return self.buy[0] == 'WETH'
 
     def to_string(self):
         message = ""
         # time_now = time_util.get_time_diff(self.timestamp)
         if self.is_positif():
-            message += "🟢 Buy  " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " + pretty_number(self.sell[1])[0:9] + " ETH."
+            message += "🟢 Buy  " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " + pretty_number(self.buy[1])[0:9] + " ETH."
         else:
-            message += "🔴 Sell " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " + pretty_number(self.buy[1])[0:9] + " ETH."
-        message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
+            message += "🔴 Sell " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " + pretty_number(self.sell[1])[0:9] + " ETH."
+        message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
 
@@ -432,7 +432,7 @@ class Mint:
 
     def to_string(self):
         message = "💚 Add " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
-        message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
+        message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
 
@@ -445,7 +445,7 @@ class Burn:
 
     def to_string(self):
         message = "💔 Removed " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
-        message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
+        message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
 
@@ -465,7 +465,7 @@ def parse_swaps(res):
         amount1In = float(swap['amount1In'])
         amount1Out = float(swap['amount1Out'])
         timestamp = int(swap['transaction']['timestamp'])
-        id = swap['id']
+        id = swap['id'][:-2]
         token0, token1 = parse_pair(swap['pair'])
         if amount0In > 0:
             l_swaps.append(Swap((token0, amount0In), (token1, amount1Out), id, timestamp))
@@ -481,7 +481,7 @@ def parse_mint(res):
         amount0 = float(mint['amount0'])
         amount1 = float(mint['amount1'])
         timestamp = int(mint['transaction']['timestamp'])
-        id = mint['transaction']['id']
+        id = mint['transaction']['id'][:-2]
         token0, token1 = parse_pair(mint['pair'])
         l_mints.append(Mint((token0, amount0), (token1, amount1), id, timestamp))
     return l_mints
@@ -494,7 +494,7 @@ def parse_burns(res):
         amount0 = float(burn['amount0'])
         amount1 = float(burn['amount1'])
         timestamp = int(burn['transaction']['timestamp'])
-        id = burn['transaction']['id']
+        id = burn['transaction']['id'][:-2]
         token0, token1 = parse_pair(burn['pair'])
         l_burns.append(Burn((token0, amount0), (token1, amount1), id, timestamp))
     return l_burns
