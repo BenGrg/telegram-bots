@@ -981,7 +981,7 @@ def get_random_message_david(update: Update, context: CallbackContext):
     with open(david_logs_file_path) as f:
         msgs = [line.rstrip().split('///))()') for line in f]
     selected_message = random.choice(msgs)
-    context.bot.send_message(text=selected_message[1],
+    context.bot.send_message(text="David says: \n" + selected_message[1],
                              chat_id=update.message.chat_id,
                              disable_web_page_preview=True)
 
