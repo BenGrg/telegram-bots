@@ -46,7 +46,13 @@ def float_to_str(f):
 
 
 def pretty_number(num):
-    return number_to_beautiful(round(num)) if round(num) > 10 else float_to_str(num)[0:8]
+    if round(num) > 10:
+        res = number_to_beautiful(round(num))
+    elif 0.01 < num < 10.01:
+        res = float_to_str(num)[0:5]
+    else:
+        res = float_to_str(num)[0:10]
+    return res
 
 
 def create_href_str(url, message):
