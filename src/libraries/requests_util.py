@@ -12,6 +12,7 @@ BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
 from libraries.util import float_to_str, pretty_number
+import libraries.time_util as time_util
 
 query_get_latest = """
 query {  mints(first: 20, where: {pair_in: $PAIR}, orderBy: timestamp, orderDirection: desc) {
@@ -414,11 +415,15 @@ class Swap:
 
     def to_string(self):
         message = ""
-        # time_now = time_util.get_time_diff(self.timestamp)
+        time_since = time_util.get_minute_diff(self.timestamp)
         if self.is_positif():
-            message += "🟢 Buy  " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " + pretty_number(self.buy[1])[0:9] + " ETH."
+            message += "🟢 Buy  " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " \
+                       + pretty_number(self.buy[1])[0:9] + " ETH " \
+                       + str(time_since) + " mins ago."
         else:
-            message += "🔴 Sell " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " + pretty_number(self.sell[1])[0:9] + " ETH."
+            message += "🔴 Sell " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " \
+                       + pretty_number(self.sell[1])[0:9] + " ETH " \
+                       + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
@@ -431,7 +436,10 @@ class Mint:
     timestamp: int
 
     def to_string(self):
-        message = "💚 Add " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
+        time_since = time_util.get_minute_diff(self.timestamp)
+        message = "💚 Add " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " +\
+                  pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity " \
+                  + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
@@ -444,7 +452,10 @@ class Burn:
     timestamp: int
 
     def to_string(self):
-        message = "💔 Removed " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
+        time_since = time_util.get_minute_diff(self.timestamp)
+        message = "💔 Removed " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " \
+                  + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity " \
+                  + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 

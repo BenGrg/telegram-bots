@@ -77,12 +77,21 @@ def get_duration(then, now=datetime.now(), interval="default"):
 then = datetime(2020, 3, 5, 23, 8, 15)
 now = datetime.now()
 
+def get_minute_diff(ts):
+    now = datetime.now().timestamp()
+    res = int(now - ts)
+    return int(res / 60)
+
 if __name__ == '__main__':
-    date_to_compare = parse(time_to)
-    pprint(date_to_compare)
-    ts = date_to_compare.timestamp()
-    pprint(ts)
-    dt_converted = datetime.fromtimestamp(ts)
-    pprint(dt_converted)
-    comparison = get_duration(dt_converted, interval="simple")
-    pprint(comparison)
+    timestamp = 1604937676
+    res = get_minute_diff(timestamp)
+    pprint(res)
+
+    # date_to_compare = parse(time_to)
+    # pprint(date_to_compare)
+    # ts = date_to_compare.timestamp()
+    # pprint(ts)
+    # dt_converted = datetime.fromtimestamp(ts)
+    # pprint(dt_converted)
+    # comparison = get_duration(dt_converted, interval="simple")
+    # pprint(comparison)

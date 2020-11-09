@@ -93,3 +93,8 @@ def get_time_diff(date_to_parse, interval='simple'):
     dt_converted = datetime.fromtimestamp(ts)
     return get_duration(dt_converted, interval=interval)
 
+
+def get_minute_diff(ts):
+    now = datetime.now().timestamp()
+    res = int(now - ts)
+    return int(res / 60)
