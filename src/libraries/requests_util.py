@@ -528,9 +528,7 @@ def pretty_print(pair, graphql_client_uni):
     all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
     all_actions_light = all_actions_sorted[0:10]
     from pprint import pprint
-    pprint(all_actions_light)
     strings = list(map(lambda x: x.to_string(), all_actions_light))
-    pprint(strings)
     string = '\n'.join(strings)
     return string
 #
