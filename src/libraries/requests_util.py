@@ -481,7 +481,7 @@ def parse_mint(res):
         amount0 = float(mint['amount0'])
         amount1 = float(mint['amount1'])
         timestamp = int(mint['transaction']['timestamp'])
-        id = mint['transaction']['id'][:-2]
+        id = mint['transaction']['id']
         token0, token1 = parse_pair(mint['pair'])
         l_mints.append(Mint((token0, amount0), (token1, amount1), id, timestamp))
     return l_mints
@@ -494,7 +494,7 @@ def parse_burns(res):
         amount0 = float(burn['amount0'])
         amount1 = float(burn['amount1'])
         timestamp = int(burn['transaction']['timestamp'])
-        id = burn['transaction']['id'][:-2]
+        id = burn['transaction']['id']
         token0, token1 = parse_pair(burn['pair'])
         l_burns.append(Burn((token0, amount0), (token1, amount1), id, timestamp))
     return l_burns
