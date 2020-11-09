@@ -224,4 +224,5 @@ if __name__ == '__main__':
     all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
     all_actions_light = all_actions_sorted[0:10]
     strings = list(map(lambda x: x.to_string(), all_actions_light))
-    pprint(strings)
+    string = '\n'.join(strings)
+    print(string)
