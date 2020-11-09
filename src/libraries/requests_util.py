@@ -419,12 +419,12 @@ class Swap:
         if self.is_positif():
             price_usd = pretty_number(self.buy[1] * eth_price)
             message += "🟢 Buy  " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " \
-                       + pretty_number(self.buy[1])[0:9] + " ETH <code>(" + price_usd[0:6] + ")</code>" \
+                       + pretty_number(self.buy[1])[0:9] + " ETH <code>($" + price_usd[0:6] + ")</code> " \
                        + str(time_since) + " mins ago."
         else:
             price_usd = pretty_number(self.sell[1] * eth_price)
             message += "🔴 Sell " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " \
-                       + pretty_number(self.sell[1])[0:9] + " ETH <code>(" + price_usd[0:6] + ")</code>" \
+                       + pretty_number(self.sell[1])[0:9] + " ETH <code>($" + price_usd[0:6] + ")</code> " \
                        + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
@@ -445,7 +445,7 @@ class Mint:
         time_since = time_util.get_minute_diff(self.timestamp)
         message = "💚 Add " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " +\
                   pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity" \
-                  + " <code>(" + price_usd[0:6] + ")</code> " \
+                  + " <code>($" + price_usd[0:6] + ")</code> " \
                   + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
@@ -466,7 +466,7 @@ class Burn:
         time_since = time_util.get_minute_diff(self.timestamp)
         message = "💔 Removed " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " \
                   + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity" \
-                  + " <code>(" + price_usd[0:6] + ")</code> "\
+                  + " <code>($" + price_usd[0:6] + ")</code> "\
                   + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
