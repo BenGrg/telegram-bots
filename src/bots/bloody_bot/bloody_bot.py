@@ -26,6 +26,9 @@ import libraries.requests_util as requests_util
 import libraries.util as util
 from bots.boo_bank.bot_boo_values import links, test_error_token, how_to_swap
 from libraries.timer_util import RepeatedTimer
+from libraries.uniswap import Uniswap
+from libraries.common_values import *
+from web3 import Web3
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -41,6 +44,14 @@ git_url = "https://api.github.com/repos/rottedben/bloodyMemes/contents/memesFold
 git_handler = git_util.MemeHandler(MEME_GIT_REPO, git_url)
 
 twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
+
+
+
+# web3
+infura_url = os.environ.get('INFURA_URL')
+pprint.pprint(infura_url)
+w3 = Web3(Web3.HTTPProvider(infura_url))
+uni_wrapper = Uniswap(web3=w3)
 
 # time
 last_time_checked_4chan = 0
@@ -322,6 +333,21 @@ def send_meme_to_chat(update: Update, context: CallbackContext):
     context.bot.send_photo(chat_id=chat_id, photo=url)
 
 
+def get_latest_actions(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 1:
+        token_ticker = "BLOODY"
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 2:
+        token_ticker = query_received[1]
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -339,6 +365,7 @@ def main():
     dp.add_handler(CommandHandler('meme', send_meme_to_chat))
     # dp.add_handler(CommandHandler('chart_supply', get_chart_supply))
     dp.add_handler(CommandHandler('convert', do_convert))
+    dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     # RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
