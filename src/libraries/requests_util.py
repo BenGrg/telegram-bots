@@ -11,7 +11,7 @@ import sys
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
-from libraries.util import float_to_str
+from libraries.util import float_to_str, pretty_number
 
 query_get_latest = """
 query {  mints(first: 20, where: {pair_in: $PAIR}, orderBy: timestamp, orderDirection: desc) {
@@ -416,9 +416,9 @@ class Swap:
         message = ""
         # time_now = time_util.get_time_diff(self.timestamp)
         if self.is_positif():
-            message += "👍 Buy  " + float_to_str(self.buy[1])[0:9] + " " + self.buy[0] + " for " + float_to_str(self.sell[1])[0:9] + " ETH."
+            message += "🟢 Buy  " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " + pretty_number(self.sell[1])[0:9] + " ETH."
         else:
-            message += "👎 Sell " + float_to_str(self.sell[1])[0:9] + " " + self.sell[0] + " for " + float_to_str(self.buy[1])[0:9] + " ETH."
+            message += "🔴 Sell " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " + pretty_number(self.buy[1])[0:9] + " ETH."
         message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
@@ -431,7 +431,7 @@ class Mint:
     timestamp: int
 
     def to_string(self):
-        message = "🏦 Add " + float_to_str(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + float_to_str(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
+        message = "💚 Add " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
         message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 
@@ -444,7 +444,7 @@ class Burn:
     timestamp: int
 
     def to_string(self):
-        message = "💥 Removed " + float_to_str(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + float_to_str(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
+        message = "💔 Removed " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity."
         message += " | " + '<a href="ehterscan.io/tx/' + str(self.id) + '">view</a>'
         return message
 

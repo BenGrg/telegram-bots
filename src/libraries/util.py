@@ -45,5 +45,9 @@ def float_to_str(f):
     return format(d1, 'f')
 
 
+def pretty_number(num):
+    return number_to_beautiful(round(num)) if round(num) > 10 else float_to_str(num)[0:8]
+
+
 def create_href_str(url, message):
     return "<a href=\"" + url + "\">" + message + "</a>"
