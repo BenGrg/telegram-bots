@@ -290,6 +290,6 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
         all_actions_light = all_actions_sorted[0:10]
         from pprint import pprint
         pprint(all_actions_light)
-        strings = list(map(lambda x: x.to_string(), all_actions_light))
+        strings = requests_util.pretty_print(all_actions_light)
         pprint(strings)
         return strings

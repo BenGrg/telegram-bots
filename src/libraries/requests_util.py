@@ -506,6 +506,11 @@ def parse_pair(pair):
     token1 = pair['token1']['symbol']
     return token0, token1
 
+
+# TODO: stuff will need to be moved from here
+def pretty_print(stuff):
+    return list(map(lambda x: x.to_string(), stuff))
+
 #
 # def main():
 #     res = get_eth_price_now()
