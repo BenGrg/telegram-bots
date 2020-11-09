@@ -1,6 +1,6 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, BaseFilter, \
-    CallbackContext, Filters
-from telegram import Update
+    CallbackContext, Filters, CallbackQueryHandler
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from twython import Twython, TwythonError
 from graphqlclient import GraphQLClient
 from PIL import Image
@@ -27,6 +27,29 @@ import graphs_util
 import plotly.graph_objects as go
 from markovchain.text import MarkovText, ReplyMode
 import pprint
+import sys
+
+BASE_PATH = os.environ.get('BASE_PATH')
+sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
+
+
+from libraries.timer_util import RepeatedTimer
+import libraries.graphs_util as graphs_util
+import libraries.general_end_functions as general_end_functions
+import libraries.commands_util as commands_util
+import libraries.requests_util as requests_util
+import libraries.util as util
+import libraries.scrap_websites_util as scrap_websites_util
+from libraries.uniswap import Uniswap
+from libraries.common_values import *
+from web3 import Web3
+
+# web3
+infura_url = os.environ.get('INFURA_URL')
+pprint.pprint(infura_url)
+w3 = Web3(Web3.HTTPProvider(infura_url))
+uni_wrapper = Uniswap(web3=w3)
+
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('NICE_TELEGRAM_KEY')
@@ -38,6 +61,10 @@ ACCESS_SECRET_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 MEME_GIT_REPO = os.environ.get('NICE_MEME_GIT_REPO')
 TMP_FOLDER = os.environ.get('NICE_TMP_MEME_FOLDER')
 BASE_PATH = os.environ.get('BASE_PATH')
+
+charts_path = BASE_PATH + 'log_files/chart_bot/'
+
+TMP_FOLDER = BASE_PATH + 'tmp/'
 
 ethexplorer_holder_base_url = "https://ethplorer.io/service/service.php?data="
 
@@ -588,47 +615,14 @@ def get_volume_24h_nice():
 
 
 def get_price_nice(update: Update, context: CallbackContext):
-    (derivedETH_7d, rot_price_7d_usd, derivedETH_1d, rot_price_1d_usd, derivedETH_now,
-     rot_price_now_usd) = get_price_nice_raw()
-
-    supply_cap_rot = get_supply_cap_raw(nice_contract)
-    supply_cat_pretty = str(round(supply_cap_rot))
-    market_cap = number_to_beautiful(int(float(supply_cap_rot) * rot_price_now_usd))
-
-    vol_24h = get_volume_24h_nice()
-    var_7d = 0  # int(((rot_price_now_usd - rot_price_7d_usd) / rot_price_now_usd) * 100)
-    var_1d = int(((rot_price_now_usd - rot_price_1d_usd) / rot_price_now_usd) * 100)
-
-    var_7d_str = "+" + str(var_7d) + "%" if var_7d > 0 else str(var_7d) + "%"
-    var_1d_str = "+" + str(var_1d) + "%" if var_1d > 0 else str(var_1d) + "%"
-
-    vol_24_pretty = number_to_beautiful(vol_24h)
-
-    holders = get_number_holder_token(nice_contract)
-
-    message = ""
-    if str(rot_price_now_usd)[0:10] == "8559.66467":
-        message = message + "Parts of Uniswap info seems down. Price might be outdated.\n"
-
-        # + "\nETH: Ξ" + str(derivedETH_now)[0:10]
-        # + "\nUSD: $" + str(rot_price_now_usd)[0:10]
-
-    message = message + "<code>(NICE) NiceToken" \
-              + "\nETH: Ξ" + str(derivedETH_now)[0:10] \
-              + "\nUSD: $" + str(rot_price_now_usd)[0:10] \
-              + "\n24H:  " + var_1d_str \
-              + "\n7D :  " + var_7d_str \
-              + "\n" \
-              + "\nVol 24H = $" + vol_24_pretty \
-              + "\nS.  Cap = " + supply_cat_pretty \
-              + "\nM.  Cap = $" + market_cap \
-              + "\nHolders = " + str(holders) + "</code>"
-    if random.randrange(10) > 6:
-        ad = get_ad()
-        message = message + "\n" + ad
-
     chat_id = update.message.chat_id
-    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
+    ticker = "ROT"
+    contract_from_ticker = requests_util.get_token_contract_address(ticker)
+    pprint.pprint(contract_from_ticker)
+    button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
+    reply_markup_price = InlineKeyboardMarkup(button_list_price)
+    message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni, ticker.upper(), 10**18)
+    context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
 def log_current_price_rot_per_usd():
@@ -856,44 +850,20 @@ def check_query(query_received):
 
 def get_candlestick_pyplot(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    global last_time_checked_price_candles
 
     query_received = update.message.text.split(' ')
-    if update.message.from_user.first_name == 'Ben':
-        print("hello me")
-        last_time_checked_price_candles = 1
 
-    time_type, time_start, k_hours, k_days, query_ok, simple_query, token = check_query(query_received)
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, "ROT")
+    t_to = int(time.time())
+    t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
-    if query_ok:
-        new_time = round(time.time())
-        if new_time - last_time_checked_price_candles > 60:
-            if update.message.from_user.first_name != 'Ben':
-                last_time_checked_price_candles = new_time
-
-            t_to = int(time.time())
-            t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
-
-            last_price = graphs_util.print_candlestick(token, t_from, t_to, candels_file_path)
-
-            caption = "Price of the last " + str(time_start) + str(time_type) + " of " + token + \
-                      ".\nCurrent price: <pre>$" + str(last_price)[0:10] + "</pre>"
-
-            if random.randrange(10) > 6:
-                ad = get_ad()
-                caption = caption + "\n" + ad
-
-            context.bot.send_photo(chat_id=chat_id,
-                                   photo=open(candels_file_path, 'rb'),
-                                   caption=caption,
-                                   parse_mode="html")
-        else:
-            context.bot.send_message(chat_id=chat_id,
-                                     text="Displaying charts only once every minute. Don't abuse this function")
+    if isinstance(tokens, list):
+        for token in tokens:
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        context.bot.send_message(chat_id=chat_id,
-                                 text="Request badly formated. Please use /candlestick time type (example: /getchart 3 h for the last 3h time range). Simply editing your message will not work, please send a new correctly formated message.")
-
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 def get_chart_supply_pyplot(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
@@ -1183,6 +1153,66 @@ def generate_random_legend(update: Update, context: CallbackContext):
                                  disable_web_page_preview=True)
 
 
+def refresh_chart(update: Update, context: CallbackContext):
+    print("refreshing chart")
+    query = update.callback_query.data
+
+    k_hours = int(re.search(r'\d+', query.split('h:')[1]).group())
+    k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
+    token = query.split('t:')[1]
+
+    t_to = int(time.time())
+    t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+
+    chat_id = update.callback_query.message.chat_id
+    message_id = update.callback_query.message.message_id
+
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+def refresh_price(update: Update, context: CallbackContext):
+    print("refreshing price")
+    query = update.callback_query.data
+    contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
+    token_name = query.split('_t_')[1]
+    message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni,
+                                              token_name.upper(), 10**18)
+    button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
+    reply_markup_price = InlineKeyboardMarkup(button_list_price)
+    update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
+
+
+def delete_message(update: Update, context: CallbackContext):
+    print("deleting chart")
+    chat_id = update.callback_query.message.chat_id
+    message_id = update.callback_query.message.message_id
+    context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+def do_convert(update: Update, context: CallbackContext):
+    query_received = update.message.text.split(' ')
+    chat_id = update.message.chat_id
+    message = general_end_functions.convert_to_something(query_received, graphql_client_uni, graphql_client_eth)
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+
+
+def get_latest_actions(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 1:
+        token_ticker = "ROT"
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 2:
+        token_ticker = query_received[1]
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -1214,6 +1244,11 @@ def main():
     dp.add_handler(CommandHandler('generate_random_all_stats', generate_random_all_stats))
     dp.add_handler(CommandHandler('add_ai', add_message_to_ai))
     dp.add_handler(CommandHandler('generate_random_legends', generate_random_legend))
+    dp.add_handler(CommandHandler('last_actions', get_latest_actions))
+    dp.add_handler(CommandHandler('convert', do_convert))
+    dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
+    dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
+    dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
     dp.add_handler(MessageHandler(Filters.text, log_message))
     RepeatedTimer(15, log_current_price_rot_per_usd)
     RepeatedTimer(60, log_current_supply)
