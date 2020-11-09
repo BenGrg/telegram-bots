@@ -520,7 +520,8 @@ def pretty_print(pair, graphql_client_uni):
     pprint(all_actions_light)
     strings = list(map(lambda x: x.to_string(), all_actions_light))
     pprint(strings)
-    return strings
+    string = '\n'.join(strings)
+    return string
 #
 # def main():
 #     res = get_eth_price_now()
