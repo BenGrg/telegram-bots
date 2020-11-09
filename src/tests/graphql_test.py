@@ -117,7 +117,7 @@ class Swap:
     def is_positif(self):
         return self.sell[0] == 'WETH'
 
-    def to_string(self):
+    def to_string(self, eth_price):
         message = ""
         # time_now = time_util.get_time_diff(self.timestamp)
         if self.is_positif():

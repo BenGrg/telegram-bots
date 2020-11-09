@@ -394,7 +394,7 @@ def get_eth_price_now():
     res = requests.get(url_eth_price_gecko).json()
     if 'ethereum' in res:
         if 'usd' in res['ethereum']:
-            return res['ethereum']['usd']
+            return int(res['ethereum']['usd'])
     return 0
 
 
@@ -413,16 +413,18 @@ class Swap:
     def is_positif(self):
         return self.buy[0] == 'WETH'
 
-    def to_string(self):
+    def to_string(self, eth_price):
         message = ""
         time_since = time_util.get_minute_diff(self.timestamp)
         if self.is_positif():
+            price_usd = pretty_number(self.buy[1] * eth_price)
             message += "🟢 Buy  " + pretty_number(self.sell[1])[0:9] + " " + self.sell[0] + " for " \
-                       + pretty_number(self.buy[1])[0:9] + " ETH " \
+                       + pretty_number(self.buy[1])[0:9] + " ETH <code>(" + price_usd[0:6] + ")</code>" \
                        + str(time_since) + " mins ago."
         else:
+            price_usd = pretty_number(self.sell[1] * eth_price)
             message += "🔴 Sell " + pretty_number(self.buy[1])[0:9] + " " + self.buy[0] + " for " \
-                       + pretty_number(self.sell[1])[0:9] + " ETH " \
+                       + pretty_number(self.sell[1])[0:9] + " ETH <code>(" + price_usd[0:6] + ")</code>" \
                        + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
@@ -435,10 +437,15 @@ class Mint:
     id: str
     timestamp: int
 
-    def to_string(self):
+    def to_string(self, eth_price):
+        if self.token_0[0] == 'WETH':
+            price_usd = pretty_number(self.token_0[1] * eth_price)
+        else:
+            price_usd = pretty_number(self.token_1[1] * eth_price)
         time_since = time_util.get_minute_diff(self.timestamp)
         message = "💚 Add " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " +\
-                  pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity " \
+                  pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity" \
+                  + " <code>(" + price_usd[0:6] + ")</code> " \
                   + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
@@ -451,10 +458,15 @@ class Burn:
     id: str
     timestamp: int
 
-    def to_string(self):
+    def to_string(self, eth_price):
+        if self.token_0[0] == 'WETH':
+            price_usd = pretty_number(self.token_0[1] * eth_price)
+        else:
+            price_usd = pretty_number(self.token_1[1] * eth_price)
         time_since = time_util.get_minute_diff(self.timestamp)
         message = "💔 Removed " + pretty_number(self.token_0[1])[0:6] + ' ' + self.token_0[0] + " and " \
-                  + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity " \
+                  + pretty_number(self.token_1[1])[0:6] + ' ' + self.token_1[0] + " in liquidity" \
+                  + " <code>(" + price_usd[0:6] + ")</code> "\
                   + str(time_since) + " mins ago."
         message += " | " + '<a href="etherscan.io/tx/' + str(self.id) + '">view</a>'
         return message
@@ -520,6 +532,7 @@ def parse_pair(pair):
 
 # TODO: stuff will need to be moved from here
 def pretty_print(pair, graphql_client_uni):
+    eth_price = get_eth_price_now()
     last_actions = get_latest_actions(pair.lower(), graphql_client_uni)
     parsed_swaps = parse_swaps(last_actions)
     parsed_mints = parse_mint(last_actions)
@@ -527,8 +540,7 @@ def pretty_print(pair, graphql_client_uni):
     all_actions = parsed_burns + parsed_mints + parsed_swaps
     all_actions_sorted = sorted(all_actions, key=lambda x: x.timestamp, reverse=True)
     all_actions_light = all_actions_sorted[0:10]
-    from pprint import pprint
-    strings = list(map(lambda x: x.to_string(), all_actions_light))
+    strings = list(map(lambda x: x.to_string(eth_price), all_actions_light))
     string = '\n'.join(strings)
     return string
 #
