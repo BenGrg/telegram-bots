@@ -87,12 +87,9 @@ def parse_date(date_to_parse):
     return parse(date_to_parse)
 
 
-def get_time_diff(date_to_parse):
+def get_time_diff(date_to_parse, interval='simple'):
     parsed_date = parse_date(date_to_parse)
-    pprint("Parsed data")
-    pprint(parsed_date)
     ts = parsed_date.timestamp()  # Have to do it to deal with timezome
-    pprint(ts)
     dt_converted = datetime.fromtimestamp(ts)
-    return get_duration(dt_converted, interval='simple')
+    return get_duration(dt_converted, interval=interval)
 
