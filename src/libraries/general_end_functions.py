@@ -291,4 +291,5 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
         from pprint import pprint
         pprint(all_actions_light)
         strings = list(map(lambda x: x.to_string(), all_actions_light))
+        pprint(strings)
         return strings
