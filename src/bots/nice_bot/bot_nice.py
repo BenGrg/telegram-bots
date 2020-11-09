@@ -1192,7 +1192,7 @@ def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
     if len(query_received) == 1:
-        token_ticker = "ROT"
+        token_ticker = "NICE"
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
         context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
     elif len(query_received) == 2:
