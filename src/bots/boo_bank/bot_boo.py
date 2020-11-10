@@ -107,6 +107,7 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 def get_price_token(update: Update, context: CallbackContext):
     vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "chart")
+    pprint.pprint(zerorpc_client_data_aggregator.hello("boo bot"))
     zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
