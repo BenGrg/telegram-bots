@@ -35,6 +35,7 @@ import zerorpc
 # ZERORPC
 zerorpc_client_data_aggregator = zerorpc.Client()
 zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
