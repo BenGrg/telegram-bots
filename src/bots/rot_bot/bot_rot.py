@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, BaseFilter, \
     CallbackContext, Filters, CallbackQueryHandler
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
@@ -37,6 +40,14 @@ import libraries.scrap_websites_util as scrap_websites_util
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
+import zerorpc
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
+
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
 TMP_FOLDER = BASE_PATH + 'tmp/'
@@ -541,6 +552,8 @@ def get_number_holder_token(token):
 
 
 def get_price_maggot(update: Update, context: CallbackContext):
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "MAGGOT", "price")
+    zerorpc_client_data_aggregator.add_vote(vote)
     (eth_per_maggot, dollar_per_maggot, rot_per_maggot) = get_price_maggot_raw()
 
     supply_cap_maggot = get_supply_cap_raw(maggot_contract)
@@ -571,6 +584,8 @@ def get_price_maggot(update: Update, context: CallbackContext):
 def get_price_rot(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     ticker = "ROT"
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), ticker.upper(), "price")
+    zerorpc_client_data_aggregator.add_vote(vote)
     contract_from_ticker = requests_util.get_token_contract_address(ticker)
     pprint.pprint(contract_from_ticker)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
@@ -701,6 +716,8 @@ def print_chart_supply(dates_raw, supply_rot, supply_maggot):
 
 
 def get_chart_price_pyplot(update: Update, context: CallbackContext):
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "ROT", "chart")
+    zerorpc_client_data_aggregator.add_vote(vote)
     chat_id = update.message.chat_id
     global last_time_checked_price_chart
 
@@ -795,9 +812,13 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
+            vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "chart")
+            zerorpc_client_data_aggregator.add_vote(vote)
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
+        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), tokens.upper(), "chart")
+        zerorpc_client_data_aggregator.add_vote(vote)
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
@@ -865,6 +886,9 @@ def refresh_chart(update: Update, context: CallbackContext):
     k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
 
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "refresh_chart")
+    zerorpc_client_data_aggregator.add_vote(vote)
+
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
@@ -897,6 +921,8 @@ def refresh_price(update: Update, context: CallbackContext):
     query = update.callback_query.data
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
     token_name = query.split('_t_')[1]
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_name.upper(), "refresh_price")
+    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni,
                                               token_name.upper(), 10**18)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]

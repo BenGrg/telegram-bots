@@ -101,9 +101,14 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
+            vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "chart")
+            zerorpc_client_data_aggregator.add_vote(vote)
+
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
+        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), tokens.upper(), "chart")
+        zerorpc_client_data_aggregator.add_vote(vote)
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
