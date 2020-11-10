@@ -343,7 +343,7 @@ def get_latest_actions(update: Update, context: CallbackContext):
 def get_trending(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     res = zerorpc_client_data_aggregator.view_trending()
-    context.bot.send_message(chat_id=chat_id, text=', '.join(res))
+    context.bot.send_message(chat_id=chat_id, text=res)
 
 
 def main():
