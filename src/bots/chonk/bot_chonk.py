@@ -21,6 +21,9 @@ import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
 import libraries.util as util
+from libraries.uniswap import Uniswap
+from libraries.common_values import *
+from web3 import Web3
 import zerorpc
 
 
@@ -28,6 +31,12 @@ import zerorpc
 zerorpc_client_data_aggregator = zerorpc.Client()
 zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
 pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
+
+# web3
+infura_url = os.environ.get('INFURA_URL')
+pprint.pprint(infura_url)
+w3 = Web3(Web3.HTTPProvider(infura_url))
+uni_wrapper = Uniswap(web3=w3)
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
