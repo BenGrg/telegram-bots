@@ -2,7 +2,7 @@ import locale
 import sys
 import os
 from gevent import monkey
-monkey.patch_all()
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
 
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
@@ -109,23 +109,25 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    # vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "chart")
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "price")
     # pprint.pprint(zerorpc_client_data_aggregator.hello("boo bot"))
-    # zerorpc_client_data_aggregator.add_vote(vote)
+    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
 def get_price_ecto(update: Update, context: CallbackContext):
-    # vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "ECTO", "chart")
-    # zerorpc_client_data_aggregator.add_vote(vote)
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "ECTO", "price")
+    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(ecto_contract, pair_contract, graphql_client_eth, graphql_client_uni, ecto_name, decimals)
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
 def refresh_chart(update: Update, context: CallbackContext):
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "ECTO", "chart")
+    zerorpc_client_data_aggregator.add_vote(vote)
 
     print("refreshing chart")
     query = update.callback_query.data
@@ -150,6 +152,8 @@ def refresh_chart(update: Update, context: CallbackContext):
 
 
 def refresh_price(update: Update, context: CallbackContext):
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "refresh_price")
+    zerorpc_client_data_aggregator.add_vote(vote)
     print("refreshing price")
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
