@@ -164,13 +164,12 @@ def refresh_price(update: Update, context: CallbackContext):
     query = update.callback_query.data
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
     token_name = query.split('_t_')[1]
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_name.upper(), "refresh_price")
-    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth,
                                               graphql_client_uni,
                                               token_name.upper(), decimals)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
+    util.create_and_send_vote(token_name, "refresh_price", update.message.from_user.name, zerorpc_client_data_aggregator)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price,
                                             disable_web_page_preview=True)
 
@@ -190,9 +189,6 @@ def refresh_chart(update: Update, context: CallbackContext):
     k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
 
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "refresh_chart")
-    zerorpc_client_data_aggregator.add_vote(vote)
-
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
@@ -201,6 +197,7 @@ def refresh_chart(update: Update, context: CallbackContext):
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
                                                                                         k_hours, t_from, t_to)
+    util.create_and_send_vote(token, "refresh_chart", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                            reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)

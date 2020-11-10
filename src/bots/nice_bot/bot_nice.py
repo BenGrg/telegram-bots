@@ -617,13 +617,12 @@ def get_volume_24h_nice():
 def get_price_nice(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     ticker = "NICE"
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), ticker, "price")
-    zerorpc_client_data_aggregator.add_vote(vote)
     contract_from_ticker = requests_util.get_token_contract_address(ticker)
     pprint.pprint(contract_from_ticker)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
     message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni, ticker.upper(), 10**18)
+    util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -861,15 +860,14 @@ def get_candlestick_pyplot(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "chart")
-            zerorpc_client_data_aggregator.add_vote(vote)
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            util.create_and_send_vote(token, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), tokens.upper(), "chart")
-        zerorpc_client_data_aggregator.add_vote(vote)
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
+
 
 def get_chart_supply_pyplot(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
@@ -1173,10 +1171,8 @@ def refresh_chart(update: Update, context: CallbackContext):
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "refresh_chart")
-    zerorpc_client_data_aggregator.add_vote(vote)
-
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    util.create_and_send_vote(token, "refresh_chart", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
@@ -1187,13 +1183,11 @@ def refresh_price(update: Update, context: CallbackContext):
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
     token_name = query.split('_t_')[1]
 
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_name.upper(), "refresh_price")
-    zerorpc_client_data_aggregator.add_vote(vote)
-
     message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni,
                                               token_name.upper(), 10**18)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
+    util.create_and_send_vote(token_name, "refresh_price", update.message.from_user.name, zerorpc_client_data_aggregator)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 

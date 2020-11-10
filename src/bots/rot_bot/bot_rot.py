@@ -552,8 +552,6 @@ def get_number_holder_token(token):
 
 
 def get_price_maggot(update: Update, context: CallbackContext):
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "MAGGOT", "price")
-    zerorpc_client_data_aggregator.add_vote(vote)
     (eth_per_maggot, dollar_per_maggot, rot_per_maggot) = get_price_maggot_raw()
 
     supply_cap_maggot = get_supply_cap_raw(maggot_contract)
@@ -578,19 +576,19 @@ def get_price_maggot(update: Update, context: CallbackContext):
               + "\nHolders = " + str(holders) + "</code>"
 
     chat_id = update.message.chat_id
+    util.create_and_send_vote("MAGGOT", "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
 
 
 def get_price_rot(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     ticker = "ROT"
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), ticker.upper(), "price")
-    zerorpc_client_data_aggregator.add_vote(vote)
     contract_from_ticker = requests_util.get_token_contract_address(ticker)
     pprint.pprint(contract_from_ticker)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
     message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni, ticker.upper(), 10**18)
+    util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -716,8 +714,6 @@ def print_chart_supply(dates_raw, supply_rot, supply_maggot):
 
 
 def get_chart_price_pyplot(update: Update, context: CallbackContext):
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "ROT", "chart")
-    zerorpc_client_data_aggregator.add_vote(vote)
     chat_id = update.message.chat_id
     global last_time_checked_price_chart
 
@@ -756,9 +752,9 @@ def get_chart_price_pyplot(update: Update, context: CallbackContext):
             else:
                 caption = "Price of the last " + str(time_start) + str(time_type) + ".\nCurrent price: <pre>$" + str(
                     price[-1])[0:10] + "</pre>"
-            if random.randrange(10) > 8:
-                ad = get_ad()
-                caption = caption + "\n" + ad
+            ad = get_ad()
+            caption = caption + "\n" + ad
+            util.create_and_send_vote("ROT", "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id,
                                    photo=open(chart_price_file_path, 'rb'),
                                    caption=caption,
@@ -789,16 +785,12 @@ def check_query(query_received):
 
 
 def get_ad():
-    # new_time = round(time.time())
-    # if new_time - last_time_checked_ads > 3600:
-    #     ads_file_path = BASE_PATH + "ads/chart_ads.txt"
-    #     with open(ads_file_path) as f:
-    #         content = f.readlines()
-    #     # you may also want to remove whitespace characters like `\n` at the end of each line
-    #     content = [x.strip() for x in content]
-    #     return "AD: " + random.choice(content)
-    # else:
-    return ""
+    ads_file_path = BASE_PATH + "ads/chart_ads.txt"
+    with open(ads_file_path) as f:
+        content = f.readlines()
+    content = [x.strip() for x in content]
+    return random.choice(content)
+
 
 # button refresh: h:int-d:int-t:token
 def get_candlestick(update: Update, context: CallbackContext):
@@ -812,14 +804,13 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "chart")
-            zerorpc_client_data_aggregator.add_vote(vote)
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            util.create_and_send_vote(token.upper(), "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), tokens.upper(), "chart")
-        zerorpc_client_data_aggregator.add_vote(vote)
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
+
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
@@ -886,9 +877,6 @@ def refresh_chart(update: Update, context: CallbackContext):
     k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
 
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "refresh_chart")
-    zerorpc_client_data_aggregator.add_vote(vote)
-
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
@@ -896,6 +884,7 @@ def refresh_chart(update: Update, context: CallbackContext):
     message_id = update.callback_query.message.message_id
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    util.create_and_send_vote(token, "refresh_chart", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
@@ -921,12 +910,12 @@ def refresh_price(update: Update, context: CallbackContext):
     query = update.callback_query.data
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
     token_name = query.split('_t_')[1]
-    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_name.upper(), "refresh_price")
-    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni,
                                               token_name.upper(), 10**18)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
+    util.create_and_send_vote(token_name, "refresh_price", update.message.from_user.name, zerorpc_client_data_aggregator)
+
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
