@@ -31,6 +31,8 @@ from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
 import zerorpc
+from gevent import monkey
+monkey.patch_all()
 
 # ZERORPC
 zerorpc_client_data_aggregator = zerorpc.Client()
@@ -362,7 +364,7 @@ def main():
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
     RepeatedTimer(120, log_current_supply)
-    updater.start_polling(poll_interval=0.1)
+    updater.start_polling()
     updater.idle()
 
 
