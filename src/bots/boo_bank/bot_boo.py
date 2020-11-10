@@ -337,6 +337,7 @@ def get_trending(update: Update, context: CallbackContext):
 
 
 def main():
+    monkey.patch_all()
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
@@ -363,7 +364,6 @@ def main():
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
     RepeatedTimer(120, log_current_supply)
-    monkey.patch_all()
     updater.start_polling()
     updater.idle()
 
