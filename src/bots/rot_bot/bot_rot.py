@@ -884,7 +884,6 @@ def refresh_chart(update: Update, context: CallbackContext):
     message_id = update.callback_query.message.message_id
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
-    util.create_and_send_vote(token, "refresh_chart", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
@@ -914,7 +913,6 @@ def refresh_price(update: Update, context: CallbackContext):
                                               token_name.upper(), 10**18)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
-    util.create_and_send_vote(token_name, "refresh_price", update.message.from_user.name, zerorpc_client_data_aggregator)
 
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
