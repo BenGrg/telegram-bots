@@ -108,7 +108,6 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
-    monkey.patch_all()
     vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "chart")
     pprint.pprint(zerorpc_client_data_aggregator.hello("boo bot"))
     zerorpc_client_data_aggregator.add_vote(vote)
@@ -364,6 +363,7 @@ def main():
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
     RepeatedTimer(120, log_current_supply)
+    monkey.patch_all()
     updater.start_polling()
     updater.idle()
 
