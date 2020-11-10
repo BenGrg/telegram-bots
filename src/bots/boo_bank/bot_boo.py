@@ -30,6 +30,7 @@ from bots.boo_bank.bot_boo_values import links, test_error_token, how_to_swap
 from libraries.timer_util import RepeatedTimer
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
+import libraries.time_util as time_util
 from web3 import Web3
 import zerorpc
 
@@ -335,12 +336,25 @@ def get_trending(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=res)
 
 
+def get_time_to(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text[7:]
+    pprint.pprint(query_received)
+
+    higher, time_to = time_util.get_time_diff(query_received)
+    pprint.pprint(time_to)
+    word = ' is ' if higher else ' was '
+    message = str(query_received) + word + str(time_to) + " from now."
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('boob', get_price_token))
+    dp.add_handler(CommandHandler('timeto', get_time_to))
     dp.add_handler(CommandHandler('ecto', get_price_ecto))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))

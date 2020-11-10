@@ -284,6 +284,8 @@ def get_gas_average(update: Update, context: CallbackContext):
 def get_time_to(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text[7:]
+    if query_received == "jackpot" or query_received == " jackpot":
+        query_received = "7 pm CST"
     pprint.pprint(query_received)
 
     higher, time_to = time_util.get_time_diff(query_received)
