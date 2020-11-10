@@ -1,6 +1,8 @@
 import locale
 import sys
 import os
+from gevent import monkey
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
 
 from twython import Twython
 
@@ -27,6 +29,14 @@ import libraries.scrap_websites_util as scrap_websites_util
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
+import zerorpc
+import random
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")  # TODO: change port to env variable
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
 
 # twitter
 APP_KEY = os.environ.get('TWITTER_API_KEY')
@@ -112,63 +122,20 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
+            vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "chart")
+            zerorpc_client_data_aggregator.add_vote(vote)
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path,
                                                                                                 k_days, k_hours, t_from,
                                                                                                 t_to)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                    reply_markup=reply_markup_chart)
     else:
+        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), tokens.upper(), "chart")
+        zerorpc_client_data_aggregator.add_vote(vote)
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days,
                                                                                             k_hours, t_from, t_to)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                reply_markup=reply_markup_chart)
-
-
-def see_fav_charts(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-
-    query_received = update.message.text.split(' ')
-
-    time_type, k_hours, k_days = check_query_fav(query_received)
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    tokens = read_favorites(favorite_path)
-    t_to = int(time.time())
-    t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
-
-    for token in tokens:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
-                                                                                            k_hours, t_from, t_to)
-        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
-                               reply_markup=reply_markup_chart)
-
-
-def delete_fav_token(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    msgs = read_favorites(favorite_path)
-    to_delete = update.message.text.split(' ')[1]
-    if to_delete not in msgs:
-        context.bot.send_message(chat_id=chat_id, text=to_delete + " not in your favorites")
-    else:
-        delete_line_from_file(favorite_path, to_delete)
-        context.bot.send_message(chat_id=chat_id, text="Removed " + to_delete + " from your favorites")
-
-
-def see_fav_token(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    msgs = read_favorites(favorite_path)
-    if msgs == "" or msgs is None or msgs == []:
-        msgs = "No favorites for the moment. Add some with /add_fav"
-    else:
-        msgs = ', '.join(msgs)
-    context.bot.send_message(chat_id=chat_id, text=msgs)
 
 
 def get_price_token(update: Update, context: CallbackContext):
@@ -177,6 +144,8 @@ def get_price_token(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     if len(query_received) == 2:
         ticker = query_received[1]
+        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), ticker.upper(), "price")
+        zerorpc_client_data_aggregator.add_vote(vote)
         contract_from_ticker = requests_util.get_token_contract_address(ticker)
         pprint.pprint(contract_from_ticker)
         if contract_from_ticker is None:
@@ -198,6 +167,8 @@ def refresh_price(update: Update, context: CallbackContext):
     query = update.callback_query.data
     contract_from_ticker = query.split('r_p_')[1].split('_t')[0]
     token_name = query.split('_t_')[1]
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_name.upper(), "refresh_price")
+    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth,
                                               graphql_client_uni,
                                               token_name.upper(), decimals)
@@ -214,28 +185,6 @@ def delete_message(update: Update, context: CallbackContext):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
-def add_favorite_token(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    msgs = read_favorites(favorite_path)
-    query_received = update.message.text.split(' ')
-
-    if not len(query_received) == 2:
-        context.bot.send_message(chat_id=chat_id, text="Error. Can only add one symbol at a time")
-    else:
-        symbol_to_add = query_received[1]
-        if symbol_to_add in msgs:
-            context.bot.send_message(chat_id=chat_id,
-                                     text="Error. Looks like the symbol " + symbol_to_add + " is already in your favorites.")
-        else:
-            with open(favorite_path, "a") as fav_file:
-                message_to_write = symbol_to_add + "\n"
-                fav_file.write(message_to_write)
-            context.bot.send_message(chat_id=chat_id, text="Added " + symbol_to_add + " to your favorites.")
-
-
 def refresh_chart(update: Update, context: CallbackContext):
     print("refreshing chart")
     query = update.callback_query.data
@@ -243,6 +192,9 @@ def refresh_chart(update: Update, context: CallbackContext):
     k_hours = int(re.search(r'\d+', query.split('h:')[1]).group())
     k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
+
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "refresh_chart")
+    zerorpc_client_data_aggregator.add_vote(vote)
 
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
@@ -354,6 +306,8 @@ def get_latest_actions(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     if len(query_received) == 2:
         token_ticker = query_received[1]
+        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_ticker.upper(), "actions")
+        zerorpc_client_data_aggregator.add_vote(vote)
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
         context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
     else:
