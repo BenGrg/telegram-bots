@@ -3,6 +3,7 @@ import os
 import random
 import decimal
 import hashlib
+from binascii import hexlify
 
 BASE_PATH = os.environ.get('BASE_PATH')
 
@@ -71,6 +72,7 @@ def get_random_string(length):
 def create_and_send_vote(ticker, method, username, zerorpc_client):
     now_ts = round(datetime.now().timestamp())
     id_vote = random.randint(0, 1000000000000)
-    hashed_username = hashlib.sha512(username + username).hexdigest()
+    hex_username = hexlify(username.encode())
+    hashed_username = hashlib.sha512(hex_username + hex_username).hexdigest()
     vote = (id_vote, hashed_username, now_ts, ticker.upper(), method)
     zerorpc_client.add_vote(vote)
