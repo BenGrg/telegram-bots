@@ -1,7 +1,8 @@
 import locale
 import sys
 import os
-
+from gevent import monkey
+monkey.patch_all()
 
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
@@ -31,7 +32,7 @@ from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
 import zerorpc
-from gevent import monkey
+
 
 # ZERORPC
 zerorpc_client_data_aggregator = zerorpc.Client()
@@ -332,7 +333,7 @@ def get_latest_actions(update: Update, context: CallbackContext):
 
 def get_trending(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    res = "coucou"# zerorpc_client_data_aggregator.view_trending()
+    res = zerorpc_client_data_aggregator.view_trending()
     context.bot.send_message(chat_id=chat_id, text=', '.join(res))
 
 
