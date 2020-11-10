@@ -63,4 +63,4 @@ def get_random_string(length):
     # put your letters in the following string
     sample_letters = 'abcdefghi'
     result_str = ''.join((random.choice(sample_letters) for i in range(length)))
-    print("Random string is:", result_str)
+    return result_str
