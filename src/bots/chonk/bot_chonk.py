@@ -20,6 +20,14 @@ import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
 import libraries.commands_util as commands_util
 import libraries.scrap_websites_util as scrap_websites_util
+import libraries.util as util
+import zerorpc
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -64,15 +72,18 @@ def get_candlestick(update: Update, context: CallbackContext):
     if isinstance(tokens, list):
         for token in tokens:
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            util.create_and_send_vote(token, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
+    util.create_and_send_vote(name, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -99,6 +110,7 @@ def refresh_price(update: Update, context: CallbackContext):
     print("refreshing price")
     message = general_end_functions.get_price(contract, pair_contract, graphql_client_eth, graphql_client_uni,
                                               name, decimals)
+    util.create_and_send_vote(name, "refresh_price", update.message.from_user.name, zerorpc_client_data_aggregator)
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -119,6 +131,27 @@ def delete_message(update: Update, context: CallbackContext):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
+def get_latest_actions(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 1:
+        token_ticker = "BOOB"
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    elif len(query_received) == 2:
+        token_ticker = query_received[1]
+        latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
+def get_trending(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = zerorpc_client_data_aggregator.view_trending()
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -129,6 +162,8 @@ def main():
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
     dp.add_handler(CommandHandler('help', get_help))
     dp.add_handler(CommandHandler('twitter', get_twitter))
+    dp.add_handler(CommandHandler('last_actions', get_latest_actions))
+    dp.add_handler(CommandHandler('trending', get_trending))
     updater.start_polling()
     updater.idle()
 

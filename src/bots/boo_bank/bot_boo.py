@@ -113,7 +113,7 @@ def get_candlestick(update: Update, context: CallbackContext):
 def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
-    util.create_and_send_vote("BOOB", "price", update.message.from_user.name, zerorpc_client_data_aggregator)
+    util.create_and_send_vote(name, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
