@@ -32,7 +32,6 @@ from libraries.common_values import *
 from web3 import Web3
 import zerorpc
 from gevent import monkey
-monkey.patch_all()
 
 # ZERORPC
 zerorpc_client_data_aggregator = zerorpc.Client()
@@ -109,6 +108,7 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
+    monkey.patch_all()
     vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "chart")
     pprint.pprint(zerorpc_client_data_aggregator.hello("boo bot"))
     zerorpc_client_data_aggregator.add_vote(vote)
