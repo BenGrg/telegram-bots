@@ -30,6 +30,11 @@ from libraries.timer_util import RepeatedTimer
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
+import zerorpc
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4242")
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -101,12 +106,16 @@ def get_candlestick(update: Update, context: CallbackContext):
 
 
 def get_price_token(update: Update, context: CallbackContext):
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "BOOB", "chart")
+    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
 def get_price_ecto(update: Update, context: CallbackContext):
+    vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), "ECTO", "chart")
+    zerorpc_client_data_aggregator.add_vote(vote)
     message = general_end_functions.get_price(ecto_contract, pair_contract, graphql_client_eth, graphql_client_uni, ecto_name, decimals)
     chat_id = update.message.chat_id
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
@@ -318,6 +327,12 @@ def get_latest_actions(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
 
 
+def get_trending(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = zerorpc_client_data_aggregator.view_trending()
+    context.bot.send_message(chat_id=chat_id, text=', '.join(res))
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -343,6 +358,7 @@ def main():
     dp.add_handler(CommandHandler('convert', do_convert))
     dp.add_handler(CommandHandler('delete_meme_secret', delete_meme))
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
+    dp.add_handler(CommandHandler('trending', get_trending))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()

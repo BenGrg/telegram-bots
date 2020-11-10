@@ -977,6 +977,7 @@ def get_random_message_mahmoud(update: Update, context: CallbackContext):
                              chat_id=update.message.chat_id,
                              disable_web_page_preview=True)
 
+
 def get_random_message_david(update: Update, context: CallbackContext):
     with open(david_logs_file_path) as f:
         msgs = [line.rstrip().split('///))()') for line in f]
@@ -984,7 +985,6 @@ def get_random_message_david(update: Update, context: CallbackContext):
     context.bot.send_message(text="David says: \n" + selected_message[1],
                              chat_id=update.message.chat_id,
                              disable_web_page_preview=True)
-
 
 
 def get_random_message_tim(update: Update, context: CallbackContext):
