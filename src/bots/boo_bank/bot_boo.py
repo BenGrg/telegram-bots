@@ -362,7 +362,7 @@ def main():
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
     RepeatedTimer(120, log_current_supply)
-    updater.start_polling()
+    updater.start_polling(poll_interval=0.1)
     updater.idle()
 
 
