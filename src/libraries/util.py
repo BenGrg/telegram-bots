@@ -2,9 +2,11 @@ import locale
 import os
 import random
 import decimal
+import hashlib
 
 BASE_PATH = os.environ.get('BASE_PATH')
 
+from datetime import datetime
 
 # convert int to nice string: 1234567 => 1 234 567
 def number_to_beautiful(nbr):
@@ -64,3 +66,11 @@ def get_random_string(length):
     sample_letters = 'abcdefghi'
     result_str = ''.join((random.choice(sample_letters) for i in range(length)))
     return result_str
+
+
+def create_and_send_vote(ticker, method, username, zerorpc_client):
+    now_ts = round(datetime.now().timestamp())
+    id_vote = random.randint(0, 1000000000000)
+    hashed_username = hashlib.sha512(username + username).hexdigest()
+    vote = (id_vote, hashed_username, now_ts, ticker.upper(), method)
+    zerorpc_client.add_vote(vote)

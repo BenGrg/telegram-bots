@@ -122,18 +122,16 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     if isinstance(tokens, list):
         for token in tokens:
-            vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token.upper(), "chart")
-            zerorpc_client_data_aggregator.add_vote(vote)
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path,
                                                                                                 k_days, k_hours, t_from,
                                                                                                 t_to)
+            util.create_and_send_vote(token, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                    reply_markup=reply_markup_chart)
     else:
-        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), tokens.upper(), "chart")
-        zerorpc_client_data_aggregator.add_vote(vote)
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days,
                                                                                             k_hours, t_from, t_to)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                reply_markup=reply_markup_chart)
 
@@ -144,13 +142,12 @@ def get_price_token(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     if len(query_received) == 2:
         ticker = query_received[1]
-        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), ticker.upper(), "price")
-        zerorpc_client_data_aggregator.add_vote(vote)
         contract_from_ticker = requests_util.get_token_contract_address(ticker)
         pprint.pprint(contract_from_ticker)
         if contract_from_ticker is None:
             context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
         else:
+            util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
             button_list_price = [
                 [InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
             reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -306,9 +303,8 @@ def get_latest_actions(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     if len(query_received) == 2:
         token_ticker = query_received[1]
-        vote = (random.randint(0, 1000000000000), util.get_random_string(100), round(datetime.now().timestamp()), token_ticker.upper(), "actions")
-        zerorpc_client_data_aggregator.add_vote(vote)
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        util.create_and_send_vote(token_ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
