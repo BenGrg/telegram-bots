@@ -37,6 +37,7 @@ from gevent import monkey
 zerorpc_client_data_aggregator = zerorpc.Client()
 zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
 pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
+monkey.patch_all()
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -337,7 +338,6 @@ def get_trending(update: Update, context: CallbackContext):
 
 
 def main():
-    monkey.patch_all()
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
