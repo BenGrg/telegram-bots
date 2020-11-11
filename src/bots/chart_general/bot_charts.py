@@ -336,7 +336,15 @@ def get_time_to(update: Update, context: CallbackContext):
 def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
-    if len(query_received) == 2:
+    if len(query_received) == 1:
+        token_ticker = __get_default_token_channel(chat_id)
+        if token_ticker is not None:
+            latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+            util.create_and_send_vote(token_ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
+            context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+        else:
+            context.bot.send_message(chat_id=chat_id, text=rejection_no_default_ticker_message)
+    elif len(query_received) == 2:
         token_ticker = query_received[1]
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
         util.create_and_send_vote(token_ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
@@ -390,6 +398,7 @@ def __get_default_token_channel(channel_id: int):
     res = zerorpc_client_data_aggregator.get_default_token(channel_id)
     pprint.pprint("Default token channel " + str(channel_id) + " is " + str(res))
     return res
+
 
 def __is_user_admin(context, update):
     status = context.bot.get_chat_member(update.effective_chat.id, update.message.from_user.id).status
