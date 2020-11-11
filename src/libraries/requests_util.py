@@ -567,7 +567,7 @@ class GasSpent:
                   + "Amount spent on gas: Ξ" + str(amount_spent_on_gas_raw) + " = $" + str(amount_spent_on_gas_usd) + '\n' \
                   + "Average gas spent per tx = " + str(avg_gas_cost) + '\n' \
                   + "Tx successful = " + str(self.success[0]) + " -> Ξ" + str(eth_success) + " spent in gas ($" + str(eth_success_dollar) + ')\n' \
-                  + "Tx failed = " + str(self.fail[0]) + " -> Ξ" + str(eth_fail) + " spent in gas ($" + str(eth_fail) + ')'
+                  + "Tx failed = " + str(self.fail[0]) + " -> Ξ" + str(eth_fail) + " spent in gas ($" + str(eth_fail_dollar) + ')'
         return message
 
 
