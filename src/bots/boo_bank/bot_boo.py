@@ -348,6 +348,12 @@ def get_time_to(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 
+def get_citadel(update: Update, context: CallbackContext):
+    message = 'If you have 100 $BOOB in your wallet you can enter the elitist Titty Citadel to get the latest news first: <a href="https://telegram.me/collablandbot?start=recsaxjYhsEbaBC4T_-tpc">CLICK HERE TO JOIN THE CITADEL</a>'
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -375,6 +381,7 @@ def main():
     dp.add_handler(CommandHandler('delete_meme_secret', delete_meme))
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
+    dp.add_handler(CommandHandler('citadel', get_citadel))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
@@ -399,4 +406,5 @@ biz - Display current 4chan threads.
 how_to_swap - Guide on how to swap ecto
 convert - convert AMOUNT MONEY
 trending - See which coins are trending in dextrends
+citadel - Infos about the tiddy citadel
 """
