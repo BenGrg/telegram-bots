@@ -157,6 +157,25 @@ def get_price_token(update: Update, context: CallbackContext):
                                                       graphql_client_uni, ticker.upper(), decimals)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
                                      disable_web_page_preview=True)
+    elif len(query_received) == 1:  # TODO: merge all those duplicate things
+        ticker = __get_default_token_channel(chat_id)
+        if ticker is not None:
+            contract_from_ticker = requests_util.get_token_contract_address(ticker)
+            pprint.pprint(contract_from_ticker)
+            if contract_from_ticker is None:
+                context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
+            else:
+                util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
+                button_list_price = [
+                    [InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
+                reply_markup_price = InlineKeyboardMarkup(button_list_price)
+                message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth,
+                                                          graphql_client_uni, ticker.upper(), decimals)
+                context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
+                                         disable_web_page_preview=True)
+        else:
+            message = "No default token found for this chat. Please ask an admin to add one with /set_default_token <TICKER>"
+            context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
 
