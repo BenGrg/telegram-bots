@@ -76,3 +76,8 @@ def create_and_send_vote(ticker, method, username, zerorpc_client):
     hashed_username = hashlib.sha512(hex_username + hex_username).hexdigest()
     vote = (id_vote, hashed_username, now_ts, ticker.upper(), method)
     zerorpc_client.add_vote(vote)
+
+
+def keep_significant_number_float(float_to_keep: float, number: int):
+    str_action = "{:.$AMOUNTf}".replace('$AMOUNT', str(number))
+    return float(str_action.format(float_to_keep))

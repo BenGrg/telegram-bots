@@ -328,7 +328,8 @@ def get_gas_spent(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     if len(query_received) == 2:
         addr = query_received[1].lower()
-        res = general_end_functions.get_gas_spent()
+        res = general_end_functions.get_gas_spent(addr)
+        context.bot.send_message(chat_id=chat_id, text=res)
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /gas_spent address (ex: /gas_spent 0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8)")
 
@@ -349,6 +350,7 @@ def main():
     dp.add_handler(CommandHandler('timeto', get_time_to))
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
+    dp.add_handler(CommandHandler('gas_spent', get_gas_spent))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))

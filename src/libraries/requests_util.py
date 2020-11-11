@@ -11,7 +11,7 @@ import sys
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
 
-from libraries.util import float_to_str, pretty_number
+from libraries.util import float_to_str, pretty_number, keep_significant_number_float
 import libraries.time_util as time_util
 
 query_get_latest = """
@@ -545,6 +545,32 @@ def pretty_print(pair, graphql_client_uni):
     return string
 
 
+@dataclass(frozen=True)
+class GasSpent:
+    amountTx: int
+    eth_spent: float
+    total_gas: int
+    avg_gas_price: float
+    success: (int, int)
+    fail: (int, int)
+
+    def to_string(self):
+        eth_price_now = get_eth_price_now()
+        amount_spent_on_gas_raw = keep_significant_number_float(self.eth_spent, 2)
+        amount_spent_on_gas_usd = keep_significant_number_float(amount_spent_on_gas_raw * eth_price_now, 2)
+        avg_gas_cost = keep_significant_number_float(self.avg_gas_price / 10**9, 1)
+        eth_success = keep_significant_number_float(self.success[1] / 10**18, 3)
+        eth_fail = keep_significant_number_float(self.fail[1] / 10**18, 3)
+        eth_success_dollar = keep_significant_number_float(eth_success * eth_price_now, 3)
+        eth_fail_dollar = keep_significant_number_float(eth_fail * eth_price_now, 3)
+        message = "Total number of tx: " + str(self.amountTx) + '\n' \
+                  + "Amount spent on gas: Ξ" + str(amount_spent_on_gas_raw) + " = " + str(amount_spent_on_gas_usd) + '\n' \
+                  + "Average cost = " + str(avg_gas_cost) + '\n' \
+                  + "Tx successful = " + str(self.success[0]) + " -> Ξ" + str(eth_success) + " spent in gas = $" + str(eth_success_dollar) + '\n' \
+                  + "Tx failed = " + str(self.fail[0]) + " -> Ξ" + str(eth_fail) + " spent in gas = $" + str(eth_fail)
+        return message
+
+
 def get_gas_spent(address):
     url = "https://api.etherscan.io/api?module=account&action=txlist&address=$ADDR&startblock=0&endblock=99999999&sort=asc&apikey=$APIKEY"
     url_prepared = url.replace("$APIKEY", etherscan_api_key).replace("$ADDR", address)
@@ -553,24 +579,32 @@ def get_gas_spent(address):
     pprint.pprint(results)
     txs = results['result']
     total_gas_success = 0
-    total_gas_error = 0
+    total_gas_fail = 0
     error_number = 0
+    total_cost_success = 0
+    total_cost_fail = 0
+    avg_price = 0
     for tx in txs:
+        gas_price_tx = int(tx['gasPrice'])
+        gas_used = int(tx['gasUsed'])
+        avg_price += gas_price_tx
         if int(tx['isError']) == 1:
             error_number += 1
-            total_gas_error += int(tx['gasUsed'])
+            total_gas_fail += gas_used
+            total_cost_fail += gas_used * gas_price_tx
         else:
-            total_gas_success += int(tx['gasUsed'])
-    pprint.pprint(total_gas_error)
-    pprint.pprint(total_gas_success)
-    pprint.pprint(len(txs))
-    pprint.pprint(error_number)
+            total_gas_success += gas_used
+            total_cost_success += gas_used * gas_price_tx
+    avg_price = round(avg_price / len(txs))
+    total_gas = total_gas_success + total_cost_fail
+    avg_price_rounded = avg_price / 10**9
+    total_cost = ((total_cost_fail + total_cost_success) / 10**18)
+    return GasSpent(len(txs), total_cost, total_gas, avg_price_rounded, (len(txs) - error_number, total_cost_success), (error_number, total_cost_fail))
 
 
 # def main():
-#
 #     res = get_gas_spent(addr_2)
-#     pprint.pprint(res)
+#     pprint.pprint(res.to_string())
 #
 #
 # if __name__ == '__main__':
