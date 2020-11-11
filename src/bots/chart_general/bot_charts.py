@@ -18,6 +18,7 @@ import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext.dispatcher import run_async
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
@@ -111,6 +112,7 @@ def check_query_fav(query_received):
 
 
 # button refresh: h:int-d:int-t:token
+@run_async
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
