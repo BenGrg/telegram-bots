@@ -120,7 +120,7 @@ def get_candlestick(update: Update, context: CallbackContext):
 
     query_received = update.message.text.split(' ')
     default_default_token = default_token
-    if len(query_received == 1):
+    if len(query_received) == 1:
         channel_token = __get_default_token_channel(chat_id)
         if channel_token is not None:
             default_default_token = channel_token
