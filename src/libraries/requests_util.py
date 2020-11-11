@@ -558,16 +558,16 @@ class GasSpent:
         eth_price_now = get_eth_price_now()
         amount_spent_on_gas_raw = keep_significant_number_float(self.eth_spent, 2)
         amount_spent_on_gas_usd = keep_significant_number_float(amount_spent_on_gas_raw * eth_price_now, 2)
-        avg_gas_cost = keep_significant_number_float(self.avg_gas_price / 10**9, 1)
+        avg_gas_cost = keep_significant_number_float(self.avg_gas_price, 1)
         eth_success = keep_significant_number_float(self.success[1] / 10**18, 3)
         eth_fail = keep_significant_number_float(self.fail[1] / 10**18, 3)
         eth_success_dollar = keep_significant_number_float(eth_success * eth_price_now, 3)
         eth_fail_dollar = keep_significant_number_float(eth_fail * eth_price_now, 3)
         message = "Total number of tx: " + str(self.amountTx) + '\n' \
-                  + "Amount spent on gas: Ξ" + str(amount_spent_on_gas_raw) + " = " + str(amount_spent_on_gas_usd) + '\n' \
-                  + "Average cost = " + str(avg_gas_cost) + '\n' \
-                  + "Tx successful = " + str(self.success[0]) + " -> Ξ" + str(eth_success) + " spent in gas = $" + str(eth_success_dollar) + '\n' \
-                  + "Tx failed = " + str(self.fail[0]) + " -> Ξ" + str(eth_fail) + " spent in gas = $" + str(eth_fail)
+                  + "Amount spent on gas: Ξ" + str(amount_spent_on_gas_raw) + " = $" + str(amount_spent_on_gas_usd) + '\n' \
+                  + "Average gas spent per tx = " + str(avg_gas_cost) + '\n' \
+                  + "Tx successful = " + str(self.success[0]) + " -> Ξ" + str(eth_success) + " spent in gas ($" + str(eth_success_dollar) + ')\n' \
+                  + "Tx failed = " + str(self.fail[0]) + " -> Ξ" + str(eth_fail) + " spent in gas ($" + str(eth_fail) + ')'
         return message
 
 
@@ -600,10 +600,11 @@ def get_gas_spent(address):
     return GasSpent(len(txs), total_cost, total_gas, avg_price_rounded, (len(txs) - error_number, total_cost_success), (error_number, total_cost_fail))
 
 
-# def main():
-#     res = get_gas_spent(addr_2)
-#     pprint.pprint(res.to_string())
-#
-#
-# if __name__ == '__main__':
-#     main()
+def main():
+    addr_2 = '0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8'
+    res = get_gas_spent(addr_2)
+    pprint.pprint(res.to_string())
+
+
+if __name__ == '__main__':
+    main()
