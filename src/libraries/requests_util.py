@@ -574,9 +574,7 @@ class GasSpent:
 def get_gas_spent(address):
     url = "https://api.etherscan.io/api?module=account&action=txlist&address=$ADDR&startblock=0&endblock=99999999&sort=asc&apikey=$APIKEY"
     url_prepared = url.replace("$APIKEY", etherscan_api_key).replace("$ADDR", address)
-    pprint.pprint(url_prepared)
     results = requests.get(url_prepared).json()
-    pprint.pprint(results)
     txs = results['result']
     total_gas_success = 0
     total_gas_fail = 0

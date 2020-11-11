@@ -291,4 +291,4 @@ def get_gas_spent(address):
         return "Address " + str(address.lower()) + " not valid."
     else:
         gas_spent = requests_util.get_gas_spent(address)
-        return gas_spent.toString()
+        return gas_spent.to_string()
