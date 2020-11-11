@@ -71,6 +71,8 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
+rejection_no_default_ticker_message = "No default token found for this chat. Please ask an admin to add one with /set_default_token <TICKER>"
+
 
 def read_favorites(path):
     with open(path) as f:
@@ -117,8 +119,16 @@ def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
     query_received = update.message.text.split(' ')
+    default_default_token = default_token
+    if len(query_received == 1):
+        channel_token = __get_default_token_channel(chat_id)
+        if channel_token is not None:
+            default_default_token = channel_token
+        else:
+            context.bot.send_message(chat_id=chat_id, text=rejection_no_default_ticker_message)
+            pass
 
-    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_default_token)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
@@ -136,6 +146,7 @@ def get_candlestick(update: Update, context: CallbackContext):
         util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                reply_markup=reply_markup_chart)
+
 
 @run_async
 def get_price_token(update: Update, context: CallbackContext):
@@ -174,7 +185,7 @@ def get_price_token(update: Update, context: CallbackContext):
                 context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
                                          disable_web_page_preview=True)
         else:
-            message = "No default token found for this chat. Please ask an admin to add one with /set_default_token <TICKER>"
+            message = rejection_no_default_ticker_message
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
