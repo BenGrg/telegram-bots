@@ -601,9 +601,15 @@ def get_gas_spent(address):
 
 
 def main():
-    addr_2 = '0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8'
-    res = get_gas_spent(addr_2)
-    pprint.pprint(res.to_string())
+    pass
+    # token = "WBTC"
+    # k_hours = 0
+    # k_days = 1
+    # t_to = int(time.time())
+    # t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+    # resolution = 5
+    # res = get_graphex_data(token, resolution, t_from, t_to).json()
+    # pprint.pprint(res)
 
 
 if __name__ == '__main__':

@@ -333,6 +333,40 @@ def get_gas_spent(update: Update, context: CallbackContext):
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /gas_spent address (ex: /gas_spent 0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8)")
 
+
+# ADMIN STUFF
+def set_default_token(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if __is_user_admin(context, update):
+        if len(query_received) == 2:
+            ticker = query_received[1].upper()
+            pprint.pprint("setting default channel " + str(chat_id) + " - " + str(ticker))
+            res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker)
+            context.bot.send_message(chat_id=chat_id, text=res)
+        else:
+            context.bot.send_message(chat_id=chat_id, text="Please use the format /set_default_token TICKER")
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Only an admin can do that you silly.")
+
+
+def get_default_token(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = __get_default_token_channel(chat_id)
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
+def __get_default_token_channel(channel_id: int):
+    res = zerorpc_client_data_aggregator.get_default_token(channel_id)
+    pprint.pprint("Default token channel " + str(channel_id) + " is " + str(res))
+    return res
+
+def __is_user_admin(context, update):
+    status = context.bot.get_chat_member(update.effective_chat.id, update.message.from_user.id).status
+    pprint.pprint(status)
+    return status == 'administrator' or status == 'creator'
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -351,6 +385,8 @@ def main():
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
     dp.add_handler(CommandHandler('trending', get_trending))
     dp.add_handler(CommandHandler('gas_spent', get_gas_spent))
+    dp.add_handler(CommandHandler('set_default_token', set_default_token))
+    dp.add_handler(CommandHandler('get_default_token', get_default_token))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
