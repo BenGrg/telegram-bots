@@ -185,4 +185,5 @@ chart - Display a chart of the price.
 price - Get the current price.
 help - How to use the bot.
 twitter - Get the last tweets with the token marker.
+trending - See which coins are trending in dextrends
 """

@@ -1283,4 +1283,5 @@ chart - Display a (simple) price chart
 chartsupply - Display a graph of the supply cap
 candlestick - Candlestick chart 
 add_ai - add message to ai
+trending - See which coins are trending in dextrends
 """

@@ -15,6 +15,7 @@ import datetime
 import matplotlib
 import matplotlib.dates
 import matplotlib.pyplot as plt
+from web3 import Web3
 
 
 last_time_checked_4chan = 0
@@ -283,3 +284,10 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
     else:
         strings = requests_util.pretty_print(pair.lower(), graphql_client_uni)
         return strings
+
+
+def get_gas_spent(address):
+    if not Web3.isAddress(address.lower()):
+        return "Address " + str(address.lower()) + " not valid."
+    else:
+        gas_spent = requests_util.get_gas_spent(address)

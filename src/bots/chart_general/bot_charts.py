@@ -322,6 +322,16 @@ def get_trending(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=res)
 
 
+@run_async
+def get_gas_spent(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        addr = query_received[1].lower()
+        res = general_end_functions.get_gas_spent()
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /gas_spent address (ex: /gas_spent 0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8)")
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -358,4 +368,6 @@ gas - Get gas price.
 convert - <AMOUNT> <TICKER> option(<TICKER>) convert amount of ticker to usd (and to the second ticker if specified) 
 balance - <WALLET> <TICKER> check how much an address has of a specific coin
 timeto - time until date passed as argument
+last_actions - <TICKER> get the last trades / liq events of the coin
+trending - See which coins are trending in dextrends
 """

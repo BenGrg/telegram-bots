@@ -946,6 +946,12 @@ def get_latest_actions(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
 
 
+def get_trending(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = zerorpc_client_data_aggregator.view_trending()
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -998,4 +1004,5 @@ chart - Display a (simple) price chart
 chartsupply - Display a graph of the supply cap
 candlestick - Candlestick chart 
 airdropinfo - Info about the airdrop
+trending - See which coins are trending in dextrends
 """

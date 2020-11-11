@@ -398,4 +398,5 @@ flyer - Show the flyer.
 biz - Display current 4chan threads.
 how_to_swap - Guide on how to swap ecto
 convert - convert AMOUNT MONEY
+trending - See which coins are trending in dextrends
 """

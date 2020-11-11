@@ -543,9 +543,33 @@ def pretty_print(pair, graphql_client_uni):
     strings = list(map(lambda x: x.to_string(eth_price), all_actions_light))
     string = '\n'.join(strings)
     return string
-#
+
+
+def get_gas_spent(address):
+    url = "https://api.etherscan.io/api?module=account&action=txlist&address=$ADDR&startblock=0&endblock=99999999&sort=asc&apikey=$APIKEY"
+    url_prepared = url.replace("$APIKEY", etherscan_api_key).replace("$ADDR", address)
+    pprint.pprint(url_prepared)
+    results = requests.get(url_prepared).json()
+    pprint.pprint(results)
+    txs = results['result']
+    total_gas_success = 0
+    total_gas_error = 0
+    error_number = 0
+    for tx in txs:
+        if int(tx['isError']) == 1:
+            error_number += 1
+            total_gas_error += int(tx['gasUsed'])
+        else:
+            total_gas_success += int(tx['gasUsed'])
+    pprint.pprint(total_gas_error)
+    pprint.pprint(total_gas_success)
+    pprint.pprint(len(txs))
+    pprint.pprint(error_number)
+
+
 # def main():
-#     res = get_eth_price_now()
+#
+#     res = get_gas_spent(addr_2)
 #     pprint.pprint(res)
 #
 #
