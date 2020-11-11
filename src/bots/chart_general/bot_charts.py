@@ -137,7 +137,7 @@ def get_candlestick(update: Update, context: CallbackContext):
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                reply_markup=reply_markup_chart)
 
-
+@run_async
 def get_price_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
@@ -204,6 +204,7 @@ def refresh_chart(update: Update, context: CallbackContext):
 
 
 # sends the current biz threads
+@run_async
 def get_biz(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
@@ -229,6 +230,7 @@ def get_biz(update: Update, context: CallbackContext):
                                  text='Please use the format /biz WORD')
 
 
+@run_async
 def get_twitter(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
@@ -248,6 +250,7 @@ def do_convert(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+@run_async
 def balance_token_in_wallet(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     chat_id = update.message.chat_id
@@ -272,6 +275,7 @@ def balance_token_in_wallet(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
 
 
+@run_async
 def get_gas_average(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     asap, fast, average, low = general_end_functions.get_gas_price()
@@ -283,6 +287,7 @@ def get_gas_average(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+@run_async
 def get_time_to(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text[7:]
@@ -297,6 +302,7 @@ def get_time_to(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 
+@run_async
 def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
@@ -309,6 +315,7 @@ def get_latest_actions(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
 
 
+@run_async
 def get_trending(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     res = zerorpc_client_data_aggregator.view_trending()
