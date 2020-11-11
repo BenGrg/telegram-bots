@@ -166,6 +166,7 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
+    dp.add_handler(CommandHandler('trending', get_trending))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
