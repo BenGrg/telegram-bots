@@ -1,6 +1,8 @@
 import locale
 import sys
 import os
+from gevent import monkey
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
 
 
 BASE_PATH = os.environ.get('BASE_PATH')
@@ -29,6 +31,13 @@ from libraries.timer_util import RepeatedTimer
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
+import zerorpc
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")  # TODO: change port to env variable
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -91,12 +100,14 @@ def get_candlestick(update: Update, context: CallbackContext):
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
+    banner_txt = util.get_banner_txt(zerorpc_client_data_aggregator)
+
     if isinstance(tokens, list):
         for token in tokens:
-            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, banner_txt)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to, banner_txt)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
@@ -163,10 +174,12 @@ def refresh_chart(update: Update, context: CallbackContext):
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
+    banner_txt = util.get_banner_txt(zerorpc_client_data_aggregator)
+
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
-    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, banner_txt)
     try:
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
