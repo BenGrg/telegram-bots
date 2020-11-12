@@ -131,18 +131,20 @@ def get_candlestick(update: Update, context: CallbackContext):
     time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_default_token)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+    trending = zerorpc_client_data_aggregator.view_trending_simple()
 
     if isinstance(tokens, list):
         for token in tokens:
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path,
                                                                                                 k_days, k_hours, t_from,
-                                                                                                t_to)
+                                                                                                t_to, txt=trending)
             util.create_and_send_vote(token, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                    reply_markup=reply_markup_chart)
     else:
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days,
-                                                                                            k_hours, t_from, t_to)
+                                                                                            k_hours, t_from,
+                                                                                            t_to, txt=trending)
         util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                reply_markup=reply_markup_chart)
@@ -226,8 +228,11 @@ def refresh_chart(update: Update, context: CallbackContext):
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
+    trending = zerorpc_client_data_aggregator.view_trending_simple()
+
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
-                                                                                        k_hours, t_from, t_to)
+                                                                                        k_hours, t_from, t_to,
+                                                                                        txt=trending)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                            reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
