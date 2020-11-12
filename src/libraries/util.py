@@ -4,6 +4,7 @@ import random
 import decimal
 import hashlib
 from binascii import hexlify
+from random import random
 
 BASE_PATH = os.environ.get('BASE_PATH')
 
@@ -81,3 +82,10 @@ def create_and_send_vote(ticker, method, username, zerorpc_client):
 def keep_significant_number_float(float_to_keep: float, number: int):
     str_action = "{:.$AMOUNTf}".replace('$AMOUNT', str(number))
     return float(str_action.format(float_to_keep))
+
+
+def get_banner_txt(rpc_client):
+    if random.randrange(10) > 7:
+        return get_ad()
+    else:
+        return rpc_client.view_trending_simple()

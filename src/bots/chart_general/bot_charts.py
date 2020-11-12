@@ -228,11 +228,11 @@ def refresh_chart(update: Update, context: CallbackContext):
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
-    trending = zerorpc_client_data_aggregator.view_trending_simple()
+    banner_txt = util.get_banner_txt(zerorpc_client_data_aggregator)
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
                                                                                         k_hours, t_from, t_to,
-                                                                                        txt=trending)
+                                                                                        txt=banner_txt)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                            reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
