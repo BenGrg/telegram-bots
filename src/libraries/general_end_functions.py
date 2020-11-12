@@ -21,11 +21,11 @@ from web3 import Web3
 last_time_checked_4chan = 0
 
 
-def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
+def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, txt: str = None):
     print("requesting coin " + token + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
 
     path = charts_path + token + '.png'
-    last_price = graphs_util.print_candlestick(token, t_from, t_to, path)
+    last_price = graphs_util.print_candlestick(token, t_from, t_to, path, txt)
 
     callback_message = 'refresh_chart_' + "h:" + str(k_hours) + "d:" + str(k_days) + "t:" + token
     callback_message_1_w = 'refresh_chart_' + "h:" + str(0) + "d:" + str(7) + "t:" + token
