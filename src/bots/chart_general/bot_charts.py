@@ -74,45 +74,6 @@ graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/bloc
 rejection_no_default_ticker_message = "No default token found for this chat. Please ask an admin to add one with /set_default_token <TICKER>"
 
 
-def read_favorites(path):
-    with open(path) as f:
-        msgs = [line.rstrip() for line in f]
-    return msgs
-
-
-def create_file_if_not_existing(path):
-    if not os.path.isfile(path):
-        f = open(path, "x")
-        f.close()
-
-
-def strp_date(raw_date):
-    return datetime.strptime(raw_date, '%m/%d/%Y,%H:%M:%S')
-
-
-def delete_line_from_file(path, msg):
-    with open(path, "r") as f:
-        # read data line by line
-        data = f.readlines()
-    # open file in write mode
-    with open(path, "w") as f:
-        for line in data:
-            # condition for data to be deleted
-            if line.strip("\n") != msg:
-                f.write(line)
-
-
-def check_query_fav(query_received):
-    time_type, k_hours, k_days = 'd', 0, 1
-    if len(query_received) == 1:
-        pass
-    elif len(query_received) == 2:
-        pass
-    else:
-        time_type, k_hours, k_days = commands_util.get_from_query(query_received)
-    return time_type, k_hours, k_days
-
-
 # button refresh: h:int-d:int-t:token
 @run_async
 def get_candlestick(update: Update, context: CallbackContext):
@@ -131,7 +92,7 @@ def get_candlestick(update: Update, context: CallbackContext):
     time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_default_token)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
-    trending = zerorpc_client_data_aggregator.view_trending_simple()
+    trending = util.get_banner_txt(zerorpc_client_data_aggregator)
 
     if isinstance(tokens, list):
         for token in tokens:
@@ -228,11 +189,11 @@ def refresh_chart(update: Update, context: CallbackContext):
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
-    banner_txt = util.get_banner_txt(zerorpc_client_data_aggregator)
+    trending = util.get_banner_txt(zerorpc_client_data_aggregator)
 
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
                                                                                         k_hours, t_from, t_to,
-                                                                                        txt=banner_txt)
+                                                                                        txt=trending)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                            reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
