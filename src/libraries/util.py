@@ -4,7 +4,6 @@ import random
 import decimal
 import hashlib
 from binascii import hexlify
-from random import random
 
 BASE_PATH = os.environ.get('BASE_PATH')
 
