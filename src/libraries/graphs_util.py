@@ -20,7 +20,7 @@ def __generate_upper_barrier(txt):
 
     font = unicode_font
 
-    bounding_box = [0, 0, 4700, 150]
+    bounding_box = [0, 0, 4800, 150]
     x1, y1, x2, y2 = bounding_box  # For easy reading
 
     img = Image.new('RGB', (x2, y2), color=(255, 255, 255))
