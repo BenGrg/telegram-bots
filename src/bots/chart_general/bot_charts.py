@@ -17,7 +17,7 @@ import os.path
 import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, Filters, MessageHandler
 from telegram.ext.dispatcher import run_async
 
 import libraries.graphs_util as graphs_util
@@ -440,6 +440,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
+    dp.add_handler(MessageHandler(Filters.photo, handle_new_image))
     updater.start_polling()
     updater.idle()
 
