@@ -347,7 +347,7 @@ def set_faq(update: Update, context: CallbackContext):
             faq = query_received
             pprint.pprint("setting faq for channel " + str(chat_id) + " - " + str(faq))
             res = zerorpc_client_data_aggregator.set_faq(chat_id, faq)
-            context.bot.send_message(chat_id=chat_id, text=res)
+            context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
         else:
             context.bot.send_message(chat_id=chat_id, text="Please use the format /set_faq FAQ")
     else:
@@ -357,7 +357,7 @@ def set_faq(update: Update, context: CallbackContext):
 def get_the_faq(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     res = __get_faq_channel(chat_id)
-    context.bot.send_message(chat_id=chat_id, text=res)
+    context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
 
 
 def __get_faq_channel(channel_id: int):
@@ -374,7 +374,7 @@ def set_default_token(update: Update, context: CallbackContext):
             ticker = query_received[1].upper()
             pprint.pprint("setting default channel " + str(chat_id) + " - " + str(ticker))
             res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker)
-            context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
+            context.bot.send_message(chat_id=chat_id, text=res)
         else:
             context.bot.send_message(chat_id=chat_id, text="Please use the format /set_default_token TICKER")
     else:
