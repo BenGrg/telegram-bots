@@ -48,10 +48,10 @@ twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
-contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
-name = "ROT"
 pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
 decimals = 1000000000000000000  # that's 18
+TMP_FOLDER = BASE_PATH + 'tmp/'
+
 
 # web3
 infura_url = os.environ.get('INFURA_URL')
@@ -152,6 +152,22 @@ def get_price_token(update: Update, context: CallbackContext):
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
+
+
+def handle_new_image(update: Update, context: CallbackContext):
+    __send_message_if_ocr(update, context)
+
+
+def __send_message_if_ocr(update, context):
+    message_id = update.message.message_id
+    chat_id = update.message.chat_id
+    try:
+        text_in_ocr = general_end_functions.ocr_image(update, context, TMP_FOLDER)
+        if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
+                'transaction will not succeed' and 'price movement or' in text_in_ocr):
+            context.bot.send_message(chat_id=chat_id, text=test_error_token, reply_to_message_id=message_id)
+    except IndexError:
+        pass
 
 
 def refresh_price(update: Update, context: CallbackContext):
