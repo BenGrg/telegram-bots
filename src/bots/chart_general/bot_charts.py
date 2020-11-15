@@ -420,7 +420,7 @@ def main():
     dp.add_handler(CommandHandler('set_default_token', set_default_token))
     dp.add_handler(CommandHandler('get_default_token', get_default_token))
     dp.add_handler(CommandHandler('set_faq', set_faq))
-    dp.add_handler(CommandHandler('reqd_faq', get_the_faq))
+    dp.add_handler(CommandHandler('faq', get_the_faq))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
