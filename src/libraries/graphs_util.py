@@ -283,28 +283,28 @@ def print_candlestick(token, t_from, t_to, file_path, txt: str = None):
         __get_concat_v(img_up, img_down).save(file_path)
     return closes[-1]
 
-#
-# def test_print_candlestick(token, t_from, t_to, resolution=1):
-#     t_1 = time.time_ns() // 1000000
-#     values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
-#     t_2 = time.time_ns() // 1000000
-#     (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
-#     print("0 = " + str(date_list[0]))
-#     print("last = " + str(date_list[-1]))
-#     print("size = " + str(len(date_list)))
-#     time_between = date_list[-1] - date_list[0]
-#     print("diff: " + str(time_between))
-#
-#     # __process_and_write_candlelight(date_list, opens, closes, highs, lows, volumes, file_path, token)
-#     print("time chartex query = " + str(t_2 - t_1))
-#
-#
-# def main():
-#     token = "ROT"
-#     t_to = int(time.time())
-#     t_from = 0
-#     print_candlestick(token, t_from, t_to, "testaaa2.png")
-#
-#
-# if __name__ == '__main__':
-#     main()
+
+def test_print_candlestick(token, t_from, t_to, resolution=1):
+    t_1 = time.time_ns() // 1000000
+    values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
+    t_2 = time.time_ns() // 1000000
+    (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
+    print("0 = " + str(date_list[0]))
+    print("last = " + str(date_list[-1]))
+    print("size = " + str(len(date_list)))
+    time_between = date_list[-1] - date_list[0]
+    print("diff: " + str(time_between))
+
+    # __process_and_write_candlelight(date_list, opens, closes, highs, lows, volumes, file_path, token)
+    print("time chartex query = " + str(t_2 - t_1))
+
+
+def main():
+    token = "ROT"
+    t_to = int(time.time())
+    t_from = 0
+    print_candlestick(token, t_from, t_to, "testaaa2.png")
+
+
+if __name__ == '__main__':
+    main()

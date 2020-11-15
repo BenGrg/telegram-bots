@@ -301,7 +301,7 @@ def get_time_to(update: Update, context: CallbackContext):
 @run_async
 def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    query_received = update.message.text.split(' ')
+    query_received = update.message.text.split('/set_faq')
     if len(query_received) == 1:
         token_ticker = __get_default_token_channel(chat_id)
         if token_ticker is not None:
@@ -339,6 +339,33 @@ def get_gas_spent(update: Update, context: CallbackContext):
 
 
 # ADMIN STUFF
+def set_faq(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text[8:]
+    if __is_user_admin(context, update):
+        if query_received is not "":
+            faq = query_received[1].upper()
+            pprint.pprint("setting faq for channel " + str(chat_id) + " - " + str(faq))
+            res = zerorpc_client_data_aggregator.set_faq(chat_id, faq)
+            context.bot.send_message(chat_id=chat_id, text=res)
+        else:
+            context.bot.send_message(chat_id=chat_id, text="Please use the format /set_faq FAQ")
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Only an admin can do that you silly.")
+
+
+def get_the_faq(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = __get_default_token_channel(chat_id)
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
+def __get_default_token_channel(channel_id: int):
+    res = zerorpc_client_data_aggregator.get_faq(channel_id)
+    pprint.pprint("Default faq channel " + str(channel_id) + " is " + str(res))
+    return res
+
+
 def set_default_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
