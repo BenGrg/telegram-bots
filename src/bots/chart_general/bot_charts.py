@@ -356,11 +356,11 @@ def set_faq(update: Update, context: CallbackContext):
 
 def get_the_faq(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    res = __get_default_token_channel(chat_id)
+    res = __get_faq_channel(chat_id)
     context.bot.send_message(chat_id=chat_id, text=res)
 
 
-def __get_default_token_channel(channel_id: int):
+def __get_faq_channel(channel_id: int):
     res = zerorpc_client_data_aggregator.get_faq(channel_id)
     pprint.pprint("Default faq channel " + str(channel_id) + " is " + str(res))
     return res
