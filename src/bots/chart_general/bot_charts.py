@@ -419,7 +419,7 @@ def main():
     dp.add_handler(CommandHandler('gas_spent', get_gas_spent))
     dp.add_handler(CommandHandler('set_default_token', set_default_token))
     dp.add_handler(CommandHandler('get_default_token', get_default_token))
-    dp.add_handler(CommandHandler('set_faq', get_the_faq))
+    dp.add_handler(CommandHandler('set_faq', set_faq))
     dp.add_handler(CommandHandler('reqd_faq', get_the_faq))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
