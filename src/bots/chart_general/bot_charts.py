@@ -344,7 +344,7 @@ def set_faq(update: Update, context: CallbackContext):
     query_received = update.message.text[8:]
     if __is_user_admin(context, update):
         if query_received != "":
-            faq = query_received[1].upper()
+            faq = query_received
             pprint.pprint("setting faq for channel " + str(chat_id) + " - " + str(faq))
             res = zerorpc_client_data_aggregator.set_faq(chat_id, faq)
             context.bot.send_message(chat_id=chat_id, text=res)
