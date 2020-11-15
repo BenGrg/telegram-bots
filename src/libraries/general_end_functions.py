@@ -275,8 +275,11 @@ def get_gas_price():
     return asap, fast, average, low
 
 
-def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni):
-    token_contract = requests_util.get_token_contract_address(token_ticker)
+def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni, contract: str = None):
+    if contract is None:
+        token_contract = requests_util.get_token_contract_address(token_ticker)
+    else:
+        token_contract = contract
     pair = web3_util.does_pair_token_eth_exist(token_contract, uni_wrapper)
     print("pair: " + str(pair))
     if pair is None:

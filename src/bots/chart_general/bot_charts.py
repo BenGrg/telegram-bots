@@ -84,7 +84,7 @@ def get_candlestick(update: Update, context: CallbackContext):
     if len(query_received) == 1:
         channel_token = __get_default_token_channel(chat_id)
         if channel_token is not None:
-            default_default_token = channel_token
+            default_default_token = channel_token[0]
         else:
             context.bot.send_message(chat_id=chat_id, text=rejection_no_default_ticker_message)
             pass
@@ -132,18 +132,16 @@ def get_price_token(update: Update, context: CallbackContext):
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
                                      disable_web_page_preview=True)
     elif len(query_received) == 1:  # TODO: merge all those duplicate things
-        ticker = __get_default_token_channel(chat_id)
+        ticker, addr = __get_default_token_channel(chat_id)
         if ticker is not None:
-            contract_from_ticker = requests_util.get_token_contract_address(ticker)
-            pprint.pprint(contract_from_ticker)
-            if contract_from_ticker is None:
+            if addr is None:
                 context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
             else:
                 util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
                 button_list_price = [
-                    [InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
+                    [InlineKeyboardButton('refresh', callback_data='r_p_' + addr + "_t_" + ticker)]]
                 reply_markup_price = InlineKeyboardMarkup(button_list_price)
-                message = general_end_functions.get_price(contract_from_ticker, pair_contract, graphql_client_eth,
+                message = general_end_functions.get_price(addr, pair_contract, graphql_client_eth,
                                                           graphql_client_uni, ticker.upper(), decimals)
                 context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
                                          disable_web_page_preview=True)
@@ -319,10 +317,10 @@ def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split('/set_faq')
     if len(query_received) == 1:
-        token_ticker = __get_default_token_channel(chat_id)
-        if token_ticker is not None:
-            latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
-            util.create_and_send_vote(token_ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
+        ticker, addr = __get_default_token_channel(chat_id)
+        if ticker is not None:
+            latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(ticker, uni_wrapper, graphql_client_uni, addr)
+            util.create_and_send_vote(ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
         else:
             context.bot.send_message(chat_id=chat_id, text=rejection_no_default_ticker_message)
@@ -388,24 +386,32 @@ def set_default_token(update: Update, context: CallbackContext):
     if __is_user_admin(context, update):
         if len(query_received) == 2:
             ticker = query_received[1].upper()
-            pprint.pprint("setting default channel " + str(chat_id) + " - " + str(ticker))
-            res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker)
+            token_addr = requests_util.get_token_contract_address(ticker)
+            pprint.pprint("setting default channel " + str(chat_id) + " with address " + str(token_addr) + ". If it is not the correct address, please define it explicitly with /set_default_token TICKER ADDRESS")
+            res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker, token_addr)
             context.bot.send_message(chat_id=chat_id, text=res)
+        elif len(query_received) == 3:
+            ticker = query_received[1].upper()
+            token_addr = query_received[2].lower()
+            pprint.pprint("setting default channel " + str(chat_id) + " with address " + str(token_addr) + ". If it is not the correct address, please define it explicitly with /set_default_token TICKER ADDRESS")
+            res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker, token_addr)
+            context.bot.send_message(chat_id=chat_id, text=res)
+
         else:
-            context.bot.send_message(chat_id=chat_id, text="Please use the format /set_default_token TICKER")
+            context.bot.send_message(chat_id=chat_id, text="Please use the format /set_default_token TICKER (address)")
     else:
         context.bot.send_message(chat_id=chat_id, text="Only an admin can do that you silly.")
 
 
 def get_default_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    res = __get_default_token_channel(chat_id)
-    context.bot.send_message(chat_id=chat_id, text=res)
+    ticker, addr = __get_default_token_channel(chat_id)
+    context.bot.send_message(chat_id=chat_id, text="ticker: " + str(ticker) + " - addr: " + str(addr))
 
 
 def __get_default_token_channel(channel_id: int):
     res = zerorpc_client_data_aggregator.get_default_token(channel_id)
-    pprint.pprint("Default token channel " + str(channel_id) + " is " + str(res))
+    pprint.pprint("Default token channel " + str(channel_id) + " is " + str(res[0]) + " - " + str(res[1]))
     return res
 
 
@@ -454,6 +460,7 @@ twitter - <TICKER> Get latests twitter containing $<TICKER>
 price - <TICKER> get price of the <TICKER> token
 biz - <WORD> get 4chan/biz threads containing <WORD>
 gas - Get gas price.
+faq - Print the FAQ.
 convert - <AMOUNT> <TICKER> option(<TICKER>) convert amount of ticker to usd (and to the second ticker if specified) 
 balance - <WALLET> <TICKER> check how much an address has of a specific coin
 timeto - time until date passed as argument
