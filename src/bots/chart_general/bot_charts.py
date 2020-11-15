@@ -134,7 +134,7 @@ def get_price_token(update: Update, context: CallbackContext):
     elif len(query_received) == 1:  # TODO: merge all those duplicate things
         ticker, addr = __get_default_token_channel(chat_id)
         if ticker is not None:
-            if addr is None:
+            if addr is None or addr == "":
                 context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
             else:
                 util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)

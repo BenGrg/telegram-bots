@@ -113,7 +113,8 @@ url_graphex_backend = "https://chartex.pro/api/history?symbol=UNISWAP%3A$SYMBOL&
 gecko_chart_url = "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/range?vs_currency=usd&from=$T_FROM&to=$T_TO"
 
 symbol_chartex = {
-    'ROT': 'ROT.5AE9E2'
+    'ROT': 'ROT.5AE9E2',
+    'SAV3': 'SAV3.F01890/WETH'
 }
 
 # Graph QL requests
