@@ -114,7 +114,7 @@ gecko_chart_url = "https://api.coingecko.com/api/v3/coins/$TOKEN/market_chart/ra
 
 symbol_chartex = {
     'ROT': 'ROT.5AE9E2',
-    'SAV3': 'SAV3.F01890/WETH'
+    'SAV3': 'SAV3'
 }
 
 # Graph QL requests
