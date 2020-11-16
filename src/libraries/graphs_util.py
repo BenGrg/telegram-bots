@@ -6,10 +6,41 @@ import libraries.requests_util as requests_util
 import libraries.util as util
 import numpy as np
 import plotly.io as pio
+from PIL import Image, ImageDraw, ImageFont
+
 import pprint
 
 INCREASING_COLOR = '#228B22'
 DECREASING_COLOR = '#FF0000'
+
+
+def __generate_upper_barrier(txt):
+    font_size = 60
+    unicode_font = ImageFont.truetype("DejaVuSans.ttf", font_size, encoding="unic")
+
+    font = unicode_font
+
+    bounding_box = [0, 0, 4800, 150]
+    x1, y1, x2, y2 = bounding_box  # For easy reading
+
+    img = Image.new('RGB', (x2, y2), color=(255, 255, 255))
+
+    d = ImageDraw.Draw(img)
+
+    # Calculate the width and height of the text to be drawn, given font size
+    w, h = d.textsize(txt, font=font)
+
+    # Calculate the mid points and offset by the upper left corner of the bounding box
+    x = (x2 - x1 - w)/2 + x1
+    y = (y2 - y1 - h)/2 + y1
+
+    # Write the text to the image, where (x,y) is the top left corner of the text
+    d.text((x, y), txt, align='center', font=font, fill=(0, 0, 0))
+
+    # d.text((10,10), txt, font=unicode_font, fill=(0,0,0))
+    # new_path = path + "trending.png"
+    # img.save(new_path)
+    return img  # returning raw img
 
 
 def __moving_average(interval, window_size=10):
@@ -222,9 +253,16 @@ def __preprocess_chartex_data(values, resolution):
     return (date_list, opens, closes, highs, lows, volumes)
 
 
+def __get_concat_v(im1, im2):
+    dst = Image.new('RGB', (im1.width, im1.height + im2.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (0, im1.height))
+    return dst
+
+
 # t_from and t_to should be int epoch second
 # return the last price
-def print_candlestick(token, t_from, t_to, file_path):
+def print_candlestick(token, t_from, t_to, file_path, txt: str = None):
     resolution = __calculate_resolution_from_time(t_from, t_to)
 
     if token == "btc" or token == "BTC":
@@ -238,30 +276,35 @@ def print_candlestick(token, t_from, t_to, file_path):
         (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
 
     __process_and_write_candlelight(date_list, opens, closes, highs, lows, volumes, file_path, token)
+    if txt is not None:
+        pprint.pprint("Adding banner up")
+        img_up = __generate_upper_barrier(txt)
+        img_down = Image.open(file_path)
+        __get_concat_v(img_up, img_down).save(file_path)
     return closes[-1]
 
-#
-# def test_print_candlestick(token, t_from, t_to, resolution=1):
-#     t_1 = time.time_ns() // 1000000
-#     values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
-#     t_2 = time.time_ns() // 1000000
-#     (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
-#     print("0 = " + str(date_list[0]))
-#     print("last = " + str(date_list[-1]))
-#     print("size = " + str(len(date_list)))
-#     time_between = date_list[-1] - date_list[0]
-#     print("diff: " + str(time_between))
-#
-#     # __process_and_write_candlelight(date_list, opens, closes, highs, lows, volumes, file_path, token)
-#     print("time chartex query = " + str(t_2 - t_1))
-#
-#
-# def main():
-#     token = "ROT"
-#     t_to = int(time.time())
-#     t_from = 0
-#     print_candlestick(token, t_from, t_to, "testaaa2.png")
-#
-#
-# if __name__ == '__main__':
-#     main()
+
+def test_print_candlestick(token, t_from, t_to, resolution=1):
+    t_1 = time.time_ns() // 1000000
+    values = requests_util.get_graphex_data(token, resolution, t_from, t_to).json()
+    t_2 = time.time_ns() // 1000000
+    (date_list, opens, closes, highs, lows, volumes) = __preprocess_chartex_data(values, resolution)
+    print("0 = " + str(date_list[0]))
+    print("last = " + str(date_list[-1]))
+    print("size = " + str(len(date_list)))
+    time_between = date_list[-1] - date_list[0]
+    print("diff: " + str(time_between))
+
+    # __process_and_write_candlelight(date_list, opens, closes, highs, lows, volumes, file_path, token)
+    print("time chartex query = " + str(t_2 - t_1))
+
+
+def main():
+    token = "ROT"
+    t_to = int(time.time())
+    t_from = 0
+    print_candlestick(token, t_from, t_to, "testaaa2.png")
+
+
+if __name__ == '__main__':
+    main()

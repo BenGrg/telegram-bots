@@ -15,16 +15,17 @@ import datetime
 import matplotlib
 import matplotlib.dates
 import matplotlib.pyplot as plt
+from web3 import Web3
 
 
 last_time_checked_4chan = 0
 
 
-def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to):
+def send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, txt: str = None):
     print("requesting coin " + token + " from " + str(k_days) + " days and " + str(k_hours) + " hours")
 
     path = charts_path + token + '.png'
-    last_price = graphs_util.print_candlestick(token, t_from, t_to, path)
+    last_price = graphs_util.print_candlestick(token, t_from, t_to, path, txt)
 
     callback_message = 'refresh_chart_' + "h:" + str(k_hours) + "d:" + str(k_days) + "t:" + token
     callback_message_1_w = 'refresh_chart_' + "h:" + str(0) + "d:" + str(7) + "t:" + token
@@ -73,6 +74,7 @@ def get_biz_no_meme(update: Update, context: CallbackContext, re_4chan):
 
 
 def get_price(contract, pair_contract, graphclient_eth, graphclient_uni, name, decimals):
+    print("getting price contract: " + str(contract))
     (derivedETH_7d, token_price_7d_usd, derivedETH_1d, token_price_1d_usd, derivedETH_now,
      token_price_now_usd) = requests_util.get_price_raw(graphclient_eth, graphclient_uni, contract)
 
@@ -274,8 +276,11 @@ def get_gas_price():
     return asap, fast, average, low
 
 
-def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni):
-    token_contract = requests_util.get_token_contract_address(token_ticker)
+def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni, contract: str = None):
+    if contract is None:
+        token_contract = requests_util.get_token_contract_address(token_ticker)
+    else:
+        token_contract = contract
     pair = web3_util.does_pair_token_eth_exist(token_contract, uni_wrapper)
     print("pair: " + str(pair))
     if pair is None:
@@ -283,3 +288,11 @@ def get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client
     else:
         strings = requests_util.pretty_print(pair.lower(), graphql_client_uni)
         return strings
+
+
+def get_gas_spent(address):
+    if not Web3.isAddress(address.lower()):
+        return "Address " + str(address.lower()) + " not valid."
+    else:
+        gas_spent = requests_util.get_gas_spent(address)
+        return gas_spent.to_string()

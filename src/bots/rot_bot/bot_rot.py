@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, BaseFilter, \
     CallbackContext, Filters, CallbackQueryHandler
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
@@ -37,6 +40,14 @@ import libraries.scrap_websites_util as scrap_websites_util
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
+import zerorpc
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
+
 charts_path = BASE_PATH + 'log_files/chart_bot/'
 
 TMP_FOLDER = BASE_PATH + 'tmp/'
@@ -565,6 +576,7 @@ def get_price_maggot(update: Update, context: CallbackContext):
               + "\nHolders = " + str(holders) + "</code>"
 
     chat_id = update.message.chat_id
+    util.create_and_send_vote("MAGGOT", "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
 
 
@@ -576,6 +588,7 @@ def get_price_rot(update: Update, context: CallbackContext):
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
     message = general_end_functions.get_price(contract_from_ticker, "", graphql_client_eth, graphql_client_uni, ticker.upper(), 10**18)
+    util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -739,9 +752,9 @@ def get_chart_price_pyplot(update: Update, context: CallbackContext):
             else:
                 caption = "Price of the last " + str(time_start) + str(time_type) + ".\nCurrent price: <pre>$" + str(
                     price[-1])[0:10] + "</pre>"
-            if random.randrange(10) > 8:
-                ad = get_ad()
-                caption = caption + "\n" + ad
+            ad = get_ad()
+            caption = caption + "\n" + ad
+            util.create_and_send_vote("ROT", "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id,
                                    photo=open(chart_price_file_path, 'rb'),
                                    caption=caption,
@@ -772,16 +785,12 @@ def check_query(query_received):
 
 
 def get_ad():
-    # new_time = round(time.time())
-    # if new_time - last_time_checked_ads > 3600:
-    #     ads_file_path = BASE_PATH + "ads/chart_ads.txt"
-    #     with open(ads_file_path) as f:
-    #         content = f.readlines()
-    #     # you may also want to remove whitespace characters like `\n` at the end of each line
-    #     content = [x.strip() for x in content]
-    #     return "AD: " + random.choice(content)
-    # else:
-    return ""
+    ads_file_path = BASE_PATH + "ads/chart_ads.txt"
+    with open(ads_file_path) as f:
+        content = f.readlines()
+    content = [x.strip() for x in content]
+    return random.choice(content)
+
 
 # button refresh: h:int-d:int-t:token
 def get_candlestick(update: Update, context: CallbackContext):
@@ -793,12 +802,17 @@ def get_candlestick(update: Update, context: CallbackContext):
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
+    trending = util.get_banner_txt(zerorpc_client_data_aggregator)
+
     if isinstance(tokens, list):
         for token in tokens:
-            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, trending)
+            util.create_and_send_vote(token.upper(), "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to, trending)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
+
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
@@ -870,8 +884,9 @@ def refresh_chart(update: Update, context: CallbackContext):
 
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
+    trending = util.get_banner_txt(zerorpc_client_data_aggregator)
 
-    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, trending)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
@@ -901,6 +916,7 @@ def refresh_price(update: Update, context: CallbackContext):
                                               token_name.upper(), 10**18)
     button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price_' + contract_from_ticker)]]
     reply_markup_price = InlineKeyboardMarkup(button_list_price)
+
     update.callback_query.edit_message_text(text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
@@ -933,6 +949,12 @@ def get_latest_actions(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
 
 
+def get_trending(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = zerorpc_client_data_aggregator.view_trending()
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
@@ -956,6 +978,7 @@ def main():
     dp.add_handler(CommandHandler('candlestick', get_candlestick))
     dp.add_handler(CommandHandler('remove_adds', remove_add))
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
+    dp.add_handler(CommandHandler('trending', get_trending))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
@@ -985,4 +1008,5 @@ chart - Display a (simple) price chart
 chartsupply - Display a graph of the supply cap
 candlestick - Candlestick chart 
 airdropinfo - Info about the airdrop
+trending - See which coins are trending in dextrends
 """

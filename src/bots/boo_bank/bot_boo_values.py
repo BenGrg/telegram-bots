@@ -30,10 +30,6 @@ links = '<b>Website:</b> ' + create_href_str(url_website, 'boobank.org') + '\n' 
         + '<b>Social medias: </b>' + create_href_str(url_twitter_boobank, 'Twitter') + ' ' + create_href_str(url_discord_boobank, 'Discord') + '\n' \
         + '<b>Telegram groups:</b> @BooBankToken @BooBankNews'
 
-
-test_error_token = "Looks like you need to either: increase slippage (see /howtoslippage) to at least 4% and/or remove the decimals from the amount of $BOOB you're trying to buy"
-
-
 how_to_swap = """Swapping <b>ECTO for ETH:</b>
 In order to successfully swap ecto for eth:
 - Make sure to increase the slippage to at least 5%

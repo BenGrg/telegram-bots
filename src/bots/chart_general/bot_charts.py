@@ -1,6 +1,8 @@
 import locale
 import sys
 import os
+from gevent import monkey
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
 
 from twython import Twython
 
@@ -15,7 +17,8 @@ import os.path
 import re
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, Filters, MessageHandler
+from telegram.ext.dispatcher import run_async
 
 import libraries.graphs_util as graphs_util
 import libraries.general_end_functions as general_end_functions
@@ -27,6 +30,14 @@ import libraries.scrap_websites_util as scrap_websites_util
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
 from web3 import Web3
+import zerorpc
+import random
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")  # TODO: change port to env variable
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
 
 # twitter
 APP_KEY = os.environ.get('TWITTER_API_KEY')
@@ -37,10 +48,10 @@ twitter = Twython(APP_KEY, APP_SECRET, ACCESS_TOKEN, ACCESS_SECRET_TOKEN)
 
 # ENV FILES
 TELEGRAM_KEY = os.environ.get('CHART_TELEGRAM_KEY')
-contract = "0xd04785c4d8195e4a54d9dec3a9043872875ae9e2"
-name = "ROT"
 pair_contract = "0x5a265315520696299fa1ece0701c3a1ba961b888"
 decimals = 1000000000000000000  # that's 18
+TMP_FOLDER = BASE_PATH + 'tmp/'
+
 
 # web3
 infura_url = os.environ.get('INFURA_URL')
@@ -60,117 +71,47 @@ locale.setlocale(locale.LC_ALL, 'en_US')
 graphql_client_uni = GraphQLClient('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 graphql_client_eth = GraphQLClient('https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks')
 
-
-def read_favorites(path):
-    with open(path) as f:
-        msgs = [line.rstrip() for line in f]
-    return msgs
-
-
-def create_file_if_not_existing(path):
-    if not os.path.isfile(path):
-        f = open(path, "x")
-        f.close()
-
-
-def strp_date(raw_date):
-    return datetime.strptime(raw_date, '%m/%d/%Y,%H:%M:%S')
-
-
-def delete_line_from_file(path, msg):
-    with open(path, "r") as f:
-        # read data line by line
-        data = f.readlines()
-    # open file in write mode
-    with open(path, "w") as f:
-        for line in data:
-            # condition for data to be deleted
-            if line.strip("\n") != msg:
-                f.write(line)
-
-
-def check_query_fav(query_received):
-    time_type, k_hours, k_days = 'd', 0, 1
-    if len(query_received) == 1:
-        pass
-    elif len(query_received) == 2:
-        pass
-    else:
-        time_type, k_hours, k_days = commands_util.get_from_query(query_received)
-    return time_type, k_hours, k_days
+rejection_no_default_ticker_message = "No default token found for this chat. Please ask an admin to add one with /set_default_token <TICKER>"
 
 
 # button refresh: h:int-d:int-t:token
+@run_async
 def get_candlestick(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
     query_received = update.message.text.split(' ')
+    default_default_token = default_token
+    if len(query_received) == 1:
+        channel_token = __get_default_token_channel(chat_id)
+        if channel_token is not None:
+            default_default_token = channel_token[0]
+        else:
+            context.bot.send_message(chat_id=chat_id, text=rejection_no_default_ticker_message)
+            pass
 
-    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_token)
+    time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, default_default_token)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+    trending = util.get_banner_txt(zerorpc_client_data_aggregator)
 
     if isinstance(tokens, list):
         for token in tokens:
             (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path,
                                                                                                 k_days, k_hours, t_from,
-                                                                                                t_to)
+                                                                                                t_to, txt=trending)
+            util.create_and_send_vote(token, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                    reply_markup=reply_markup_chart)
     else:
         (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days,
-                                                                                            k_hours, t_from, t_to)
+                                                                                            k_hours, t_from,
+                                                                                            t_to, txt=trending)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                                reply_markup=reply_markup_chart)
 
 
-def see_fav_charts(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-
-    query_received = update.message.text.split(' ')
-
-    time_type, k_hours, k_days = check_query_fav(query_received)
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    tokens = read_favorites(favorite_path)
-    t_to = int(time.time())
-    t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
-
-    for token in tokens:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
-                                                                                            k_hours, t_from, t_to)
-        context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
-                               reply_markup=reply_markup_chart)
-
-
-def delete_fav_token(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    msgs = read_favorites(favorite_path)
-    to_delete = update.message.text.split(' ')[1]
-    if to_delete not in msgs:
-        context.bot.send_message(chat_id=chat_id, text=to_delete + " not in your favorites")
-    else:
-        delete_line_from_file(favorite_path, to_delete)
-        context.bot.send_message(chat_id=chat_id, text="Removed " + to_delete + " from your favorites")
-
-
-def see_fav_token(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    msgs = read_favorites(favorite_path)
-    if msgs == "" or msgs is None or msgs == []:
-        msgs = "No favorites for the moment. Add some with /add_fav"
-    else:
-        msgs = ', '.join(msgs)
-    context.bot.send_message(chat_id=chat_id, text=msgs)
-
-
+@run_async
 def get_price_token(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
 
@@ -182,6 +123,7 @@ def get_price_token(update: Update, context: CallbackContext):
         if contract_from_ticker is None:
             context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
         else:
+            util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
             button_list_price = [
                 [InlineKeyboardButton('refresh', callback_data='r_p_' + contract_from_ticker + "_t_" + ticker)]]
             reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -189,8 +131,41 @@ def get_price_token(update: Update, context: CallbackContext):
                                                       graphql_client_uni, ticker.upper(), decimals)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
                                      disable_web_page_preview=True)
+    elif len(query_received) == 1:  # TODO: merge all those duplicate things
+        ticker, addr = __get_default_token_channel(chat_id)
+        if ticker is not None:
+            if addr is None or addr == "":
+                context.bot.send_message(chat_id=chat_id, text='Contract address for ticker ' + ticker + ' not found.')
+            else:
+                util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
+                button_list_price = [
+                    [InlineKeyboardButton('refresh', callback_data='r_p_' + addr + "_t_" + ticker)]]
+                reply_markup_price = InlineKeyboardMarkup(button_list_price)
+                message = general_end_functions.get_price(addr, pair_contract, graphql_client_eth,
+                                                          graphql_client_uni, ticker.upper(), decimals)
+                context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price,
+                                         disable_web_page_preview=True)
+        else:
+            message = rejection_no_default_ticker_message
+            context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text='Please specify the ticker of the desired token.')
+
+
+def handle_new_image(update: Update, context: CallbackContext):
+    __send_message_if_ocr(update, context)
+
+
+def __send_message_if_ocr(update, context):
+    message_id = update.message.message_id
+    chat_id = update.message.chat_id
+    try:
+        text_in_ocr = general_end_functions.ocr_image(update, context, TMP_FOLDER)
+        if ('transaction cannot succeed' and 'one of the tokens' in text_in_ocr) or (
+                'transaction will not succeed' and 'price movement or' in text_in_ocr):
+            context.bot.send_message(chat_id=chat_id, text=test_error_token, reply_to_message_id=message_id)
+    except IndexError:
+        pass
 
 
 def refresh_price(update: Update, context: CallbackContext):
@@ -214,28 +189,6 @@ def delete_message(update: Update, context: CallbackContext):
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
-def add_favorite_token(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    username = update.message.from_user.username
-    favorite_path = charts_path + username + '.txt'
-    create_file_if_not_existing(favorite_path)
-    msgs = read_favorites(favorite_path)
-    query_received = update.message.text.split(' ')
-
-    if not len(query_received) == 2:
-        context.bot.send_message(chat_id=chat_id, text="Error. Can only add one symbol at a time")
-    else:
-        symbol_to_add = query_received[1]
-        if symbol_to_add in msgs:
-            context.bot.send_message(chat_id=chat_id,
-                                     text="Error. Looks like the symbol " + symbol_to_add + " is already in your favorites.")
-        else:
-            with open(favorite_path, "a") as fav_file:
-                message_to_write = symbol_to_add + "\n"
-                fav_file.write(message_to_write)
-            context.bot.send_message(chat_id=chat_id, text="Added " + symbol_to_add + " to your favorites.")
-
-
 def refresh_chart(update: Update, context: CallbackContext):
     print("refreshing chart")
     query = update.callback_query.data
@@ -250,14 +203,18 @@ def refresh_chart(update: Update, context: CallbackContext):
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
+    trending = util.get_banner_txt(zerorpc_client_data_aggregator)
+
     (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days,
-                                                                                        k_hours, t_from, t_to)
+                                                                                        k_hours, t_from, t_to,
+                                                                                        txt=trending)
     context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html",
                            reply_markup=reply_markup_chart)
     context.bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
 # sends the current biz threads
+@run_async
 def get_biz(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
@@ -283,6 +240,7 @@ def get_biz(update: Update, context: CallbackContext):
                                  text='Please use the format /biz WORD')
 
 
+@run_async
 def get_twitter(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text.split(' ')
@@ -290,6 +248,13 @@ def get_twitter(update: Update, context: CallbackContext):
         ticker = query_received[-1]
         res = scrap_websites_util.get_last_tweets(twitter, ticker)
         context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
+    elif len(query_received) == 1:
+        ticker, addr = __get_default_token_channel(chat_id)
+        if ticker is None or ticker.lower() == "null":
+            context.bot.send_message(chat_id=chat_id, text='No default ticker set up for this channel. An admin can add one with the /set_default_token command. In the meantime, you can use /twitter by doing /twitter TOKEN')
+        else:
+            res = scrap_websites_util.get_last_tweets(twitter, ticker)
+            context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /twitter TOKEN_TICKER.",
                                  parse_mode='html', disable_web_page_preview=True)
@@ -302,6 +267,7 @@ def do_convert(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+@run_async
 def balance_token_in_wallet(update: Update, context: CallbackContext):
     query_received = update.message.text.split(' ')
     chat_id = update.message.chat_id
@@ -326,6 +292,7 @@ def balance_token_in_wallet(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Wrong arguments. Please use /balance WALLET TOKEN")
 
 
+@run_async
 def get_gas_average(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     asap, fast, average, low = general_end_functions.get_gas_price()
@@ -337,9 +304,12 @@ def get_gas_average(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
 
 
+@run_async
 def get_time_to(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     query_received = update.message.text[7:]
+    if query_received == "jackpot" or query_received == " jackpot":
+        query_received = "7 pm CST"
     pprint.pprint(query_received)
 
     higher, time_to = time_util.get_time_diff(query_received)
@@ -349,15 +319,113 @@ def get_time_to(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
 
 
+@run_async
 def get_latest_actions(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
-    query_received = update.message.text.split(' ')
-    if len(query_received) == 2:
+    query_received = update.message.text.split('/set_faq')
+    if len(query_received) == 1:
+        ticker, addr = __get_default_token_channel(chat_id)
+        if ticker is not None:
+            latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(ticker, uni_wrapper, graphql_client_uni, addr)
+            util.create_and_send_vote(ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
+            context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
+        else:
+            context.bot.send_message(chat_id=chat_id, text=rejection_no_default_ticker_message)
+    elif len(query_received) == 2:
         token_ticker = query_received[1]
         latest_actions_pretty = general_end_functions.get_last_actions_token_in_eth_pair(token_ticker, uni_wrapper, graphql_client_uni)
+        util.create_and_send_vote(token_ticker, "actions", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_message(chat_id=chat_id, text=latest_actions_pretty, disable_web_page_preview=True, parse_mode='html')
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
+
+
+@run_async
+def get_trending(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = zerorpc_client_data_aggregator.view_trending()
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
+@run_async
+def get_gas_spent(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if len(query_received) == 2:
+        addr = query_received[1].lower()
+        res = general_end_functions.get_gas_spent(addr)
+        context.bot.send_message(chat_id=chat_id, text=res)
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Please use the format /gas_spent address (ex: /gas_spent 0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8)")
+
+
+# ADMIN STUFF
+def set_faq(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text[8:]
+    if __is_user_admin(context, update):
+        if query_received != "":
+            faq = query_received
+            pprint.pprint("setting faq for channel " + str(chat_id) + " - " + str(faq))
+            res = zerorpc_client_data_aggregator.set_faq(chat_id, faq)
+            context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
+        else:
+            context.bot.send_message(chat_id=chat_id, text="Please use the format /set_faq FAQ")
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Only an admin can do that you silly.")
+
+
+def get_the_faq(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = __get_faq_channel(chat_id)
+    context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
+
+
+def __get_faq_channel(channel_id: int):
+    res = zerorpc_client_data_aggregator.get_faq(channel_id)
+    pprint.pprint("Default faq channel " + str(channel_id) + " is " + str(res))
+    return res
+
+
+def set_default_token(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text.split(' ')
+    if __is_user_admin(context, update):
+        if len(query_received) == 2:
+            ticker = query_received[1].upper()
+            token_addr = requests_util.get_token_contract_address(ticker)
+            pprint.pprint("setting default channel " + str(chat_id) + " with address " + str(token_addr) + ". If it is not the correct address, please define it explicitly with /set_default_token TICKER ADDRESS")
+            res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker, token_addr)
+            context.bot.send_message(chat_id=chat_id, text=res)
+        elif len(query_received) == 3:
+            ticker = query_received[1].upper()
+            token_addr = query_received[2].lower()
+            pprint.pprint("setting default channel " + str(chat_id) + " with address " + str(token_addr) + ". If it is not the correct address, please define it explicitly with /set_default_token TICKER ADDRESS")
+            res = zerorpc_client_data_aggregator.set_default_token(chat_id, ticker, token_addr)
+            context.bot.send_message(chat_id=chat_id, text=res)
+
+        else:
+            context.bot.send_message(chat_id=chat_id, text="Please use the format /set_default_token TICKER (address)")
+    else:
+        context.bot.send_message(chat_id=chat_id, text="Only an admin can do that you silly.")
+
+
+def get_default_token(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    ticker, addr = __get_default_token_channel(chat_id)
+    context.bot.send_message(chat_id=chat_id, text="ticker: " + str(ticker) + " - addr: " + str(addr))
+
+
+def __get_default_token_channel(channel_id: int):
+    res = zerorpc_client_data_aggregator.get_default_token(channel_id)
+    pprint.pprint("Default token channel " + str(channel_id) + " is " + str(res[0]) + " - " + str(res[1]))
+    return res
+
+
+def __is_user_admin(context, update):
+    status = context.bot.get_chat_member(update.effective_chat.id, update.message.from_user.id).status
+    pprint.pprint(status)
+    return status == 'administrator' or status == 'creator'
 
 
 def main():
@@ -376,9 +444,16 @@ def main():
     dp.add_handler(CommandHandler('balance', balance_token_in_wallet))
     dp.add_handler(CommandHandler('timeto', get_time_to))
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
+    dp.add_handler(CommandHandler('trending', get_trending))
+    dp.add_handler(CommandHandler('gas_spent', get_gas_spent))
+    dp.add_handler(CommandHandler('set_default_token', set_default_token))
+    dp.add_handler(CommandHandler('get_default_token', get_default_token))
+    dp.add_handler(CommandHandler('set_faq', set_faq))
+    dp.add_handler(CommandHandler('faq', get_the_faq))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='r_p_(.*)'))
     dp.add_handler(CallbackQueryHandler(delete_message, pattern='delete_message'))
+    dp.add_handler(MessageHandler(Filters.photo, handle_new_image))
     updater.start_polling()
     updater.idle()
 
@@ -392,7 +467,10 @@ twitter - <TICKER> Get latests twitter containing $<TICKER>
 price - <TICKER> get price of the <TICKER> token
 biz - <WORD> get 4chan/biz threads containing <WORD>
 gas - Get gas price.
+faq - Print the FAQ.
 convert - <AMOUNT> <TICKER> option(<TICKER>) convert amount of ticker to usd (and to the second ticker if specified) 
 balance - <WALLET> <TICKER> check how much an address has of a specific coin
 timeto - time until date passed as argument
+last_actions - <TICKER> get the last trades / liq events of the coin
+trending - See which coins are trending in dextrends
 """

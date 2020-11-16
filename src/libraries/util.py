@@ -2,9 +2,12 @@ import locale
 import os
 import random
 import decimal
+import hashlib
+from binascii import hexlify
 
 BASE_PATH = os.environ.get('BASE_PATH')
 
+from datetime import datetime
 
 # convert int to nice string: 1234567 => 1 234 567
 def number_to_beautiful(nbr):
@@ -57,3 +60,31 @@ def pretty_number(num):
 
 def create_href_str(url, message):
     return "<a href=\"" + url + "\">" + message + "</a>"
+
+
+def get_random_string(length):
+    # put your letters in the following string
+    sample_letters = 'abcdefghi'
+    result_str = ''.join((random.choice(sample_letters) for i in range(length)))
+    return result_str
+
+
+def create_and_send_vote(ticker, method, username, zerorpc_client):
+    now_ts = round(datetime.now().timestamp())
+    id_vote = random.randint(0, 1000000000000)
+    hex_username = hexlify(username.encode())
+    hashed_username = hashlib.sha512(hex_username + hex_username).hexdigest()
+    vote = (id_vote, hashed_username, now_ts, ticker.upper(), method)
+    zerorpc_client.add_vote(vote)
+
+
+def keep_significant_number_float(float_to_keep: float, number: int):
+    str_action = "{:.$AMOUNTf}".replace('$AMOUNT', str(number))
+    return float(str_action.format(float_to_keep))
+
+
+def get_banner_txt(rpc_client):
+    if random.randrange(10) > 7:
+        return get_ad()
+    else:
+        return rpc_client.view_trending_simple()

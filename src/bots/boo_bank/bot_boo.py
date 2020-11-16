@@ -1,7 +1,8 @@
 import locale
 import sys
 import os
-
+from gevent import monkey
+monkey.patch_all()  # REALLY IMPORTANT: ALLOWS ZERORPC AND TG TO WORK TOGETHER
 
 BASE_PATH = os.environ.get('BASE_PATH')
 sys.path.insert(1, BASE_PATH + '/telegram-bots/src')
@@ -29,7 +30,15 @@ from bots.boo_bank.bot_boo_values import links, test_error_token, how_to_swap
 from libraries.timer_util import RepeatedTimer
 from libraries.uniswap import Uniswap
 from libraries.common_values import *
+import libraries.time_util as time_util
 from web3 import Web3
+import zerorpc
+
+
+# ZERORPC
+zerorpc_client_data_aggregator = zerorpc.Client()
+zerorpc_client_data_aggregator.connect("tcp://127.0.0.1:4243")
+pprint.pprint(zerorpc_client_data_aggregator.hello("coucou"))
 
 button_list_price = [[InlineKeyboardButton('refresh', callback_data='refresh_price')]]
 reply_markup_price = InlineKeyboardMarkup(button_list_price)
@@ -90,30 +99,34 @@ def get_candlestick(update: Update, context: CallbackContext):
     time_type, k_hours, k_days, tokens = commands_util.check_query(query_received, ticker)
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
+    banner_txt = util.get_banner_txt(zerorpc_client_data_aggregator)
 
     if isinstance(tokens, list):
         for token in tokens:
-            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+            (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, banner_txt)
+            util.create_and_send_vote(token, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
             context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
     else:
-        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to)
+        (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(tokens, charts_path, k_days, k_hours, t_from, t_to, banner_txt)
+        util.create_and_send_vote(tokens, "chart", update.message.from_user.name, zerorpc_client_data_aggregator)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
 
 
 def get_price_token(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(boob_contract, pair_contract, graphql_client_eth, graphql_client_uni, name, decimals)
     chat_id = update.message.chat_id
+    util.create_and_send_vote(ticker, "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
 def get_price_ecto(update: Update, context: CallbackContext):
     message = general_end_functions.get_price(ecto_contract, pair_contract, graphql_client_eth, graphql_client_uni, ecto_name, decimals)
     chat_id = update.message.chat_id
+    util.create_and_send_vote("ECTO", "price", update.message.from_user.name, zerorpc_client_data_aggregator)
     context.bot.send_message(chat_id=chat_id, text=message, parse_mode='html', reply_markup=reply_markup_price, disable_web_page_preview=True)
 
 
 def refresh_chart(update: Update, context: CallbackContext):
-
     print("refreshing chart")
     query = update.callback_query.data
 
@@ -121,13 +134,15 @@ def refresh_chart(update: Update, context: CallbackContext):
     k_days = int(re.search(r'\d+', query.split('d:')[1]).group())
     token = query.split('t:')[1]
 
+    banner_txt = util.get_banner_txt(zerorpc_client_data_aggregator)
+
     t_to = int(time.time())
     t_from = t_to - (k_days * 3600 * 24) - (k_hours * 3600)
 
     chat_id = update.callback_query.message.chat_id
     message_id = update.callback_query.message.message_id
 
-    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to)
+    (message, path, reply_markup_chart) = general_end_functions.send_candlestick_pyplot(token, charts_path, k_days, k_hours, t_from, t_to, banner_txt)
     try:
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
         context.bot.send_photo(chat_id=chat_id, photo=open(path, 'rb'), caption=message, parse_mode="html", reply_markup=reply_markup_chart)
@@ -318,12 +333,37 @@ def get_latest_actions(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=chat_id, text="Please use the format /last_actions TOKEN_TICKER")
 
 
+def get_trending(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    res = zerorpc_client_data_aggregator.view_trending()
+    context.bot.send_message(chat_id=chat_id, text=res)
+
+
+def get_time_to(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    query_received = update.message.text[7:]
+    pprint.pprint(query_received)
+
+    higher, time_to = time_util.get_time_diff(query_received)
+    pprint.pprint(time_to)
+    word = ' is ' if higher else ' was '
+    message = str(query_received) + word + str(time_to) + " from now."
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True)
+
+
+def get_citadel(update: Update, context: CallbackContext):
+    message = 'If you have 100 $BOOB in your wallet you can enter the elitist Titty Citadel to get the latest news first: <a href="https://telegram.me/collablandbot?start=recsaxjYhsEbaBC4T_-tpc">CLICK HERE TO JOIN THE CITADEL</a>'
+    chat_id = update.message.chat_id
+    context.bot.send_message(chat_id=chat_id, text=message, disable_web_page_preview=True, parse_mode='html')
+
+
 def main():
     updater = Updater(TELEGRAM_KEY, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('chart', get_candlestick))
     dp.add_handler(CommandHandler('price', get_price_token))
     dp.add_handler(CommandHandler('boob', get_price_token))
+    dp.add_handler(CommandHandler('timeto', get_time_to))
     dp.add_handler(CommandHandler('ecto', get_price_ecto))
     dp.add_handler(CallbackQueryHandler(refresh_chart, pattern='refresh_chart(.*)'))
     dp.add_handler(CallbackQueryHandler(refresh_price, pattern='refresh_price'))
@@ -343,6 +383,8 @@ def main():
     dp.add_handler(CommandHandler('convert', do_convert))
     dp.add_handler(CommandHandler('delete_meme_secret', delete_meme))
     dp.add_handler(CommandHandler('last_actions', get_latest_actions))
+    dp.add_handler(CommandHandler('trending', get_trending))
+    dp.add_handler(CommandHandler('citadel', get_citadel))
     RepeatedTimer(120, log_current_supply)
     updater.start_polling()
     updater.idle()
@@ -366,4 +408,6 @@ flyer - Show the flyer.
 biz - Display current 4chan threads.
 how_to_swap - Guide on how to swap ecto
 convert - convert AMOUNT MONEY
+trending - See which coins are trending in dextrends
+citadel - Infos about the tiddy citadel
 """
