@@ -248,6 +248,13 @@ def get_twitter(update: Update, context: CallbackContext):
         ticker = query_received[-1]
         res = scrap_websites_util.get_last_tweets(twitter, ticker)
         context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
+    elif len(query_received) == 1:
+        ticker, addr = __get_default_token_channel(chat_id)
+        if ticker is None or ticker.lower() == "null":
+            context.bot.send_message(chat_id=chat_id, text='No default ticker set up for this channel. An admin can add one with the /set_default_token command. In the meantime, you can use /twitter by doing /twitter TOKEN')
+        else:
+            res = scrap_websites_util.get_last_tweets(twitter, ticker)
+            context.bot.send_message(chat_id=chat_id, text=res, parse_mode='html', disable_web_page_preview=True)
     else:
         context.bot.send_message(chat_id=chat_id, text="Please use the format /twitter TOKEN_TICKER.",
                                  parse_mode='html', disable_web_page_preview=True)
